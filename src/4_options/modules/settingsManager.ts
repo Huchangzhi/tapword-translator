@@ -404,7 +404,7 @@ function setValidationStatus(element: HTMLElement | null, status: "idle" | "succ
 
 export function setupCustomApiValidation(): void {
     const validateButton = document.getElementById("validateCustomApiButton") as HTMLButtonElement | null
-    const statusElement = document.getElementById("validateCustomApiStatus") as HTMLElement | null
+    const statusElement = document.getElementById("validateCustomApiStatus")
     const useCustomApiToggle = document.getElementById("useCustomApi") as HTMLInputElement | null
     const targetLanguageSelect = document.getElementById("targetLanguage") as HTMLSelectElement | null
 

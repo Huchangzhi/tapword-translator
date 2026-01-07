@@ -197,7 +197,7 @@ export function expandToWordBoundaries(originalRange: Range): ExpandResult {
 
     // Expand right boundary
     while (rightScanCount < MAX_BOUNDARY_SCAN_LENGTH) {
-        let rightChar = getCharAt(endNode, endOffset)
+        const rightChar = getCharAt(endNode, endOffset)
 
         if (rightChar === null) {
             // At the end of this text node → peek next text node's first char.

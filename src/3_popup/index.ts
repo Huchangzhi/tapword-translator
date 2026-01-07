@@ -43,7 +43,7 @@ async function initialize(): Promise<void> {
 
     // Set up tooltip interactions
     const helpIcons = document.querySelectorAll<HTMLElement>(".help-icon")
-    const popupContainer = document.querySelector(".popup-container") as HTMLElement | null
+    const popupContainer = document.querySelector(".popup-container")
 
     tooltipManagerModule.setupTooltipClickHandlers(helpIcons, popupContainer)
 

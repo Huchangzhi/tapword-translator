@@ -25,8 +25,8 @@ export async function initializeAPIService(): Promise<void> {
     if (hasBuildTimeCredentials()) {
         logger.info("Using build-time injected credentials")
         const credentials = {
-            apiKey: BUILD_TIME_CREDENTIALS.apiKey!,
-            apiSecret: BUILD_TIME_CREDENTIALS.apiSecret!,
+            apiKey: BUILD_TIME_CREDENTIALS.apiKey,
+            apiSecret: BUILD_TIME_CREDENTIALS.apiSecret,
         }
 
         // Get or generate device UID

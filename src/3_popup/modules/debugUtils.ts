@@ -18,9 +18,9 @@ export function logWidths(phase: string): void {
     try {
         const htmlEl = document.documentElement
         const bodyEl = document.body
-        const container = document.querySelector(".popup-container") as HTMLElement | null
-        const header = document.querySelector(".popup-header") as HTMLElement | null
-        const settings = document.querySelector(".settings-list") as HTMLElement | null
+        const container = document.querySelector(".popup-container")
+        const header = document.querySelector(".popup-header")
+        const settings = document.querySelector(".settings-list")
 
         const metrics = {
             phase,

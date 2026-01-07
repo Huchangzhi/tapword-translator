@@ -90,17 +90,17 @@ function positionPreviewTooltip(stage: HTMLElement, anchor: HTMLElement, tooltip
 }
 
 async function setupTooltipSpacingPreview(): Promise<void> {
-    const stage = document.getElementById("tooltipPreviewStage") as HTMLElement | null
-    const paragraph = document.getElementById("tooltipPreviewParagraph") as HTMLElement | null
-    const anchor1 = document.getElementById("tooltipPreviewAnchor1") as HTMLElement | null
-    const anchor = document.getElementById("tooltipPreviewAnchor") as HTMLElement | null
-    const tooltip1 = document.getElementById("tooltipPreviewTooltip1") as HTMLElement | null
-    const tooltip = document.getElementById("tooltipPreviewTooltip") as HTMLElement | null
+    const stage = document.getElementById("tooltipPreviewStage")
+    const paragraph = document.getElementById("tooltipPreviewParagraph")
+    const anchor1 = document.getElementById("tooltipPreviewAnchor1")
+    const anchor = document.getElementById("tooltipPreviewAnchor")
+    const tooltip1 = document.getElementById("tooltipPreviewTooltip1")
+    const tooltip = document.getElementById("tooltipPreviewTooltip")
 
     const gapInput = document.getElementById("tooltipNextLineGapPx") as HTMLInputElement | null
     const offsetInput = document.getElementById("tooltipVerticalOffsetPx") as HTMLInputElement | null
-    const gapWarning = document.getElementById("tooltipNextLineGapPxWarning") as HTMLElement | null
-    const offsetWarning = document.getElementById("tooltipVerticalOffsetPxWarning") as HTMLElement | null
+    const gapWarning = document.getElementById("tooltipNextLineGapPxWarning")
+    const offsetWarning = document.getElementById("tooltipVerticalOffsetPxWarning")
     const fontPresetSelect = document.getElementById("translationFontSizePreset") as HTMLSelectElement | null
     const autoAdjustHeightInput = document.getElementById("autoAdjustHeight") as HTMLInputElement | null
 

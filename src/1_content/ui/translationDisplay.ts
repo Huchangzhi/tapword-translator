@@ -135,7 +135,7 @@ let spinnerStylesInjected = false
  */
 export function removeTranslationResult(anchorId: string): void {
     try {
-        const anchor = document.getElementById(anchorId) as HTMLElement | null
+        const anchor = document.getElementById(anchorId)
         cleanupTranslationById(anchorId, anchor, "remove")
     } catch (error) {
         logger.error("Error removing translation:", error)
@@ -552,7 +552,7 @@ function longestPrefixThatFits(text: string, maxWidthPx: number, font: string): 
 function positionTooltip(anchorId: string): void {
     const tooltips = activeTranslations.get(anchorId)
     if (!tooltips || tooltips.length === 0) return
-    const anchor = document.getElementById(anchorId) as HTMLElement | null
+    const anchor = document.getElementById(anchorId)
     if (!anchor) {
         // Anchor has been removed by the host page (e.g., Reddit virtualization/route changes)
         // Use common cleanup path with orphan reason (cannot unwrap missing anchor)
@@ -830,7 +830,7 @@ export function updateTranslationResult(anchorId: string, state: TranslationStat
         const originalElement = anchor?.parentElement || null
 
         // Update first tooltip content (stores fullText); other segments will be derived in positionTooltip()
-        renderTooltipContent(tooltip, state, originalElement, anchor as HTMLElement | null, userSettings)
+        renderTooltipContent(tooltip, state, originalElement, anchor, userSettings)
         // Clear cached signature so that we re-split on next position.
         anchorRectSignatureCache.delete(anchorId)
         // Reposition after content update (also reapplies width constraint and fade)
