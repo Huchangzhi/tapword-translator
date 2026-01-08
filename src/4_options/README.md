@@ -41,7 +41,7 @@ This is the primary script for the options page. Its main responsibilities inclu
 
 -   **Initialization:** Kicks off the entire process when the DOM is loaded.
 -   **Internationalization:** Calls the `i18n` utility to apply translated strings to the UI.
-- a   **UI Overrides:** Applies special UI logic for the "Community Edition" of the extension.
+-   **UI Overrides:** Applies special UI logic for the "Community Edition" of the extension.
 -   **Event Handling:** Sets up navigation between sections and initializes the settings listeners from `settingsManager`.
 -   **Dynamic Previews:** Manages the interactive tooltip spacing preview to give users immediate feedback on their changes.
 -   **Version Display:** Fetches and displays the current extension version from the manifest.
