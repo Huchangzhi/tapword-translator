@@ -17,6 +17,7 @@ import * as translationDisplay from "@/1_content/ui/translationDisplay"
 import { extractContextV2 } from "@/1_content/utils/contextExtractorV2"
 import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as languageDetector from "@/1_content/utils/languageDetector"
+import * as editableElementDetector from "@/1_content/utils/editableElementDetector"
 import * as rangeSplitter from "@/1_content/utils/rangeSplitter"
 import * as rangeAdjuster from "@/1_content/utils/rangeAdjuster"
 import * as selectionClassifier from "@/1_content/utils/selectionClassifier"
@@ -46,6 +47,15 @@ function buildDisplaySettings(settings: Partial<{ translationFontSizePreset?: Tr
 async function handleIconClick(selection: Selection, range: Range): Promise<void> {
     if (!selection || !range) {
         logger.warn("No selection available for translation.")
+        return
+    }
+
+    const container = range.commonAncestorContainer
+    const element = container.nodeType === Node.ELEMENT_NODE ? (container as Element) : container.parentElement
+
+    if (editableElementDetector.isEditableElement(element)) {
+        logger.info("Icon click inside an editable element, skipping translation.")
+        iconManager.removeTranslationIcon()
         return
     }
 
@@ -108,6 +118,11 @@ export function handleTextSelection(): void {
     // Ignore selections within our own UI elements
     const container = range.commonAncestorContainer
     const element = container.nodeType === Node.ELEMENT_NODE ? (container as Element) : container.parentElement
+
+    if (editableElementDetector.isEditableElement(element)) {
+        iconManager.removeTranslationIcon()
+        return
+    }
 
     if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}`)) {
         return
@@ -177,6 +192,11 @@ export async function handleDoubleClick(): Promise<void> {
     // Ignore double-clicks within our own UI elements
     const container = range.commonAncestorContainer
     const element = container.nodeType === Node.ELEMENT_NODE ? (container as Element) : container.parentElement
+
+    if (editableElementDetector.isEditableElement(element)) {
+        logger.info("Selection is inside an editable element, skipping translation.")
+        return
+    }
 
     if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}, .${constants.CSS_CLASSES.ANCHOR}`)) {
         return
