@@ -289,6 +289,23 @@ function setupDocumentationButton(websiteUrl: string | null): void {
     })
 }
 
+function setupGithubButton(): void {
+    const githubButton = document.getElementById("githubButton")
+    if (!githubButton) {
+        return
+    }
+
+    githubButton.addEventListener("click", () => {
+        const targetUrl = "https://github.com/hongyuan007/tapword-translator"
+        try {
+            chrome.tabs.create({ url: targetUrl })
+        } catch (error) {
+            logger.warn("Failed to open GitHub via chrome.tabs, falling back to window.open", error)
+            window.open(targetUrl, "_blank", "noopener,noreferrer")
+        }
+    })
+}
+
 function setVersion(): void {
     const versionDisplay = document.getElementById("versionDisplay")
     if (!versionDisplay) {
@@ -317,6 +334,7 @@ async function initializeOptions(): Promise<void> {
         setVersion()
         setupNavigation()
         setupDocumentationButton(websiteUrl)
+        setupGithubButton()
 
         logger.info("Options initialized")
     } finally {

@@ -43,7 +43,7 @@ async function initialize(): Promise<void> {
 
     // Set up tooltip interactions
     const helpIcons = document.querySelectorAll<HTMLElement>(".help-icon")
-    const popupContainer = document.querySelector(".popup-container")
+    const popupContainer = document.querySelector<HTMLElement>(".popup-container")
 
     tooltipManagerModule.setupTooltipClickHandlers(helpIcons, popupContainer)
 
@@ -58,6 +58,15 @@ async function initialize(): Promise<void> {
     if (settingsButton) {
         settingsButton.addEventListener("click", () => {
             chrome.runtime.openOptionsPage()
+        })
+    }
+
+    // Setup GitHub button
+    const githubButton = document.getElementById("githubButton")
+    if (githubButton) {
+        githubButton.addEventListener("click", (e) => {
+            e.preventDefault()
+            chrome.tabs.create({ url: "https://github.com/hongyuan007/tapword-translator" })
         })
     }
 
