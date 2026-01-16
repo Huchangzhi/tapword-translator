@@ -124,7 +124,7 @@ export function handleTextSelection(): void {
         return
     }
 
-    if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}`)) {
+    if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}, .${constants.CSS_CLASSES.ANCHOR}`)) {
         return
     }
 
@@ -145,7 +145,7 @@ export function handleTextSelection(): void {
  * Handle double-click to trigger direct translation
  */
 export async function handleDoubleClick(): Promise<void> {
-    // Check user setting for double-click translation
+    // Check user setting for master enable
     const settings = contentIndex.getCachedUserSettings()
     const enableTapWord = settings?.enableTapWord ?? true
     if (!enableTapWord) {
