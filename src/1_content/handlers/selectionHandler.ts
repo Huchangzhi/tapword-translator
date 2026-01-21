@@ -14,7 +14,7 @@ import * as contentIndex from "@/1_content/index"
 import * as translationRequest from "@/1_content/services/translationRequest"
 import * as iconManager from "@/1_content/ui/iconManager"
 import * as translationDisplay from "@/1_content/ui/translationDisplay"
-import { extractContextV2 } from "@/1_content/utils/contextExtractorV2"
+import { extractContextV2, expandRangeToSentence } from "@/1_content/utils/contextExtractorV2"
 import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as languageDetector from "@/1_content/utils/languageDetector"
 import * as editableElementDetector from "@/1_content/utils/editableElementDetector"
@@ -147,7 +147,7 @@ export function handleTextSelection(): void {
 /**
  * Handle double-click to trigger direct translation
  */
-export async function handleDoubleClick(): Promise<void> {
+export async function handleDoubleClick(event: MouseEvent): Promise<void> {
     // Check user setting for master enable
     const settings = contentIndex.getCachedUserSettings()
     const enableTapWord = settings?.enableTapWord ?? true
@@ -172,7 +172,7 @@ export async function handleDoubleClick(): Promise<void> {
         return
     }
 
-    const range = selection.getRangeAt(0)
+    let range = selection.getRangeAt(0)
     const selectedText = domSanitizer.getCleanTextFromRange(range).trim()
 
     // Only trigger for non-empty selections (double-click automatically selects a word)
@@ -205,14 +205,24 @@ export async function handleDoubleClick(): Promise<void> {
         return
     }
 
+    // Check for Command (Mac) or Ctrl (Windows) key to trigger sentence translation
+    const isSentenceMode = event.metaKey || event.ctrlKey
+    if (isSentenceMode) {
+        logger.info("Command/Ctrl key pressed, expanding selection to full sentence.")
+        range = expandRangeToSentence(range)
+    }
+
     // Clear the selection to remove the browser's native highlight
     selection.removeAllRanges()
 
     // Delegate to core translation logic, splitting multi-block selections into per-block translations
+    // Note: For sentence mode, we typically want to keep the sentence as a single unit if possible,
+    // but splitting by blocks is safer for rendering. If expandRangeToSentence respects blocks, this is fine.
     const splitRanges = rangeSplitter.splitRangeByBlocks(range)
     const targets = splitRanges.length > 0 ? splitRanges : [range]
 
-    const triggerLabel = splitRanges.length > 1 ? "Double Click (Split)" : "Double Click"
+    const baseLabel = isSentenceMode ? "Double Click (Sentence)" : "Double Click"
+    const triggerLabel = splitRanges.length > 1 ? `${baseLabel} (Split)` : baseLabel
     const limiter = createConcurrencyLimiter(MAX_PARALLEL_TRANSLATIONS)
     const loadingVariant: "text" | "spinner" = targets.length > 1 ? "spinner" : "text"
     await runBatchedTranslations(triggerLabel, targets, limiter, loadingVariant)

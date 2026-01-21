@@ -39,6 +39,11 @@ export interface ContextV2Options {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_TERMINATORS = [".", "?", "!", "。", "？", "！", "…"]
+const DEFAULT_HARD_TERMINATORS = [".", "?", "!", "。", "？", "！", "…", "\n"]
+const DEFAULT_SOFT_TERMINATORS = [",", "，", ";", "；", ":", "：", "—"]
+const MIN_WORD_COUNT = 3
+const MIN_CJK_CHARS = 5
+const CJK_PATTERN = /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]/
 
 // Keep minimal but robust defaults; <p> is the primary boundary, add common blocks
 const DEFAULT_BOUNDARY_TAGS = ["P", "DIV", "LI", "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE"]
@@ -46,6 +51,157 @@ const DEFAULT_BOUNDARY_TAGS = ["P", "DIV", "LI", "H1", "H2", "H3", "H4", "H5", "
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
+
+/**
+ * Expand a selection range to cover the full surrounding sentence.
+ * Uses a "Greedy-Short" strategy:
+ * 1. Respects hard terminators (., ?, !) as absolute boundaries.
+ * 2. Tries to use soft terminators (,, ;, :) to keep the selection short.
+ * 3. Expands to the right (Priority) if the soft segment is too short.
+ * 4. Expands to the left (Fallback) if the segment is still too short after right expansion.
+ */
+export function expandRangeToSentence(range: Range, options: ContextV2Options = {}): Range {
+    const hardTerminators = new Set((options.terminators ?? DEFAULT_HARD_TERMINATORS).filter(Boolean))
+    const softTerminators = new Set(DEFAULT_SOFT_TERMINATORS)
+    const allTerminators = new Set([...hardTerminators, ...softTerminators])
+
+    const boundaryTags = new Set((options.boundaryTags ?? DEFAULT_BOUNDARY_TAGS).map((t) => t.toUpperCase()))
+
+    // Resolve root scope
+    const root = findBoundaryRoot(range.commonAncestorContainer, boundaryTags) ?? document.body
+
+    // Normalize boundaries
+    const startPos = normalizeToTextPosition(root, range.startContainer, range.startOffset)
+    const endPos = normalizeToTextPosition(root, range.endContainer, range.endOffset)
+
+    if (!startPos || !endPos) {
+        return range.cloneRange()
+    }
+
+    // 1. Find the "Hard" limits (Absolute Sandbox)
+    const hardStart = findSentenceStartWithin(root, startPos.node, startPos.offset, hardTerminators)
+    const hardEnd = findSentenceEndWithin(root, endPos.node, endPos.offset, hardTerminators)
+
+    if (!hardStart || !hardEnd) {
+        return range.cloneRange()
+    }
+
+    // 2. Start with the tightest "Soft" boundaries around the selection
+    let softStart = findSentenceStartWithin(root, startPos.node, startPos.offset, allTerminators)
+    let softEnd = findSentenceEndWithin(root, endPos.node, endPos.offset, allTerminators)
+
+    // Fallbacks if soft search fails
+    if (!softStart) softStart = hardStart
+    if (!softEnd) softEnd = hardEnd
+
+    // Clamp soft boundaries to stay within hard limits
+    let safeStart = comparePositions(softStart, hardStart) < 0 ? hardStart : softStart
+    let safeEnd = comparePositions(softEnd, hardEnd) > 0 ? hardEnd : softEnd
+
+    // 3. Phase 1: Greedy Expansion RIGHT (Priority)
+    while (true) {
+        const text = extractTextBetween(safeStart, safeEnd)
+        
+        // If length is sufficient or we've reached the hard limit, stop right expansion
+        if (!isSegmentShort(text) || comparePositions(safeEnd, hardEnd) >= 0) {
+            break
+        }
+
+        // Search for next boundary starting from current safeEnd
+        const nextEnd = findSentenceEndWithin(root, safeEnd.node, safeEnd.offset, allTerminators)
+
+        if (!nextEnd || comparePositions(nextEnd, hardEnd) >= 0) {
+            safeEnd = hardEnd
+            break
+        }
+
+        if (comparePositions(nextEnd, safeEnd) <= 0) {
+             safeEnd = hardEnd
+             break
+        }
+
+        safeEnd = nextEnd
+    }
+
+    // 4. Phase 2: Greedy Expansion LEFT (Fallback)
+    // Only strictly necessary if we are STILL short (meaning we likely hit hardEnd on the right)
+    while (true) {
+        const text = extractTextBetween(safeStart, safeEnd)
+
+        // If length is sufficient or we've reached the hard limit, stop left expansion
+        if (!isSegmentShort(text) || comparePositions(safeStart, hardStart) <= 0) {
+            break
+        }
+
+        // Search for previous boundary.
+        // safeStart points to the position *after* the previous terminator (index + 1).
+        // To find the terminator *before* that, we need to search backwards from safeStart.offset - 1.
+        
+        let searchNode = safeStart.node
+        let searchOffset = safeStart.offset
+
+        if (searchOffset > 0) {
+            searchOffset -= 1
+        } else {
+            // Need to jump to previous text node
+            const prev = getPrevTextNode(root, searchNode)
+            if (!prev) {
+                safeStart = hardStart
+                break
+            }
+            searchNode = prev
+            searchOffset = textLength(prev)
+        }
+
+        const prevStart = findSentenceStartWithin(root, searchNode, searchOffset, allTerminators)
+
+        if (!prevStart || comparePositions(prevStart, hardStart) <= 0) {
+            safeStart = hardStart
+            break
+        }
+        
+        // No forward progress check needed for backward search typically, but good for safety
+        if (comparePositions(prevStart, safeStart) >= 0) {
+            safeStart = hardStart
+            break
+        }
+
+        safeStart = prevStart
+    }
+
+    const newRange = document.createRange()
+    newRange.setStart(safeStart.node, safeStart.offset)
+    newRange.setEnd(safeEnd.node, safeEnd.offset)
+    return newRange
+}
+
+function comparePositions(a: NodePosition, b: NodePosition): number {
+    if (a.node === b.node) {
+        return a.offset - b.offset
+    }
+    const cmp = a.node.compareDocumentPosition(b.node)
+    if (cmp & Node.DOCUMENT_POSITION_FOLLOWING) return -1
+    if (cmp & Node.DOCUMENT_POSITION_PRECEDING) return 1
+    return 0
+}
+
+function isSegmentShort(text: string): boolean {
+    const trimmed = text.trim()
+    if (!trimmed) return true
+    
+    // CJK detection (simple range check)
+    const hasCJK = CJK_PATTERN.test(trimmed)
+    
+    if (hasCJK) {
+        // For CJK, just check character length (e.g., < 5 chars is short)
+        return trimmed.length < MIN_CJK_CHARS
+    } else {
+        // For space-delimited, check word count
+        const words = trimmed.split(/\s+/).filter((word) => /[a-zA-Z0-9]/.test(word))
+        return words.length < MIN_WORD_COUNT
+    }
+}
+
 
 /**
  * Extract sentence-level context around a selection range.
