@@ -62,6 +62,9 @@ async function handleIconClick(selection: Selection, range: Range): Promise<void
     // Remove the icon
     iconManager.removeTranslationIcon()
 
+    // Clear the selection to remove the browser's native highlight
+    selection.removeAllRanges()
+
     // Delegate to core translation logic, splitting multi-block selections into per-block translations
     const splitRanges = rangeSplitter.splitRangeByBlocks(range)
     const targets = splitRanges.length > 0 ? splitRanges : [range]
@@ -201,6 +204,9 @@ export async function handleDoubleClick(): Promise<void> {
     if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}, .${constants.CSS_CLASSES.ANCHOR}`)) {
         return
     }
+
+    // Clear the selection to remove the browser's native highlight
+    selection.removeAllRanges()
 
     // Delegate to core translation logic, splitting multi-block selections into per-block translations
     const splitRanges = rangeSplitter.splitRangeByBlocks(range)
