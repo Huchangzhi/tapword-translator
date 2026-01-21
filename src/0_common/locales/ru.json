@@ -30,6 +30,8 @@
     "popup.refreshReminder": "Пожалуйста, обновите страницу, чтобы применить изменения",
     "popup.autoAdjustHeight.label": "Авто-регулировка высоты строки",
     "popup.autoAdjustHeight.tooltip": "Автоматически увеличивает высоту строки, чтобы избежать перекрытия текста переводом.",
+    "popup.restoreLineHeightOnClear.label": "Восстанавливать высоту строки при удалении",
+    "popup.restoreLineHeightOnClear.tooltip": "Автоматически восстанавливать исходную высоту строки при удалении всех переводов в текстовом блоке.",
     "popup.tooltipNextLineGapPx.label": "Отступ до следующей строки (пикс.)",
     "popup.tooltipNextLineGapPx.helper": "Дополнительное пространство между переводом и следующей строкой текста.",
     "popup.tooltipNextLineGapPx.warning": "Значение должно быть от 0 до 20",

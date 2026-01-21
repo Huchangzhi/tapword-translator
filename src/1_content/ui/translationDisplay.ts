@@ -269,7 +269,10 @@ function cleanupTranslationById(anchorId: string, anchorElement?: HTMLElement | 
     const mappedBlock = anchorAdjustedBlocks.get(anchorId)
     if (mappedBlock) {
         try {
-            lineHeightAdjuster.restoreLineHeight(mappedBlock)
+            const cachedSettings = contentIndex.getCachedUserSettings()
+            const shouldRestore = cachedSettings?.restoreLineHeightOnClear ?? false
+            // Always call restore to update ref counts; pass skipDomRestoration=!shouldRestore
+            lineHeightAdjuster.restoreLineHeight(mappedBlock, !shouldRestore)
         } catch (e) {
             logger.warn("[translationDisplay] Failed to restore line-height via mapped block:", anchorId, e)
         } finally {

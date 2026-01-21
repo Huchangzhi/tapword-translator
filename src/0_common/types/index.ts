@@ -235,6 +235,8 @@ export interface UserSettings {
     doubleClickTranslate: boolean
     /** Whether to automatically adjust original text line-height for better display */
     autoAdjustHeight: boolean
+    /** Whether to restore original line-height when all translations in a block are removed */
+    restoreLineHeightOnClear: boolean
     /** Whether to automatically play audio pronunciation for translated words */
     autoPlayAudio: boolean
     /** Target language for translation (zh, en, ja, ko, fr, es, ru) */
@@ -266,6 +268,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     showIcon: true,
     doubleClickTranslate: true,
     autoAdjustHeight: true,
+    restoreLineHeightOnClear: false,
     autoPlayAudio: true,
     targetLanguage: "en",
     translationFontSizePreset: "medium",

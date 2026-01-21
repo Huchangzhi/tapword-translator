@@ -30,6 +30,8 @@
     "popup.refreshReminder": "请刷新页面以应用更改",
     "popup.autoAdjustHeight.label": "自动调整原文行高",
     "popup.autoAdjustHeight.tooltip": "自动增加原文行高，避免翻译遮挡内容",
+    "popup.restoreLineHeightOnClear.label": "清除翻译后还原行高",
+    "popup.restoreLineHeightOnClear.tooltip": "当一段文字内的所有翻译都被清除时，自动恢复原始行高",
     "popup.tooltipNextLineGapPx.label": "译文与下行间距",
     "popup.tooltipNextLineGapPx.helper": "调整翻译卡片与下方文本的距离",
     "popup.tooltipNextLineGapPx.warning": "数值必须在 0 到 20 之间",

@@ -30,6 +30,8 @@
     "popup.refreshReminder": "Please refresh the page to apply changes",
     "popup.autoAdjustHeight.label": "Auto-adjust line height",
     "popup.autoAdjustHeight.tooltip": "Prevents translated text from overlapping the original content.",
+    "popup.restoreLineHeightOnClear.label": "Restore Line Height on Clear",
+    "popup.restoreLineHeightOnClear.tooltip": "Automatically restore original line height when all translations in a text section are removed.",
     "popup.tooltipNextLineGapPx.label": "Tooltip Next-line Gap (px)",
     "popup.tooltipNextLineGapPx.helper": "Extra spacing reserved between the tooltip and the next line of text.",
     "popup.tooltipNextLineGapPx.warning": "Value must be between 0 and 20",

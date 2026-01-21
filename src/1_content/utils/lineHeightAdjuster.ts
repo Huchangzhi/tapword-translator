@@ -167,20 +167,28 @@ export function applyLineHeightAdjustment(blockElement: HTMLElement, increase: n
  * Uses reference counting to only restore when no anchors are using it.
  *
  * @param blockElement - The block element to restore
+ * @param skipDomRestoration - If true, decrements ref count but keeps DOM adjustment even at 0 refs
  */
-export function restoreLineHeight(blockElement: HTMLElement): void {
+export function restoreLineHeight(blockElement: HTMLElement, skipDomRestoration: boolean = false): void {
     if (!blockElement.hasAttribute(ADJUSTED_MARKER)) {
         return
     }
 
     // Decrement reference count
     const currentCount = blockElementRefCount.get(blockElement) || 1
-    const newCount = currentCount - 1
+    const newCount = Math.max(0, currentCount - 1)
+
+    // Update ref count regardless
+    blockElementRefCount.set(blockElement, newCount)
 
     if (newCount > 0) {
         // Still have other anchors using this block element
-        blockElementRefCount.set(blockElement, newCount)
         logger.info(`Decremented ref count to ${newCount}, keeping line-height adjustment on <${blockElement.tagName.toLowerCase()}>`)
+        return
+    }
+
+    if (skipDomRestoration) {
+        logger.info(`Ref count reached 0 but skipDomRestoration is true. Keeping line-height adjustment on <${blockElement.tagName.toLowerCase()}>`)
         return
     }
 

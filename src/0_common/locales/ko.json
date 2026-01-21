@@ -30,6 +30,8 @@
     "popup.refreshReminder": "변경 사항을 적용하려면 페이지를 새로고침하세요",
     "popup.autoAdjustHeight.label": "줄 높이 자동 조절",
     "popup.autoAdjustHeight.tooltip": "번역이 원본 텍스트를 가리지 않도록 줄 높이를 자동으로 늘립니다.",
+    "popup.restoreLineHeightOnClear.label": "번역 삭제 후 줄 높이 복원",
+    "popup.restoreLineHeightOnClear.tooltip": "텍스트 섹션 내의 모든 번역이 삭제되면 원래 줄 높이를 자동으로 복원합니다.",
     "popup.tooltipNextLineGapPx.label": "번역과 다음 줄 간격 (px)",
     "popup.tooltipNextLineGapPx.helper": "번역 툴팁과 다음 텍스트 줄 사이의 추가 간격입니다.",
     "popup.tooltipNextLineGapPx.warning": "값은 0에서 20 사이여야 합니다",

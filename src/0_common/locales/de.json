@@ -30,6 +30,8 @@
     "popup.refreshReminder": "Bitte aktualisieren Sie die Seite, um die Änderungen zu übernehmen",
     "popup.autoAdjustHeight.label": "Zeilenhöhe auto. anpassen",
     "popup.autoAdjustHeight.tooltip": "Erhöht die Zeilenhöhe des Originaltextes, um eine Überlappung durch die Übersetzung zu vermeiden.",
+    "popup.restoreLineHeightOnClear.label": "Zeilenhöhe nach Löschen wiederherstellen",
+    "popup.restoreLineHeightOnClear.tooltip": "Stellt die ursprüngliche Zeilenhöhe automatisch wieder her, wenn alle Übersetzungen in einem Textabschnitt entfernt wurden.",
     "popup.tooltipNextLineGapPx.label": "Tooltip-Abstand zur nächsten Zeile (px)",
     "popup.tooltipNextLineGapPx.helper": "Zusätzlicher Abstand zwischen dem Tooltip und der nächsten Textzeile.",
     "popup.tooltipNextLineGapPx.warning": "Wert muss zwischen 0 und 20 liegen",
