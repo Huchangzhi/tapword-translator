@@ -12,6 +12,7 @@
     "popup.showIcon.tooltip": "Traduce una palabra completa con solo seleccionar una parte de ella.",
     "popup.doubleClickTranslate.label": "Doble clic para traducir palabra",
     "popup.doubleClickSentenceTranslate.label": "Doble clic para traducir frase",
+    "popup.doubleClickSentenceTranslate.tooltip": "Mantén pulsada la tecla configurada y haz doble clic en la frase para traducirla.",
     "popup.section.text": "Apariencia",
     "popup.section.appearance": "Apariencia",
     "popup.iconColor.label": "Color del icono",

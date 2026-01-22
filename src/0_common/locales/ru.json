@@ -12,6 +12,7 @@
     "popup.showIcon.tooltip": "Переведите всё слово, выделив лишь его часть.",
     "popup.doubleClickTranslate.label": "Двойной клик для перевода слова",
     "popup.doubleClickSentenceTranslate.label": "Двойной клик для перевода предложения",
+    "popup.doubleClickSentenceTranslate.tooltip": "Удерживайте заданную клавишу и дважды щелкните по предложению, чтобы перевести его.",
     "popup.section.text": "Вид",
     "popup.section.appearance": "Внешний вид",
     "popup.iconColor.label": "Цвет иконки",

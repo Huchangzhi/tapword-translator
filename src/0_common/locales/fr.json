@@ -12,6 +12,7 @@
     "popup.showIcon.tooltip": "Traduisez un mot entier en surlignant juste une partie.",
     "popup.doubleClickTranslate.label": "Double-clic pour traduire un mot",
     "popup.doubleClickSentenceTranslate.label": "Double-clic pour traduire la phrase",
+    "popup.doubleClickSentenceTranslate.tooltip": "Maintenez la touche configurée et double-cliquez sur la phrase pour la traduire.",
     "popup.section.text": "Apparence",
     "popup.section.appearance": "Apparence",
     "popup.iconColor.label": "Couleur de l'icône",

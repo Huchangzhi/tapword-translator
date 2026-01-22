@@ -12,6 +12,7 @@
     "popup.showIcon.tooltip": "単語の一部を選択するだけで、単語全体を翻訳できます。",
     "popup.doubleClickTranslate.label": "ダブルクリックで単語を翻訳",
     "popup.doubleClickSentenceTranslate.label": "ダブルクリックで文を翻訳",
+    "popup.doubleClickSentenceTranslate.tooltip": "設定したショートカットキーを押しながら文をダブルクリックすると翻訳されます。",
     "popup.section.text": "表示",
     "popup.section.appearance": "外観",
     "popup.iconColor.label": "アイコンの色",
