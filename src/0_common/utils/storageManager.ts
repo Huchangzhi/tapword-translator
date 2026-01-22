@@ -18,6 +18,8 @@ import { DEFAULT_USER_SETTINGS } from "@/0_common/types"
 import * as translationFontSizeModule from "@/0_common/constants/translationFontSize"
 import type { CachedConfig, CloudConfig } from "@/5_backend/types/ConfigTypes"
 import * as loggerModule from "@/0_common/utils/logger"
+import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
+import type { PlatformOS } from "@/0_common/utils/platformDetector"
 
 const logger = loggerModule.createLogger("0_common/utils/storageManager")
 const isCommunityEdition = APP_EDITION === "community"
@@ -28,7 +30,55 @@ const STORAGE_KEYS = {
     CLOUD_CONFIG: "cloudConfig",
 } as const
 
-function normalizeUserSettings(settings: Partial<types.UserSettings>): types.UserSettings {
+const ALLOWED_TRIGGER_KEYS: types.TriggerKey[] = ["meta", "option", "alt", "ctrl"]
+
+type PlatformDefaultContext = {
+    os: PlatformOS
+    defaultTriggerKey: types.TriggerKey
+}
+
+async function getPlatformDefaults(): Promise<PlatformDefaultContext> {
+    try {
+        const os = await getPlatformOS()
+        if (os === PLATFORMS.MAC) {
+            return { os, defaultTriggerKey: "meta" }
+        }
+        return { os, defaultTriggerKey: "alt" }
+    } catch (error) {
+        logger.warn("Platform detection failed, using default trigger key:", error)
+        return { os: "unknown", defaultTriggerKey: "alt" }
+    }
+}
+
+/**
+ * Validate and normalize trigger key based on platform constraints
+ */
+function normalizeTriggerKey(key: types.TriggerKey, os: PlatformOS): types.TriggerKey {
+    let normalizedKey = key
+
+    if (os === PLATFORMS.MAC) {
+        // Mac: 'alt' means 'option' in legacy data
+        if (normalizedKey === "alt") {
+            normalizedKey = "option"
+        }
+        // Mac: 'ctrl' conflicts with context menu, force fallback to default 'meta'
+        if (normalizedKey === "ctrl") {
+            normalizedKey = "meta"
+        }
+    } else if (os === PLATFORMS.WIN || os === PLATFORMS.LINUX || os === PLATFORMS.CROS) {
+        // Windows/Linux: 'meta' (Win key) is reserved/unusable, 'option' is invalid
+        if (normalizedKey === "meta" || normalizedKey === "option") {
+            normalizedKey = "alt"
+        }
+    }
+
+    return normalizedKey
+}
+
+function normalizeUserSettings(
+    settings: Partial<types.UserSettings>,
+    platformDefaults?: PlatformDefaultContext
+): types.UserSettings {
     const normalizeString = (value: string | undefined): string => (value ?? "").trim()
 
     const mergedCustomApi = {
@@ -43,11 +93,25 @@ function normalizeUserSettings(settings: Partial<types.UserSettings>): types.Use
         model: normalizeString(mergedCustomApi.model),
     }
 
+    const platformDefaultTriggerKey = platformDefaults?.defaultTriggerKey ?? DEFAULT_USER_SETTINGS.doubleClickSentenceTriggerKey
+    const platformOS = platformDefaults?.os ?? "unknown"
+
+    const platformAwareDefaults: Partial<types.UserSettings> = {
+        doubleClickSentenceTriggerKey: platformDefaultTriggerKey,
+    }
+
     const mergedSettings: types.UserSettings = {
         ...DEFAULT_USER_SETTINGS,
+        ...platformAwareDefaults,
         ...settings,
         customApi: normalizedCustomApi,
     }
+
+    const triggerKey = normalizeTriggerKey(mergedSettings.doubleClickSentenceTriggerKey, platformOS)
+
+    const validatedTriggerKey = ALLOWED_TRIGGER_KEYS.includes(triggerKey)
+        ? (triggerKey as types.TriggerKey)
+        : platformDefaultTriggerKey
 
     const resolvedFont = translationFontSizeModule.resolveTranslationFontSize(mergedSettings.translationFontSizePreset)
 
@@ -58,6 +122,7 @@ function normalizeUserSettings(settings: Partial<types.UserSettings>): types.Use
         tooltipNextLineGapPx: mergedSettings.tooltipNextLineGapPx ?? DEFAULT_USER_SETTINGS.tooltipNextLineGapPx,
         tooltipVerticalOffsetPx: mergedSettings.tooltipVerticalOffsetPx ?? DEFAULT_USER_SETTINGS.tooltipVerticalOffsetPx,
         customApi: normalizedCustomApi,
+        doubleClickSentenceTriggerKey: validatedTriggerKey,
     }
 }
 
@@ -107,26 +172,25 @@ async function setToSync(payload: Record<string, unknown>): Promise<void> {
  */
 export async function getUserSettings(): Promise<types.UserSettings> {
     try {
+        const platformDefaults = await getPlatformDefaults()
         const result = await getFromSync<Record<string, unknown>>(STORAGE_KEYS.USER_SETTINGS)
         const storedSettings = result[STORAGE_KEYS.USER_SETTINGS] as Partial<types.UserSettings> | undefined
 
         // If no stored settings exist, this is a new user
         if (!storedSettings) {
             const browserLang = detectBrowserLanguage()
-            const defaultSettings = normalizeUserSettings({
-                ...DEFAULT_USER_SETTINGS,
-                targetLanguage: browserLang,
-            })
+            const defaultSettings = normalizeUserSettings({ targetLanguage: browserLang }, platformDefaults)
             logger.info("New user detected, setting default targetLanguage to:", browserLang)
 
             await saveUserSettings(defaultSettings)
             return defaultSettings
         }
 
-        return normalizeUserSettings(storedSettings)
+        return normalizeUserSettings(storedSettings, platformDefaults)
     } catch (error) {
         logger.error("Failed to get user settings:", error)
-        return normalizeUserSettings(DEFAULT_USER_SETTINGS)
+        const platformDefaults = await getPlatformDefaults()
+        return normalizeUserSettings({}, platformDefaults)
     }
 }
 
@@ -162,7 +226,8 @@ function detectBrowserLanguage(): string {
  */
 export async function saveUserSettings(settings: types.UserSettings): Promise<void> {
     try {
-        const normalizedSettings = normalizeUserSettings(settings)
+        const platformDefaults = await getPlatformDefaults()
+        const normalizedSettings = normalizeUserSettings(settings, platformDefaults)
         await setToSync({
             [STORAGE_KEYS.USER_SETTINGS]: normalizedSettings,
         })
@@ -176,10 +241,14 @@ export async function saveUserSettings(settings: types.UserSettings): Promise<vo
  */
 export async function updateUserSettings(partialSettings: Partial<types.UserSettings>): Promise<types.UserSettings> {
     const currentSettings = await getUserSettings()
-    const updatedSettings = normalizeUserSettings({
-        ...currentSettings,
-        ...partialSettings,
-    })
+    const platformDefaults = await getPlatformDefaults()
+    const updatedSettings = normalizeUserSettings(
+        {
+            ...currentSettings,
+            ...partialSettings,
+        },
+        platformDefaults
+    )
     await saveUserSettings(updatedSettings)
     return updatedSettings
 }

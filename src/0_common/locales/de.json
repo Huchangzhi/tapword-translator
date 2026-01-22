@@ -11,6 +11,7 @@
     "popup.showIcon.label": "Symbol bei Textauswahl anzeigen",
     "popup.showIcon.tooltip": "Markieren Sie einen beliebigen Teil eines Wortes, um das ganze Wort zu übersetzen.",
     "popup.doubleClickTranslate.label": "Per Doppelklick Wort übersetzen",
+    "popup.doubleClickSentenceTranslate.label": "Per Doppelklick Satz übersetzen",
     "popup.section.text": "Anzeige",
     "popup.section.appearance": "Aussehen",
     "popup.iconColor.label": "Symbolfarbe",

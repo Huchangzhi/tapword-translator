@@ -11,6 +11,7 @@
     "popup.showIcon.label": "Mostrar icono al seleccionar texto",
     "popup.showIcon.tooltip": "Traduce una palabra completa con solo seleccionar una parte de ella.",
     "popup.doubleClickTranslate.label": "Doble clic para traducir palabra",
+    "popup.doubleClickSentenceTranslate.label": "Doble clic para traducir frase",
     "popup.section.text": "Apariencia",
     "popup.section.appearance": "Apariencia",
     "popup.iconColor.label": "Color del icono",

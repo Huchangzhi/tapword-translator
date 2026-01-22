@@ -6,7 +6,7 @@
 
 import { ERROR_MESSAGES, UPGRADE_MODEL_ENABLED } from "@/0_common/constants"
 import * as translationFontSizeModule from "@/0_common/constants/translationFontSize"
-import type { TranslationFontSizePreset } from "@/0_common/types"
+import { type TranslationFontSizePreset, DEFAULT_USER_SETTINGS } from "@/0_common/types"
 import * as i18nModule from "@/0_common/utils/i18n"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as constants from "@/1_content/constants"
@@ -22,7 +22,6 @@ import * as rangeSplitter from "@/1_content/utils/rangeSplitter"
 import * as rangeAdjuster from "@/1_content/utils/rangeAdjuster"
 import * as selectionClassifier from "@/1_content/utils/selectionClassifier"
 import * as translationOverlapDetector from "@/1_content/utils/translationOverlapDetector"
-import * as storageManager from "@/0_common/utils/storageManager"
 import { createConcurrencyLimiter, type RequestLimiter } from "@/1_content/utils/concurrencyLimiter"
 
 const logger = loggerModule.createLogger("selectionHandler")
@@ -205,10 +204,20 @@ export async function handleDoubleClick(event: MouseEvent): Promise<void> {
         return
     }
 
-    // Check for Command (Mac) or Ctrl (Windows) key to trigger sentence translation
-    const isSentenceMode = event.metaKey || event.ctrlKey
+    // Check for configured modifier key to trigger sentence translation
+    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
+    const sentenceModeEnabled = userSettings.doubleClickSentenceTranslate ?? true
+    const triggerKey = userSettings.doubleClickSentenceTriggerKey ?? "alt"
+
+    let isSentenceMode = false
+    if (sentenceModeEnabled) {
+        if (triggerKey === "meta") isSentenceMode = event.metaKey
+        else if (triggerKey === "option" || triggerKey === "alt") isSentenceMode = event.altKey
+        else if (triggerKey === "ctrl") isSentenceMode = event.ctrlKey
+    }
+
     if (isSentenceMode) {
-        logger.info("Command/Ctrl key pressed, expanding selection to full sentence.")
+        logger.info(`Modifier key (${triggerKey}) pressed, expanding selection to full sentence.`)
         range = expandRangeToSentence(range)
     }
 
@@ -356,7 +365,7 @@ async function translateWordPath(
     }
 
     // Fetch latest user settings once before rendering to avoid stale values
-    const userSettings = await storageManager.getUserSettings()
+    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
     const displaySettings = buildDisplaySettings(userSettings)
 
     // Create refresh callback that re-triggers this translation with latest settings
@@ -513,7 +522,7 @@ async function translateFragmentPath(
     })
 
     // Fetch latest user settings once before rendering to avoid stale values
-    const userSettings = await storageManager.getUserSettings()
+    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
     const displaySettings = buildDisplaySettings(userSettings)
 
     // Prepare async performRequest

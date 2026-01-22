@@ -215,6 +215,8 @@ export type TranslationFontSizePreset = "small" | "medium" | "large" | "extraLar
 
 export type IconColor = "pink" | "blue" | "purple" | "green" | "orange" | "red" | "teal" | "indigo"
 
+export type TriggerKey = "meta" | "option" | "alt" | "ctrl"
+
 export interface CustomApiSettings {
     /** Whether to use user-provided LLM API instead of cloud translation */
     useCustomApi: boolean
@@ -233,6 +235,10 @@ export interface UserSettings {
     showIcon: boolean
     /** Whether to translate single words on double-click */
     doubleClickTranslate: boolean
+    /** Whether to translate full sentences on Modifier+double-click */
+    doubleClickSentenceTranslate: boolean
+    /** Modifier key for sentence translation (meta, option, alt, ctrl) */
+    doubleClickSentenceTriggerKey: TriggerKey
     /** Whether to automatically adjust original text line-height for better display */
     autoAdjustHeight: boolean
     /** Whether to restore original line-height when all translations in a block are removed */
@@ -267,6 +273,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     enableTapWord: true,
     showIcon: true,
     doubleClickTranslate: true,
+    doubleClickSentenceTranslate: true,
+    doubleClickSentenceTriggerKey: "alt",
     autoAdjustHeight: true,
     restoreLineHeightOnClear: false,
     autoPlayAudio: true,

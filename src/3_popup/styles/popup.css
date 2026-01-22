@@ -319,6 +319,26 @@ body {
     font-size: 12px;
 }
 
+/* Trigger Key Select - Compact variant of language-select */
+.trigger-key-select {
+    min-width: auto;
+    width: auto;
+    padding: 2px 20px 2px 6px; /* Right padding for arrow space */
+    font-size: 11px;
+    height: 24px;
+    line-height: 1.2;
+}
+
+/* Plus Separator */
+.plus-separator {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: rgba(30, 30, 30, 0.7);
+    margin: 0 4px;
+    user-select: none;
+}
+
 /* Help Icon */
 .help-icon {
     display: inline-flex;

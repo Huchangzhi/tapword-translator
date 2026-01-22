@@ -123,7 +123,7 @@ export function translate(key: string, locale?: LocaleCode): string {
     const messages = LOCALES[targetLocale]
 
     // Try target locale first
-    if (messages && messages[key]) {
+    if (messages && messages[key] !== undefined) {
         return messages[key]
     }
 
