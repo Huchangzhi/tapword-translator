@@ -62,7 +62,6 @@ A smart AI-powered translation browser extension that provides context-aware tra
 - `npm run dev:community`: Starts the community build with watch mode.
 - `npm run build:community`: Creates a community-ready build.
 - `npm test -- run <test-file>`: Run a specific test file.
-- `npm run lint`: Analyzes code for potential errors.
 - `npm run type-check`: Checks for TypeScript type errors without compiling.
 
 
