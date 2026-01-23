@@ -361,25 +361,7 @@ function normalizeToTextPosition(root: Node, node: Node, offset: number): NodePo
     return null
 }
 
-function findSentenceStartWithin(root: Node, node: Text, offset: number, terminators: Set<string>): NodePosition | null {
-    // Inspect current node before offset
-    const text = node.textContent || ""
-    const before = text.substring(0, offset)
-    const idx = lastTerminatorIndex(before, terminators)
-    if (idx >= 0) return { node, offset: idx + 1 }
 
-    // Traverse backwards across text nodes within root
-    let cur: Text | null = node
-    while ((cur = getPrevTextNode(root, cur))) {
-        const s = cur.textContent || ""
-        const j = lastTerminatorIndex(s, terminators)
-        if (j >= 0) return { node: cur, offset: j + 1 }
-    }
-
-    // Reached root start
-    const first = getFirstTextNode(root)
-    return first ? { node: first, offset: 0 } : null
-}
 
 function findSentenceEndWithin(root: Node, node: Text, offset: number, terminators: Set<string>): NodePosition | null {
     // Inspect current node after offset
@@ -390,15 +372,96 @@ function findSentenceEndWithin(root: Node, node: Text, offset: number, terminato
 
     // Traverse forward across text nodes within root
     let cur: Text | null = node
+    let prev: Text | null = node
     while ((cur = getNextTextNode(root, cur))) {
+        // Check for block boundary crossing
+        if (isBlockBoundaryCrossed(cur, prev)) {
+             // We crossed into a new block.
+             // The sentence (from prev) ends at the end of prev.
+             return { node: prev, offset: textLength(prev) }
+        }
+
         const s = cur.textContent || ""
         const j = firstTerminatorIndex(s, terminators)
         if (j >= 0) return { node: cur, offset: j + 1 }
+        
+        prev = cur
     }
 
     // Reached root end
     const last = getLastTextNode(root)
     return last ? { node: last, offset: textLength(last) } : null
+}
+
+function findSentenceStartWithin(root: Node, node: Text, offset: number, terminators: Set<string>): NodePosition | null {
+    // Inspect current node before offset
+    const text = node.textContent || ""
+    const before = text.substring(0, offset)
+    const idx = lastTerminatorIndex(before, terminators)
+    if (idx >= 0) return { node, offset: idx + 1 }
+
+    // Traverse backwards across text nodes within root
+    let cur: Text | null = node
+    let prev: Text | null = node
+    while ((cur = getPrevTextNode(root, cur))) {
+        // Check for block boundary crossing
+        if (isBlockBoundaryCrossed(cur, prev)) {
+             // We crossed a block boundary.
+             // The sentence (from prev) starts at the beginning of prev.
+             return { node: prev, offset: 0 }
+        }
+
+        const s = cur.textContent || ""
+        const j = lastTerminatorIndex(s, terminators)
+        if (j >= 0) return { node: cur, offset: j + 1 }
+        
+        prev = cur
+    }
+
+    // Reached root start
+    const first = getFirstTextNode(root)
+    return first ? { node: first, offset: 0 } : null
+}
+
+function isBlockBoundaryCrossed(nodeA: Node, nodeB: Node): boolean {
+    const common = getCommonAncestor(nodeA, nodeB)
+    if (hasBlockInPath(nodeA, common)) return true
+    if (hasBlockInPath(nodeB, common)) return true
+    return false
+}
+
+function getCommonAncestor(a: Node, b: Node): Node | null {
+    if (a === b) return a
+    if (a.contains(b)) return a
+    if (b.contains(a)) return b
+    
+    // Traverse up from a
+    const parents = new Set<Node>()
+    let p: Node | null = a
+    while (p) {
+        parents.add(p)
+        p = p.parentNode
+    }
+    
+    // Traverse up from b until match
+    p = b
+    while (p) {
+        if (parents.has(p)) return p
+        p = p.parentNode
+    }
+    return null
+}
+
+function hasBlockInPath(node: Node, ancestor: Node | null): boolean {
+    let cur: Node | null = node.parentElement
+    while (cur && cur !== ancestor) {
+        if (cur.nodeType === Node.ELEMENT_NODE) {
+            const el = cur as Element
+            if (domSanitizer.BLOCK_ELEMENTS.has(el.tagName)) return true
+        }
+        cur = cur.parentNode
+    }
+    return false
 }
 
 function extractTextBetween(start: NodePosition, end: NodePosition): string {
