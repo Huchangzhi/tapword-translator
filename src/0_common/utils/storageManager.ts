@@ -65,8 +65,8 @@ function normalizeTriggerKey(key: types.TriggerKey, os: PlatformOS): types.Trigg
         if (normalizedKey === "ctrl") {
             normalizedKey = "meta"
         }
-    } else if (os === PLATFORMS.WIN || os === PLATFORMS.LINUX || os === PLATFORMS.CROS) {
-        // Windows/Linux: 'meta' (Win key) is reserved/unusable, 'option' is invalid
+    } else {
+        // Windows/Linux/Other: 'meta' (Win key) is reserved/unusable, 'option' is invalid
         if (normalizedKey === "meta" || normalizedKey === "option") {
             normalizedKey = "alt"
         }

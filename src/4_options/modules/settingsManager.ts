@@ -169,7 +169,7 @@ async function populateTriggerKeyOptions(): Promise<void> {
         optOption.textContent = "Option"
         select.appendChild(optOption)
     } else {
-        // Windows/Linux Options: Alt (Default), Ctrl
+        // Windows/Linux/Other Options: Alt (Default), Ctrl
         const altOption = document.createElement("option")
         altOption.value = "alt"
         altOption.textContent = "Alt"
