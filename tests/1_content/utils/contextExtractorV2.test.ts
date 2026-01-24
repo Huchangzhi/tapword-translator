@@ -471,4 +471,26 @@ describe('contextExtractorV2', () => {
             expect(context.nextSentences).toEqual(['Sentence 5.', 'Sentence 6.', 'Sentence 7.']);
         });
     });
+
+    describe("Regression Tests", () => {
+        it("should respect block boundaries between sibling elements (e.g. H1 and SPAN)", () => {
+            const testName = "H1 and Span Merge Bug"
+            const html = `
+                <div>
+                    <h1>Run Curl Commands Online</h1>
+                    <span>Run Curl commands directly in your browser.</span>
+                </div>
+            `
+            const container = createTestDOM(html)
+            const range = createRangeFromText(container, "directly")
+            const context = extractContextV2(range!)
+
+            formatTestResult(testName, context, html)
+
+            // Expected behavior (Fix):
+            // The current sentence should ONLY be the content of the span (or starting from span).
+            // It should NOT include the H1 text.
+            expect(context.currentSentence).toBe("Run Curl commands directly in your browser.")
+        })
+    })
 });

@@ -15,6 +15,7 @@ import * as toastNotification from "@/1_content/ui/toastNotification"
 import * as languageDetector from "@/1_content/utils/languageDetector"
 import { ModalPositioner } from "@/1_content/utils/modalPositioner"
 import * as versionStatus from "@/1_content/utils/versionStatus"
+import * as audioUtils from "@/1_content/utils/audioUtils"
 // Inject modal stylesheet into Shadow DOM to avoid host CSS leakage
 import modalCssRaw from "@/1_content/resources/modal.css?raw"
 
@@ -367,8 +368,10 @@ async function handleSpeakClick(event: Event, text: string, isAutoPlay: boolean 
             }
 
             if (response.success) {
+                // Detect audio format (wav or mp3) from base64 data
+                const mimeType = audioUtils.detectAudioMimeType(response.data.audio)
                 // Construct the data URL from the base64 string.
-                const audioDataUrl = `data:audio/wav;base64,${response.data.audio}`
+                const audioDataUrl = `data:${mimeType};base64,${response.data.audio}`
                 const audio = new Audio(audioDataUrl)
                 currentAudio = audio
                 audio.play().catch((error) => {

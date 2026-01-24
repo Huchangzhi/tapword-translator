@@ -95,6 +95,22 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
+            <div class="setting-item" id="settingItem-doubleClickSentence">
+              <div class="setting-info">
+                <div class="trigger-key-container" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <select id="doubleClickSentenceTriggerKey" data-setting="doubleClickSentenceTriggerKey" class="select-input trigger-key-select" style="width: auto; padding: 4px 8px;">
+                    <!-- Options populated by JS -->
+                  </select>
+                  <span class="plus-separator">+</span>
+                  <label class="setting-label" for="doubleClickSentenceTranslate" data-i18n-key="popup.doubleClickSentenceTranslate.label" style="margin-bottom: 0;">Double-click Sentence</label>
+                </div>
+                <p class="setting-helper" data-i18n-key="popup.doubleClickSentenceTranslate.tooltip">Translate the whole sentence when double-clicking with a modifier key.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="doubleClickSentenceTranslate" data-setting="doubleClickSentenceTranslate">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -125,6 +141,19 @@
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="autoAdjustHeight" data-setting="autoAdjustHeight">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <label class="setting-label" for="restoreLineHeightOnClear">
+                  <span data-i18n-key="popup.restoreLineHeightOnClear.label">Restore line height on clear</span>
+                </label>
+                <p class="setting-helper" data-i18n-key="popup.restoreLineHeightOnClear.tooltip">Restore original line height when all translations in a block are removed.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="restoreLineHeightOnClear" data-setting="restoreLineHeightOnClear">
                 <span class="toggle-slider"></span>
               </label>
             </div>

@@ -9,6 +9,7 @@ import { CUSTOM_API_FIXED_PARAMS } from "@/0_common/constants/customApi"
 import type * as types from "@/0_common/types"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as storageManagerModule from "@/0_common/utils/storageManager"
+import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
 import { translateWord as translateWordWithLLM } from "@/8_generate"
 import type { LLMConfig } from "@/8_generate"
 
@@ -18,10 +19,10 @@ const isCommunityEdition = APP_EDITION === "community"
 const AUTO_PLAY_AUDIO_SETTING_ID = "autoPlayAudio"
 
 function setTranslationControlsEnabled(enabled: boolean): void {
-    const dependentIds = ["showIcon", "doubleClickTranslate"]
+    const dependentIds = ["showIcon", "doubleClickTranslate", "doubleClickSentenceTranslate", "doubleClickSentenceTriggerKey"]
 
     dependentIds.forEach((id) => {
-        const input = document.getElementById(id) as HTMLInputElement | null
+        const input = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null
         if (!input) {
             return
         }
@@ -107,22 +108,25 @@ async function ensureCommunityCustomApiEnabled(settings: types.UserSettings): Pr
 async function restoreDependentTogglesIfAllOff(): Promise<void> {
     const showIconInput = document.getElementById("showIcon") as HTMLInputElement | null
     const doubleClickInput = document.getElementById("doubleClickTranslate") as HTMLInputElement | null
+    const sentenceTranslateInput = document.getElementById("doubleClickSentenceTranslate") as HTMLInputElement | null
 
-    if (!showIconInput || !doubleClickInput) {
+    if (!showIconInput || !doubleClickInput || !sentenceTranslateInput) {
         return
     }
 
-    const bothDisabled = !showIconInput.checked && !doubleClickInput.checked
-    if (!bothDisabled) {
+    const allDisabled = !showIconInput.checked && !doubleClickInput.checked && !sentenceTranslateInput.checked
+    if (!allDisabled) {
         return
     }
 
     showIconInput.checked = true
     doubleClickInput.checked = true
+    sentenceTranslateInput.checked = true
 
     await storageManagerModule.updateUserSettings({
         showIcon: true,
         doubleClickTranslate: true,
+        doubleClickSentenceTranslate: true,
     })
 }
 
@@ -143,8 +147,45 @@ async function saveCustomApiSettings(partial: Partial<types.CustomApiSettings>):
     })
 }
 
+/**
+ * Detect OS and populate trigger key options
+ */
+async function populateTriggerKeyOptions(): Promise<void> {
+    const select = document.getElementById("doubleClickSentenceTriggerKey") as HTMLSelectElement | null
+    if (!select) return
+
+    const os = await getPlatformOS()
+    select.innerHTML = ""
+
+    if (os === PLATFORMS.MAC) {
+        // Mac Options: Command (Default), Option
+        const cmdOption = document.createElement("option")
+        cmdOption.value = "meta"
+        cmdOption.textContent = "Command"
+        select.appendChild(cmdOption)
+
+        const optOption = document.createElement("option")
+        optOption.value = "option"
+        optOption.textContent = "Option"
+        select.appendChild(optOption)
+    } else {
+        // Windows/Linux/Other Options: Alt (Default), Ctrl
+        const altOption = document.createElement("option")
+        altOption.value = "alt"
+        altOption.textContent = "Alt"
+        select.appendChild(altOption)
+
+        const ctrlOption = document.createElement("option")
+        ctrlOption.value = "ctrl"
+        ctrlOption.textContent = "Ctrl"
+        select.appendChild(ctrlOption)
+    }
+}
+
 export async function loadSettings(): Promise<void> {
     try {
+        await populateTriggerKeyOptions()
+
         let settings = await storageManagerModule.getUserSettings()
         settings = await ensureCommunityCustomApiEnabled(settings)
         settings = await ensureCommunityAutoPlayDisabled(settings)

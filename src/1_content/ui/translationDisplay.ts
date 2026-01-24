@@ -18,6 +18,8 @@ import * as loggerModule from "@/0_common/utils/logger"
 
 const logger = loggerModule.createLogger("1_content/ui/translationDisplay")
 
+const CLICK_DEBOUNCE_DELAY_MS = 250
+
 // ============================================================================
 // Type Definitions
 // ============================================================================
@@ -267,7 +269,10 @@ function cleanupTranslationById(anchorId: string, anchorElement?: HTMLElement | 
     const mappedBlock = anchorAdjustedBlocks.get(anchorId)
     if (mappedBlock) {
         try {
-            lineHeightAdjuster.restoreLineHeight(mappedBlock)
+            const cachedSettings = contentIndex.getCachedUserSettings()
+            const shouldRestore = cachedSettings?.restoreLineHeightOnClear ?? false
+            // Always call restore to update ref counts; pass skipDomRestoration=!shouldRestore
+            lineHeightAdjuster.restoreLineHeight(mappedBlock, !shouldRestore)
         } catch (e) {
             logger.warn("[translationDisplay] Failed to restore line-height via mapped block:", anchorId, e)
         } finally {
@@ -328,6 +333,51 @@ function handleAnchorClick(anchorId: string): void {
 
     logger.info("Opening translation detail modal for:", anchorId)
     translationModal.showTranslationModal(data, anchorElement, anchorId)
+}
+
+/**
+ * Attach click and double-click event listeners to the anchor
+ */
+function attachAnchorEventListeners(anchor: HTMLElement, anchorId: string): void {
+    // Timer for click debounce to distinguish from double-click
+    let clickTimer: number | undefined
+
+    // Add click handler to show detail modal (debounced)
+    anchor.addEventListener("click", (e) => {
+        e.stopPropagation()
+
+        // If there is a pending click (rare in this context but good practice), clear it
+        if (clickTimer) {
+            window.clearTimeout(clickTimer)
+        }
+
+        // Delay modal opening to allow double-click to intercept
+        clickTimer = window.setTimeout(() => {
+            handleAnchorClick(anchorId)
+            clickTimer = undefined
+        }, CLICK_DEBOUNCE_DELAY_MS)
+    })
+
+    // Add double-click handler to close translation
+    anchor.addEventListener("dblclick", (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+
+        // Cancel any pending single-click action (modal open)
+        if (clickTimer) {
+            window.clearTimeout(clickTimer)
+            clickTimer = undefined
+        }
+
+        // Close modal if it's open for this anchor
+        if (translationModal.getActiveModalAnchorId() === anchorId) {
+            translationModal.closeTranslationModal()
+        }
+
+        logger.info("Double-click on anchor, removing:", anchorId)
+        removeTranslationResult(anchorId)
+        window.getSelection()?.removeAllRanges()
+    })
 }
 
 // ============================================================================
@@ -709,11 +759,8 @@ export function showTranslationResult(
         anchor.id = anchorId
         anchor.style.cursor = "pointer" // Make it clear it's clickable
 
-        // Add click handler to show detail modal
-        anchor.addEventListener("click", (e) => {
-            e.stopPropagation()
-            handleAnchorClick(anchorId)
-        })
+        // Attach event listeners for click (modal) and double-click (close)
+        attachAnchorEventListeners(anchor, anchorId)
 
         // Get the computed font size of the original text before wrapping
         const originalElement = range.startContainer.parentElement

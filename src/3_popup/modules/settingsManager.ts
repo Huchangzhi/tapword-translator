@@ -8,21 +8,23 @@ import type * as types from "@/0_common/types"
 import * as i18nModule from "@/0_common/utils/i18n"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as storageManagerModule from "@/0_common/utils/storageManager"
+import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
 import * as toastManagerModule from "./toastManager"
 
 const logger = loggerModule.createLogger("Popup/Settings")
 
 function setTranslationControlsEnabled(enabled: boolean): void {
-    const dependentIds = ["showIcon", "doubleClickTranslate"]
+    const dependentIds = ["showIcon", "doubleClickTranslate", "doubleClickSentenceTranslate", "doubleClickSentenceTriggerKey"]
 
     dependentIds.forEach((id) => {
-        const input = document.getElementById(id) as HTMLInputElement | null
+        const input = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null
         if (!input) {
             return
         }
 
         input.disabled = !enabled
 
+        // For the trigger key select, it's inside a flex container, so we need to find the parent setting-item
         const settingItem = input.closest(".setting-item")
         if (settingItem) {
             settingItem.classList.toggle("is-disabled", !enabled)
@@ -33,24 +35,81 @@ function setTranslationControlsEnabled(enabled: boolean): void {
 async function restoreDependentTogglesIfAllOff(): Promise<void> {
     const showIconInput = document.getElementById("showIcon") as HTMLInputElement | null
     const doubleClickInput = document.getElementById("doubleClickTranslate") as HTMLInputElement | null
+    const sentenceTranslateInput = document.getElementById("doubleClickSentenceTranslate") as HTMLInputElement | null
 
-    if (!showIconInput || !doubleClickInput) {
+    if (!showIconInput || !doubleClickInput || !sentenceTranslateInput) {
         return
     }
 
-    const bothDisabled = !showIconInput.checked && !doubleClickInput.checked
-    if (!bothDisabled) {
+    const allDisabled = !showIconInput.checked && !doubleClickInput.checked && !sentenceTranslateInput.checked
+    if (!allDisabled) {
         return
     }
 
     showIconInput.checked = true
     doubleClickInput.checked = true
+    sentenceTranslateInput.checked = true
 
-    // Atomic update to avoid concurrent overwrite between the two toggles
+    // Atomic update to avoid concurrent overwrite
     await storageManagerModule.updateUserSettings({
         showIcon: true,
         doubleClickTranslate: true,
+        doubleClickSentenceTranslate: true,
     })
+}
+
+/**
+ * Detect OS and populate trigger key options
+ */
+async function populateTriggerKeyOptions(): Promise<void> {
+    const select = document.getElementById("doubleClickSentenceTriggerKey") as HTMLSelectElement | null
+    if (!select) return
+
+    const os = await getPlatformOS()
+    select.innerHTML = ""
+
+    if (os === PLATFORMS.MAC) {
+        // Mac Options: Command (Default), Option
+        const cmdOption = document.createElement("option")
+        cmdOption.value = "meta"
+        cmdOption.textContent = "Command"
+        select.appendChild(cmdOption)
+
+        const optOption = document.createElement("option")
+        optOption.value = "option"
+        optOption.textContent = "Option"
+        select.appendChild(optOption)
+    } else {
+        // Windows/Linux/Other Options: Alt (Default), Ctrl
+        const altOption = document.createElement("option")
+        altOption.value = "alt"
+        altOption.textContent = "Alt"
+        select.appendChild(altOption)
+
+        const ctrlOption = document.createElement("option")
+        ctrlOption.value = "ctrl"
+        ctrlOption.textContent = "Ctrl"
+        select.appendChild(ctrlOption)
+    }
+}
+
+/**
+ * Apply visibility rules based on current locale
+ * Some settings may be hidden in certain languages to avoid layout issues or clutter
+ */
+function applyLocaleSpecificVisibility(): void {
+    const locale = i18nModule.getCurrentLocale()
+    const settingItem = document.getElementById("settingItem-doubleClickSentence")
+
+    if (settingItem) {
+        // Only show for 'zh' (Chinese), hide for all others because UI space is limited in popup
+        // Users can still configure this via the full options page if needed
+        if (locale !== "zh") {
+            settingItem.style.display = "none"
+        } else {
+            settingItem.style.display = ""
+        }
+    }
 }
 
 /**
@@ -58,6 +117,12 @@ async function restoreDependentTogglesIfAllOff(): Promise<void> {
  */
 export async function loadSettings(): Promise<void> {
     try {
+        // Initialize dynamic options before loading values
+        await populateTriggerKeyOptions()
+
+        // Apply locale-specific visibility rules
+        applyLocaleSpecificVisibility()
+
         const settings = await storageManagerModule.getUserSettings()
         logger.info("Loaded settings:", settings)
 

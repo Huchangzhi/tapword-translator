@@ -6,7 +6,7 @@
 
 import { ERROR_MESSAGES, UPGRADE_MODEL_ENABLED } from "@/0_common/constants"
 import * as translationFontSizeModule from "@/0_common/constants/translationFontSize"
-import type { TranslationFontSizePreset } from "@/0_common/types"
+import { type TranslationFontSizePreset, DEFAULT_USER_SETTINGS } from "@/0_common/types"
 import * as i18nModule from "@/0_common/utils/i18n"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as constants from "@/1_content/constants"
@@ -14,7 +14,7 @@ import * as contentIndex from "@/1_content/index"
 import * as translationRequest from "@/1_content/services/translationRequest"
 import * as iconManager from "@/1_content/ui/iconManager"
 import * as translationDisplay from "@/1_content/ui/translationDisplay"
-import { extractContextV2 } from "@/1_content/utils/contextExtractorV2"
+import { extractContextV2, expandRangeToSentence } from "@/1_content/utils/contextExtractorV2"
 import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as languageDetector from "@/1_content/utils/languageDetector"
 import * as editableElementDetector from "@/1_content/utils/editableElementDetector"
@@ -22,7 +22,6 @@ import * as rangeSplitter from "@/1_content/utils/rangeSplitter"
 import * as rangeAdjuster from "@/1_content/utils/rangeAdjuster"
 import * as selectionClassifier from "@/1_content/utils/selectionClassifier"
 import * as translationOverlapDetector from "@/1_content/utils/translationOverlapDetector"
-import * as storageManager from "@/0_common/utils/storageManager"
 import { createConcurrencyLimiter, type RequestLimiter } from "@/1_content/utils/concurrencyLimiter"
 
 const logger = loggerModule.createLogger("selectionHandler")
@@ -61,6 +60,9 @@ async function handleIconClick(selection: Selection, range: Range): Promise<void
 
     // Remove the icon
     iconManager.removeTranslationIcon()
+
+    // Clear the selection to remove the browser's native highlight
+    selection.removeAllRanges()
 
     // Delegate to core translation logic, splitting multi-block selections into per-block translations
     const splitRanges = rangeSplitter.splitRangeByBlocks(range)
@@ -124,7 +126,7 @@ export function handleTextSelection(): void {
         return
     }
 
-    if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}`)) {
+    if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}, .${constants.CSS_CLASSES.ANCHOR}`)) {
         return
     }
 
@@ -144,8 +146,8 @@ export function handleTextSelection(): void {
 /**
  * Handle double-click to trigger direct translation
  */
-export async function handleDoubleClick(): Promise<void> {
-    // Check user setting for double-click translation
+export async function handleDoubleClick(event: MouseEvent): Promise<void> {
+    // Check user setting for master enable
     const settings = contentIndex.getCachedUserSettings()
     const enableTapWord = settings?.enableTapWord ?? true
     if (!enableTapWord) {
@@ -169,7 +171,7 @@ export async function handleDoubleClick(): Promise<void> {
         return
     }
 
-    const range = selection.getRangeAt(0)
+    let range = selection.getRangeAt(0)
     const selectedText = domSanitizer.getCleanTextFromRange(range).trim()
 
     // Only trigger for non-empty selections (double-click automatically selects a word)
@@ -202,11 +204,34 @@ export async function handleDoubleClick(): Promise<void> {
         return
     }
 
+    // Check for configured modifier key to trigger sentence translation
+    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
+    const sentenceModeEnabled = userSettings.doubleClickSentenceTranslate ?? true
+    const triggerKey = userSettings.doubleClickSentenceTriggerKey ?? "alt"
+
+    let isSentenceMode = false
+    if (sentenceModeEnabled) {
+        if (triggerKey === "meta") isSentenceMode = event.metaKey
+        else if (triggerKey === "option" || triggerKey === "alt") isSentenceMode = event.altKey
+        else if (triggerKey === "ctrl") isSentenceMode = event.ctrlKey
+    }
+
+    if (isSentenceMode) {
+        logger.info(`Modifier key (${triggerKey}) pressed, expanding selection to full sentence.`)
+        range = expandRangeToSentence(range)
+    }
+
+    // Clear the selection to remove the browser's native highlight
+    selection.removeAllRanges()
+
     // Delegate to core translation logic, splitting multi-block selections into per-block translations
+    // Note: For sentence mode, we typically want to keep the sentence as a single unit if possible,
+    // but splitting by blocks is safer for rendering. If expandRangeToSentence respects blocks, this is fine.
     const splitRanges = rangeSplitter.splitRangeByBlocks(range)
     const targets = splitRanges.length > 0 ? splitRanges : [range]
 
-    const triggerLabel = splitRanges.length > 1 ? "Double Click (Split)" : "Double Click"
+    const baseLabel = isSentenceMode ? "Double Click (Sentence)" : "Double Click"
+    const triggerLabel = splitRanges.length > 1 ? `${baseLabel} (Split)` : baseLabel
     const limiter = createConcurrencyLimiter(MAX_PARALLEL_TRANSLATIONS)
     const loadingVariant: "text" | "spinner" = targets.length > 1 ? "spinner" : "text"
     await runBatchedTranslations(triggerLabel, targets, limiter, loadingVariant)
@@ -340,7 +365,7 @@ async function translateWordPath(
     }
 
     // Fetch latest user settings once before rendering to avoid stale values
-    const userSettings = await storageManager.getUserSettings()
+    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
     const displaySettings = buildDisplaySettings(userSettings)
 
     // Create refresh callback that re-triggers this translation with latest settings
@@ -497,7 +522,7 @@ async function translateFragmentPath(
     })
 
     // Fetch latest user settings once before rendering to avoid stale values
-    const userSettings = await storageManager.getUserSettings()
+    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
     const displaySettings = buildDisplaySettings(userSettings)
 
     // Prepare async performRequest
