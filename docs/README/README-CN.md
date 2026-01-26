@@ -5,7 +5,7 @@
 <h1 align="center">触词翻译</h1>
 
 <p align="center">
-    <b>像做笔记一样翻译</b>
+    <b>像做笔记一样翻译网页</b>
 </p>
 
 <p align="center">
