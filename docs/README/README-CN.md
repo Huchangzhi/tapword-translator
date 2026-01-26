@@ -2,7 +2,7 @@
   <img src="../../resources/icons/icon-128.png" width="80" alt="Logo" />
 </p>
 
-<h1 align="center">TapWord 翻译助手</h1>
+<h1 align="center">触词翻译</h1>
 
 <p align="center">
     <b>像做笔记一样翻译</b>
