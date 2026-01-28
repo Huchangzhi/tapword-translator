@@ -23,6 +23,7 @@ import * as rangeAdjuster from "@/1_content/utils/rangeAdjuster"
 import * as selectionClassifier from "@/1_content/utils/selectionClassifier"
 import * as translationOverlapDetector from "@/1_content/utils/translationOverlapDetector"
 import { createConcurrencyLimiter, type RequestLimiter } from "@/1_content/utils/concurrencyLimiter"
+import { validateSelectionAsync } from "@/1_content/utils/selectionValidator"
 
 const logger = loggerModule.createLogger("selectionHandler")
 const MAX_PARALLEL_TRANSLATIONS = 3
@@ -77,63 +78,28 @@ async function handleIconClick(selection: Selection, range: Range): Promise<void
 /**
  * Handle text selection on the page
  */
-export function handleTextSelection(): void {
+export async function handleTextSelection(): Promise<void> {
     const selection = window.getSelection()
-
-    // Check if we have valid selection
-    if (!selection || selection.rangeCount === 0) {
-        iconManager.removeTranslationIcon()
-        return
-    }
-
-    // Check user setting for master enable and icon visibility early
     const settings = contentIndex.getCachedUserSettings()
-    const enableTapWord = settings?.enableTapWord ?? true
-    if (!enableTapWord) {
-        iconManager.removeTranslationIcon()
+
+    const validation = await validateSelectionAsync(selection, settings, "icon")
+
+    if (!validation.isValid) {
+        if (validation.shouldCleanup) {
+            iconManager.removeTranslationIcon()
+        }
+        if (validation.reason) {
+            logger.debug(`Selection validation failed: ${validation.reason}`)
+        }
         return
     }
 
-    const showIcon = settings?.showIcon ?? true // Default to true if settings not loaded
-    if (!showIcon) {
-        // Icon is disabled, don't show it but still allow double-click translation
-        return
-    }
-
-    const range = selection.getRangeAt(0)
-    const rawText = domSanitizer.getCleanTextFromRange(range)
-    const selectedText = rawText.trim()
-
-    // Only show icon for non-empty selections
-    if (selectedText.length === 0) {
-        iconManager.removeTranslationIcon()
-        return
-    }
-
-    // Do not show icon for excessively long selections
-    if (selectedText.length > constants.MAX_SELECTION_LENGTH) {
-        logger.info(`Selection too long (${selectedText.length} chars), hiding icon.`)
-        iconManager.removeTranslationIcon()
-        return
-    }
-
-    // Ignore selections within our own UI elements
-    const container = range.commonAncestorContainer
-    const element = container.nodeType === Node.ELEMENT_NODE ? (container as Element) : container.parentElement
-
-    if (editableElementDetector.isEditableElement(element)) {
-        iconManager.removeTranslationIcon()
-        return
-    }
-
-    if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}, .${constants.CSS_CLASSES.ANCHOR}`)) {
-        return
-    }
+    const range = validation.range!
 
     // Create a click handler that captures the current selection and range.
     const onIconClick = (event: Event) => {
         event.stopPropagation()
-        handleIconClick(selection, range)
+        handleIconClick(selection!, range)
     }
 
     // Get icon color from settings
@@ -147,62 +113,25 @@ export function handleTextSelection(): void {
  * Handle double-click to trigger direct translation
  */
 export async function handleDoubleClick(event: MouseEvent): Promise<void> {
-    // Check user setting for master enable
     const settings = contentIndex.getCachedUserSettings()
-    const enableTapWord = settings?.enableTapWord ?? true
-    if (!enableTapWord) {
-        iconManager.removeTranslationIcon()
-        return
-    }
-
-    const doubleClickTranslate = settings?.doubleClickTranslate ?? true // Default to true if settings not loaded
-    if (!doubleClickTranslate) {
-        // Double-click translation is disabled
-        return
-    }
-
-    // Immediately remove the icon that was shown on mouseup
-    iconManager.removeTranslationIcon()
-
     const selection = window.getSelection()
 
-    // Check if we have valid selection
-    if (!selection || selection.rangeCount === 0) {
+    const validation = await validateSelectionAsync(selection, settings, "doubleClick")
+
+    if (!validation.isValid) {
+        if (validation.shouldCleanup) {
+            iconManager.removeTranslationIcon()
+        }
+        if (validation.reason) {
+            logger.debug(`Double-click validation failed: ${validation.reason}`)
+        }
         return
     }
 
-    let range = selection.getRangeAt(0)
-    const selectedText = domSanitizer.getCleanTextFromRange(range).trim()
+    // Must remove icon if proceeding (double click started)
+    iconManager.removeTranslationIcon()
 
-    // Only trigger for non-empty selections (double-click automatically selects a word)
-    if (selectedText.length === 0) {
-        return
-    }
-
-    // Do not trigger for pure numbers
-    if (/^\d+$/.test(selectedText)) {
-        logger.info("Selection is a pure number, skipping translation.")
-        return
-    }
-
-    // Do not trigger for excessively long selections
-    if (selectedText.length > constants.MAX_SELECTION_LENGTH) {
-        logger.info(`Double-click selection too long (${selectedText.length} chars), aborting translation.`)
-        return
-    }
-
-    // Ignore double-clicks within our own UI elements
-    const container = range.commonAncestorContainer
-    const element = container.nodeType === Node.ELEMENT_NODE ? (container as Element) : container.parentElement
-
-    if (editableElementDetector.isEditableElement(element)) {
-        logger.info("Selection is inside an editable element, skipping translation.")
-        return
-    }
-
-    if (element?.closest(`.${constants.CSS_CLASSES.ICON}, .${constants.CSS_CLASSES.TOOLTIP}, .${constants.CSS_CLASSES.ANCHOR}`)) {
-        return
-    }
+    let range = validation.range!
 
     // Check for configured modifier key to trigger sentence translation
     const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
