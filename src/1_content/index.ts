@@ -24,6 +24,11 @@ logger.info("AI Click Translator - Content script loaded")
 // Module-level user settings (loaded during init)
 let userSettings: UserSettings | null = null
 
+function applyDynamicStyles(settings: UserSettings) {
+    // Use CSS variable for better performance and cleaner code
+    document.documentElement.style.setProperty("--ai-translator-underline-offset", `${settings.textUnderlineOffsetPx}px`)
+}
+
 /**
  * Get current user settings
  */
@@ -39,10 +44,12 @@ async function initializeUserSettings(): Promise<void> {
     // Load user settings from storage
     try {
         userSettings = await storageManager.getUserSettings()
+        applyDynamicStyles(userSettings)
         logger.info("User settings loaded:", userSettings)
     } catch (error) {
         logger.error("Failed to load user settings, using defaults:", error)
         userSettings = DEFAULT_USER_SETTINGS
+        applyDynamicStyles(userSettings)
     }
 
     // Listen for storage changes to update settings dynamically
@@ -50,6 +57,7 @@ async function initializeUserSettings(): Promise<void> {
         if (areaName === "sync" && changes.userSettings) {
             const newSettings = changes.userSettings.newValue as UserSettings
             userSettings = newSettings
+            applyDynamicStyles(userSettings)
             logger.info("User settings updated:", newSettings)
         }
     })

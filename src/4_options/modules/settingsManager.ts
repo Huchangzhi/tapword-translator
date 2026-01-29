@@ -400,7 +400,7 @@ export function setupSettingChangeListeners(): void {
                 return
             }
 
-            if (settingKey === "tooltipNextLineGapPx" || settingKey === "tooltipVerticalOffsetPx") {
+            if (settingKey === "tooltipNextLineGapPx" || settingKey === "tooltipVerticalOffsetPx" || settingKey === "textUnderlineOffsetPx") {
                 parsed = Math.max(0, Math.min(20, parsed))
                 inputElement.value = String(parsed)
             }

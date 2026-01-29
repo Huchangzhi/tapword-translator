@@ -258,6 +258,8 @@ export interface UserSettings {
     tooltipNextLineGapPx: number
     /** Vertical gap between selected text and tooltip (px, negative values pull tooltip upward/overlap) */
     tooltipVerticalOffsetPx: number
+    /** Distance between the text baseline and the underline (px) */
+    textUnderlineOffsetPx: number
     /** Icon background color */
     iconColor: IconColor
     /** Custom API settings */
@@ -283,8 +285,9 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     targetLanguage: "en",
     translationFontSizePreset: "medium",
     translationFontSize: 10,
-    tooltipNextLineGapPx: 2,
+    tooltipNextLineGapPx: 3,
     tooltipVerticalOffsetPx: 2,
+    textUnderlineOffsetPx: 3,
     iconColor: "pink",
     customApi: {
         useCustomApi: false,
