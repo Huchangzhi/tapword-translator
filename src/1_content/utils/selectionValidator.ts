@@ -10,7 +10,6 @@ import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as editableElementDetector from "@/1_content/utils/editableElementDetector"
 
 import { shouldTriggerTranslationAsync } from "@/1_content/utils/languageValidator"
-import * as domSanitizer from "@/1_content/utils/domSanitizer"
 
 const logger = loggerModule.createLogger("selectionValidator")
 

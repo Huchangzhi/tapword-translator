@@ -49,7 +49,7 @@ export async function shouldTriggerTranslationAsync(text: string, targetLanguage
             const chineseCount = chineseMatches ? chineseMatches.length : 0
             const totalLength = text.length
 
-            // If strict majority or significant ratio (e.g. > 20%) are Chinese characters, suppress icon
+            // If the ratio of Chinese characters is above the configured threshold (currently 5%), suppress icon
             if (totalLength > 0 && chineseCount / totalLength > CHINESE_RATIO_THRESHOLD) {
                 logger.debug("Suppressing translation: Target is Chinese and text is identified as Chinese", {
                     text: text.substring(0, 20) + "...",
