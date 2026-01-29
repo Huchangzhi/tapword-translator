@@ -170,11 +170,55 @@
                 आत्मविश्वास ही किसी भी प्रयास में सफलता की कुंजी है।</span> (Hindi)</p>
 
         <h2>Numeric Content for Testing</h2>
-        <p>Here are some numbers to test the double-click functionality:</p>
         <p>12345</p>
         <p>9876543210</p>
-        <p>A sentence with a number 123 inside.</p>
-        <p>Another sentence with a number 45678 and some text.</p>
+        <p>3.14159</p>
+
+        <h2>Contentless Selection (Should NOT trigger)</h2>
+        <p>Punctuation only: ... ??? !!!</p>
+        <p>Symbols only: $$$ @@@ ###</p>
+        <p>Mixed contentless: $100 #1 123.45 (123) [456]</p>
+        <p>Whitespace only (select between brackets): [     ]</p>
+
+        <h2>Chinese Suppression Scenarios</h2>
+        <p>Select the text below to verify icon suppression when target language is Chinese.</p>
+        <p>纯中文：今天天气很好，我们一起去公园散步。</p>
+        <p>中文夹英文：我们今天review iPhone 15 Pro 的新功能。</p>
+        <p>英文夹中文：iPhone 15 Pro 发布会在北京举行。</p>
+        <p>混合标点：你好！Welcome to 测试。</p>
+        <p>短文本：中</p>
+
+        <h2>Japanese Text Scenarios</h2>
+        <p>Test with Target Language = Chinese (Should SHOW) or Japanese (Should SUPPRESS).</p>
+        <p>Pure Hiragana: こんにちは</p>
+        <p>Pure Katakana: コンピュータ</p>
+        <p>Mixed Kanji/Kana: 日本語のテスト (Japanese Test)</p>
+        <p>Chinese/Kana Mix: 中国語と日本語 (Chinese and Japanese)</p>
+
+        <h2>Korean Suppression Scenarios</h2>
+        <p>Test with Target Language = Korean (Should SUPPRESS).</p>
+        <p>Pure Hangul: 안녕하세요</p>
+        <p>Mixed Hangul/English: BTS는 한국 그룹입니다.</p>
+        <p>Short Hangul: 한</p>
+
+        <h2>Russian Suppression Scenarios</h2>
+        <p>Test with Target Language = Russian (Should SUPPRESS).</p>
+        <p>Pure Cyrillic: Привет мир</p>
+        <p>Mixed Cyrillic/Numbers: Союз-19</p>
+        <p>Short Cyrillic: Я</p>
+
+        <h2>Non-Chinese Language Snippets</h2>
+        <p>English: The quick brown fox jumps over the lazy dog.</p>
+        <p>Mixed English and numbers: Version 2.0.1 is live.</p>
+        <p>Japanese: 今日は天気がいいですね。</p>
+        <p>Korean: 오늘은 정말 좋은 날이에요.</p>
+        <p>Spanish: El dispositivo funciona con iOS 18.</p>
+
+        <h2>Inline Elements and Symbols</h2>
+        <p>Symbols only: !!! ??? ### $$%</p>
+        <p>Emoji mix: 你好🙂 Hello🙂 123🙂</p>
+        <p>Inline code: Use <code>const value = 42;</code> for testing.</p>
+        <p>Link text: <a href="https://example.com">Click here to learn more</a></p>
 
         <h2>Multi-Block Selection Testing</h2>
         <p>This section is designed to test selecting text across multiple block-level elements.</p>

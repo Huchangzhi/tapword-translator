@@ -33,6 +33,7 @@
       <aside class="sidebar">
         <nav class="nav-menu">
           <a href="#general-settings" class="nav-item active" data-section="general-settings" data-i18n-key="popup.section.general">General</a>
+          <a href="#translation-settings" class="nav-item" data-section="translation-settings" data-i18n-key="popup.section.translate">Translation</a>
           <a href="#display-settings" class="nav-item" data-section="display-settings" data-i18n-key="popup.section.text">Text</a>
           <a href="#audio-settings" class="nav-item" data-section="audio-settings" data-i18n-key="popup.section.audio">Audio</a>
           <a href="#appearance-settings" class="nav-item" data-section="appearance-settings" data-i18n-key="popup.section.appearance">Appearance</a>
@@ -114,6 +115,26 @@
           </div>
         </div>
 
+        <div id="translation-settings" class="settings-section">
+          <div class="section-header">
+            <h2 data-i18n-key="popup.section.translate">Translation Settings</h2>
+          </div>
+          <div class="card settings-card">
+            <div class="setting-item">
+              <div class="setting-info">
+                <label class="setting-label" for="suppressNativeLanguage">
+                  <span id="suppressNativeLanguageLabel"></span>
+                </label>
+                <p class="setting-helper" data-i18n-key="popup.suppressNativeLanguage.tooltip">Don't show translation icon when text language matches target language.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="suppressNativeLanguage" data-setting="suppressNativeLanguage">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div id="display-settings" class="settings-section">
           <div class="section-header">
             <h2 data-i18n-key="popup.section.text">Text Settings</h2>
@@ -177,6 +198,17 @@
               <div class="setting-control">
                 <input type="number" id="tooltipVerticalOffsetPx" data-setting="tooltipVerticalOffsetPx" class="select-input" step="1" min="0" max="20" />
                 <p class="input-warning" id="tooltipVerticalOffsetPxWarning" data-i18n-key="popup.tooltipVerticalOffsetPx.warning">Value must be between 0 and 20</p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <label class="setting-label" for="textUnderlineOffsetPx" data-i18n-key="popup.textUnderlineOffsetPx.label">Underline Offset (px)</label>
+                <p class="setting-helper" data-i18n-key="popup.textUnderlineOffsetPx.helper">Adjust the distance between the text and the underline.</p>
+              </div>
+              <div class="setting-control">
+                <input type="number" id="textUnderlineOffsetPx" data-setting="textUnderlineOffsetPx" class="select-input" step="1" min="0" max="20" />
+                <p class="input-warning" id="textUnderlineOffsetPxWarning" data-i18n-key="popup.textUnderlineOffsetPx.warning">Value must be between 0 and 20</p>
               </div>
             </div>
 
