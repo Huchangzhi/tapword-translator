@@ -6,6 +6,8 @@
     "popup.enableTapWord.label": "Включить TapWord",
     "popup.enableTapWord.helper": "Отключает перевод по выделению текста и двойному клику.",
     "popup.section.general": "Общие",
+    "popup.suppressNativeLanguage.label": "Отключить перевод, если язык страницы — {language}",
+    "popup.suppressNativeLanguage.tooltip": "Автоматически отключает все функции перевода, если язык страницы совпадает с языком перевода.",
     "popup.section.translate": "Перевод",
     "popup.targetLanguage.label": "Перевести на",
     "popup.showIcon.label": "Показывать иконку при выделении",

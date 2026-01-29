@@ -6,6 +6,8 @@
     "popup.enableTapWord.label": "TapWord 활성화",
     "popup.enableTapWord.helper": "끄면 텍스트 선택 및 더블클릭 번역 기능이 비활성화됩니다.",
     "popup.section.general": "일반",
+    "popup.suppressNativeLanguage.label": "페이지 언어가 {language}일 때 번역 비활성화",
+    "popup.suppressNativeLanguage.tooltip": "페이지 원문 언어가 번역 목표 언어와 같으면 모든 번역 기능을 자동으로 끕니다.",
     "popup.section.translate": "번역",
     "popup.targetLanguage.label": "번역 언어",
     "popup.showIcon.label": "텍스트 선택 시 아이콘 표시",

@@ -90,14 +90,17 @@ export async function validateSelectionAsync(
     }
 
     // 7. Language Suppression Check
-    const targetLang = settings?.targetLanguage || "zh"
-    // Extract context for language detection (async)
-    // Use surrounding text to get better accuracy for short selections
-    const contextText = domSanitizer.getSurroundingTextForDetection(range, 50)
+    const suppressNativeLanguage = settings?.suppressNativeLanguage ?? true
+    if (suppressNativeLanguage) {
+        const targetLang = settings?.targetLanguage || "zh"
+        // Extract context for language detection (async)
+        // Use surrounding text to get better accuracy for short selections
+        const contextText = domSanitizer.getSurroundingTextForDetection(range, 100)
 
-    const shouldTrigger = await shouldTriggerTranslationAsync(selectedText, targetLang, contextText)
-    if (!shouldTrigger) {
-        return { isValid: false, text: selectedText, reason: "Suppressed by language detector", shouldCleanup: true }
+        const shouldTrigger = await shouldTriggerTranslationAsync(selectedText, targetLang, contextText)
+        if (!shouldTrigger) {
+            return { isValid: false, text: selectedText, reason: "Suppressed by language detector", shouldCleanup: true }
+        }
     }
 
     // 8. DOM/Element Checks

@@ -6,6 +6,8 @@
     "popup.enableTapWord.label": "TapWord aktivieren",
     "popup.enableTapWord.helper": "Deaktiviert die Übersetzung per Textauswahl und Doppelklick.",
     "popup.section.general": "Allgemein",
+    "popup.suppressNativeLanguage.label": "Keine Übersetzung, wenn Seitensprache {language} ist",
+    "popup.suppressNativeLanguage.tooltip": "Deaktiviert automatisch alle Übersetzungsfunktionen, wenn die Sprache der Seite mit der Zielsprache übereinstimmt.",
     "popup.section.translate": "Übersetzung",
     "popup.targetLanguage.label": "Übersetzen nach",
     "popup.showIcon.label": "Symbol bei Textauswahl anzeigen",

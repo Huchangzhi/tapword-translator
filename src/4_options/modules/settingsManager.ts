@@ -7,6 +7,7 @@
 import { APP_EDITION } from "@/0_common/constants"
 import { CUSTOM_API_FIXED_PARAMS } from "@/0_common/constants/customApi"
 import type * as types from "@/0_common/types"
+import * as i18nModule from "@/0_common/utils/i18n"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as storageManagerModule from "@/0_common/utils/storageManager"
 import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
@@ -19,7 +20,12 @@ const isCommunityEdition = APP_EDITION === "community"
 const AUTO_PLAY_AUDIO_SETTING_ID = "autoPlayAudio"
 
 function setTranslationControlsEnabled(enabled: boolean): void {
-    const dependentIds = ["showIcon", "doubleClickTranslate", "doubleClickSentenceTranslate", "doubleClickSentenceTriggerKey"]
+    const dependentIds = [
+        "showIcon",
+        "doubleClickTranslate",
+        "doubleClickSentenceTranslate",
+        "doubleClickSentenceTriggerKey"
+    ]
 
     dependentIds.forEach((id) => {
         const input = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null
@@ -182,6 +188,32 @@ async function populateTriggerKeyOptions(): Promise<void> {
     }
 }
 
+function getLanguageName(code: string): string {
+    const names: Record<string, string> = {
+        en: "English",
+        zh: "中文",
+        es: "Español",
+        ja: "日本語",
+        fr: "Français",
+        de: "Deutsch",
+        ko: "한국어",
+        ru: "Русский",
+    }
+    return names[code] || code
+}
+
+function updateSuppressNativeLanguageLabel(targetLanguage: string): void {
+    const labelSpan = document.getElementById("suppressNativeLanguageLabel")
+    if (!labelSpan) return
+
+    const langName = getLanguageName(targetLanguage)
+    const template = i18nModule.translate("popup.suppressNativeLanguage.label")
+    const styledLangName = `<span class="highlight-language">${langName}</span>`
+    
+    // Use innerHTML to render the span
+    labelSpan.innerHTML = template.replace("{language}", styledLangName)
+}
+
 export async function loadSettings(): Promise<void> {
     try {
         await populateTriggerKeyOptions()
@@ -192,6 +224,9 @@ export async function loadSettings(): Promise<void> {
 
         const settingsRecord = settings as unknown as Record<string, unknown>
         logger.info("Loaded settings:", settings)
+
+        // Update dynamic label for suppressNativeLanguage
+        updateSuppressNativeLanguageLabel(settings.targetLanguage)
 
         const checkboxes = document.querySelectorAll('input[type="checkbox"][data-setting]')
         checkboxes.forEach((checkbox) => {
@@ -331,6 +366,11 @@ export function setupSettingChangeListeners(): void {
                 return
             }
             const value = selectElement.value
+
+            if (settingKey === "targetLanguage") {
+                updateSuppressNativeLanguageLabel(value)
+            }
+
             await saveSetting(settingKey as keyof types.UserSettings, value)
         })
     })

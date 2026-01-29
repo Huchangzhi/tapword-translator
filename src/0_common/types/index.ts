@@ -262,6 +262,8 @@ export interface UserSettings {
     iconColor: IconColor
     /** Custom API settings */
     customApi: CustomApiSettings
+    /** Whether to suppress translation when the detected source language matches the target language */
+    suppressNativeLanguage: boolean
 }
 
 /**
@@ -290,4 +292,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
         apiKey: "",
         model: "",
     },
+    suppressNativeLanguage: true,
 }

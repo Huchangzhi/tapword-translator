@@ -33,6 +33,7 @@
       <aside class="sidebar">
         <nav class="nav-menu">
           <a href="#general-settings" class="nav-item active" data-section="general-settings" data-i18n-key="popup.section.general">General</a>
+          <a href="#translation-settings" class="nav-item" data-section="translation-settings" data-i18n-key="popup.section.translate">Translation</a>
           <a href="#display-settings" class="nav-item" data-section="display-settings" data-i18n-key="popup.section.text">Text</a>
           <a href="#audio-settings" class="nav-item" data-section="audio-settings" data-i18n-key="popup.section.audio">Audio</a>
           <a href="#appearance-settings" class="nav-item" data-section="appearance-settings" data-i18n-key="popup.section.appearance">Appearance</a>
@@ -108,6 +109,26 @@
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="doubleClickSentenceTranslate" data-setting="doubleClickSentenceTranslate">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="translation-settings" class="settings-section">
+          <div class="section-header">
+            <h2 data-i18n-key="popup.section.translate">Translation Settings</h2>
+          </div>
+          <div class="card settings-card">
+            <div class="setting-item">
+              <div class="setting-info">
+                <label class="setting-label" for="suppressNativeLanguage">
+                  <span id="suppressNativeLanguageLabel"></span>
+                </label>
+                <p class="setting-helper" data-i18n-key="popup.suppressNativeLanguage.tooltip">Don't show translation icon when text language matches target language.</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="suppressNativeLanguage" data-setting="suppressNativeLanguage">
                 <span class="toggle-slider"></span>
               </label>
             </div>
