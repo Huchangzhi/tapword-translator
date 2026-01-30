@@ -17,6 +17,7 @@ import { createLogger } from "@/0_common/utils/logger"
 import { APIError, APIErrorCodes } from "../types/APIError"
 import { APIResponse } from "../types/APIResponse"
 import { getAuthService } from "./AuthService"
+import { CONFIG_ENDPOINTS } from "../constants"
 
 const logger = createLogger("APIService")
 
@@ -40,6 +41,8 @@ export interface APIServiceConfig {
     baseURL: string
     /** Client version */
     clientVersion?: string
+    /** Fallback Base URL for auto-retry on network errors */
+    fallbackBaseURL?: string
 }
 
 /**
@@ -47,6 +50,8 @@ export interface APIServiceConfig {
  */
 export class APIService {
     private config: APIServiceConfig
+    private hasFallenBack: boolean = false
+    private isProbingFallback: boolean = false
 
     constructor(config: APIServiceConfig) {
         this.config = config
@@ -59,6 +64,10 @@ export class APIService {
     updateConfig(config: Partial<APIServiceConfig>): void {
         logger.info("Updating configuration:", config)
         this.config = { ...this.config, ...config }
+        // If BaseURL is explicitly updated, reset fallback state
+        if (config.baseURL) {
+            this.hasFallenBack = false
+        }
         logger.info("Configuration updated. New baseURL:", this.config.baseURL)
     }
 
@@ -95,6 +104,17 @@ export class APIService {
             logger.info(`✓ ${method} ${endpoint}`)
             return result
         } catch (error) {
+            // Check for fallback condition
+            if (this.shouldFallback(error)) {
+                logger.warn("Encountered blocking error, attempting fallback switch...")
+                await this.performFallbackSwitch()
+                
+                // Retry request only if switch occurred
+                if (this.hasFallenBack) {
+                    return await this.performRequest<TResponse>(endpoint, method, bodyData, options)
+                }
+            }
+
             // If token is expired, refresh it and retry the request once
             if (error instanceof APIError && error.type === "tokenExpired" && addAuthToken) {
                 logger.info("Token expired, attempting refresh...")
@@ -279,6 +299,59 @@ export class APIService {
                 message: original?.message,
                 originalError: original,
             })
+        }
+    }
+
+    private shouldFallback(error: unknown): boolean {
+        if (!this.config.fallbackBaseURL || this.hasFallenBack) return false
+
+        if (error instanceof APIError) {
+            // 403 Forbidden (WAF), 429 Too Many Requests (WAF/RateLimit)
+            if (error.code === 403 || error.code === 429) return true
+            // requestError (Network Error, 502, 504 etc) or timeout
+            if (error.type === "requestError" || error.type === "timeout") return true
+        }
+        return false
+    }
+
+    private async performFallbackSwitch(): Promise<void> {
+        if (!this.config.fallbackBaseURL || this.hasFallenBack || this.isProbingFallback) {
+            return
+        }
+
+        this.isProbingFallback = true
+        const fallbackUrl = this.config.fallbackBaseURL
+        const probeEndpoint = CONFIG_ENDPOINTS.CONFIG
+
+        logger.info(`Probing fallback URL before switching: ${fallbackUrl}`)
+
+        try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+            const response = await fetch(`${fallbackUrl}${probeEndpoint}`, {
+                method: "GET",
+                signal: controller.signal,
+            })
+            clearTimeout(timeoutId)
+
+            if (response.ok) {
+                logger.info("Fallback probe successful. Switching Base URL.")
+                this.config.baseURL = fallbackUrl
+                this.hasFallenBack = true
+
+                // Also update AuthService
+                const authService = getAuthService()
+                if (authService.isInitialized()) {
+                    authService.updateBaseURL(fallbackUrl)
+                }
+            } else {
+                logger.warn(`Fallback probe failed with status: ${response.status}`)
+            }
+        } catch (error) {
+            logger.warn("Fallback probe failed with network error:", error)
+        } finally {
+            this.isProbingFallback = false
         }
     }
 

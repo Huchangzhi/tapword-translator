@@ -7,6 +7,7 @@
 
 // Constants
 export {
+    API_BASE_URL_MAP,
     AUTH_ENDPOINTS,
     AUTO_REFRESH_INTERVAL_MS,
     CLIENT_VERSION,
@@ -20,7 +21,7 @@ export {
 export { APIError, APIErrorCodes, getDebugMessage, getUserMessage } from "./types/APIError"
 
 // Services - API Service
-export { APIService, del, get, initAPIService, post, put } from "./services/APIService"
+export { APIService, del, get, getAPIService, initAPIService, post, put } from "./services/APIService"
 
 // Services - Auth Service
 export { AuthService, getAuthService, initAuthService } from "./services/AuthService"

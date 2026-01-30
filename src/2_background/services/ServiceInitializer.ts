@@ -4,11 +4,13 @@
  * Initializes all backend services required by the extension
  */
 
-import { getDeviceUID } from "@/0_common/utils/storageManager"
+import { getDeviceUID, getUserSettings, updateUserSettings } from "@/0_common/utils/storageManager"
 import * as backendModule from "@/5_backend"
 import { BUILD_TIME_CREDENTIALS, hasBuildTimeCredentials } from "@/5_backend/config/credentials"
-import { CLIENT_VERSION, CONFIG_ENDPOINTS, CONFIG_REFRESH_INTERVAL_MS, DEFAULT_BASE_URL } from "@/5_backend/constants"
+import { CLIENT_VERSION, CONFIG_ENDPOINTS, CONFIG_REFRESH_INTERVAL_MS, API_BASE_URL_MAP } from "@/5_backend/constants"
 import * as loggerModule from "@/0_common/utils/logger"
+import type { UserSettings } from "@/0_common/types"
+import { isLikelyChineseUser } from "@/0_common/utils/regionDetector"
 
 const logger = loggerModule.createLogger("2_background/services/ServiceInitializer")
 
@@ -33,19 +35,71 @@ export async function initializeAPIService(): Promise<void> {
         const deviceUID = await getDeviceUID()
         logger.info("Device UID:", deviceUID)
 
+        // Get user settings for network region
+        const settings = await getUserSettings()
+        const currentBaseURL = API_BASE_URL_MAP[settings.networkRegion] || API_BASE_URL_MAP.auto
+        logger.info(`Using Base URL for region ${settings.networkRegion}: ${currentBaseURL}`)
+
+        // Determine fallback URL for auto mode
+        let fallbackBaseURL: string | undefined
+        if (settings.networkRegion === "auto") {
+            if (isLikelyChineseUser()) {
+                fallbackBaseURL = API_BASE_URL_MAP.china
+                logger.info("Auto-fallback to China Direct enabled for Chinese user")
+            }
+        }
+
         // Initialize AuthService
-        backendModule.initAuthService(credentials, deviceUID, DEFAULT_BASE_URL)
+        backendModule.initAuthService(credentials, deviceUID, currentBaseURL)
         logger.info("AuthService initialized")
 
         // Initialize APIService
         backendModule.initAPIService({
-            baseURL: DEFAULT_BASE_URL,
+            baseURL: currentBaseURL,
             clientVersion: CLIENT_VERSION,
+            fallbackBaseURL,
         })
 
         logger.info("API Service initialized with JWT authentication")
+
+        // Setup listener for network region changes
+        setupNetworkRegionListener(credentials, deviceUID)
+
+        // Perform network probe for auto-fallback
+        performNetworkProbe().catch((err) => logger.error("Network probe failed:", err))
     } else {
         logger.warn("No build-time credentials found. API Service not initialized.")
+    }
+}
+
+function setupNetworkRegionListener(credentials: { apiKey: string; apiSecret: string }, deviceUID: string): void {
+    try {
+        chrome.storage?.onChanged.addListener((changes, areaName) => {
+            if (areaName === "sync" && changes.userSettings) {
+                const newSettings = changes.userSettings.newValue as UserSettings
+                const oldSettings = changes.userSettings.oldValue as UserSettings
+
+                if (newSettings && newSettings.networkRegion !== oldSettings?.networkRegion) {
+                    const newBaseURL = API_BASE_URL_MAP[newSettings.networkRegion] || API_BASE_URL_MAP.auto
+                    logger.info(`Network region changed to ${newSettings.networkRegion}, switching to: ${newBaseURL}`)
+
+                    try {
+                        // Update APIService
+                        backendModule.getAPIService().updateConfig({ baseURL: newBaseURL })
+
+                        // Re-initialize AuthService with new URL
+                        // This effectively clears the token and sets new base URL for auth requests
+                        backendModule.initAuthService(credentials, deviceUID, newBaseURL)
+
+                        logger.info("Network configuration updated successfully")
+                    } catch (error) {
+                        logger.error("Failed to update network configuration:", error)
+                    }
+                }
+            }
+        })
+    } catch (error) {
+        logger.warn("Failed to setup network region listener:", error)
     }
 }
 
@@ -99,5 +153,84 @@ async function initializeQuotaManager(): Promise<void> {
     } catch (error) {
         logger.error("Failed to initialize Quota Manager:", error)
         // Non-critical error - extension can still work without quota tracking
+    }
+}
+
+/**
+ * Perform network probe to detect if fallback is needed
+ *
+ * Strategy:
+ * 1. If user setting is 'auto' AND user is in China environment
+ * 2. Probe default API (auto)
+ * 3. If fail, probe China API (china)
+ * 4. If China API works, auto-switch user setting to 'china'
+ */
+async function performNetworkProbe(): Promise<void> {
+    try {
+        const settings = await getUserSettings()
+
+        // Only probe if user hasn't manually selected a region
+        if (settings.networkRegion !== "auto") {
+            return
+        }
+
+        if (!isLikelyChineseUser()) {
+            return
+        }
+
+        logger.info("Starting network probe for auto-configuration...")
+
+        const configUrl = `${API_BASE_URL_MAP.auto}${CONFIG_ENDPOINTS.CONFIG}`
+
+        try {
+            // Test default route with short timeout
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+            const response = await fetch(configUrl, {
+                method: "GET",
+                signal: controller.signal,
+            })
+            clearTimeout(timeoutId)
+
+            if (response.ok) {
+                logger.info("Default network route is healthy.")
+                return
+            }
+        } catch (error) {
+            logger.warn("Default network route failed probe:", error)
+        }
+
+        // If we reached here, default failed. Try China route.
+        // Check if China URL is different from Auto URL (to avoid redundant probe)
+        if (API_BASE_URL_MAP.china === API_BASE_URL_MAP.auto) {
+            return
+        }
+
+        const chinaUrl = `${API_BASE_URL_MAP.china}${CONFIG_ENDPOINTS.CONFIG}`
+        logger.info("Probing China Direct route...", chinaUrl)
+
+        try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+            const response = await fetch(chinaUrl, {
+                method: "GET",
+                signal: controller.signal,
+            })
+            clearTimeout(timeoutId)
+
+            if (response.ok) {
+                logger.info("China Direct route is healthy. Switching user setting.")
+                // Update setting -> triggers listener -> updates APIService
+                await updateUserSettings({ networkRegion: "china" })
+            } else {
+                logger.warn("China Direct route also failed probe.")
+            }
+        } catch (error) {
+            logger.warn("China Direct route failed probe:", error)
+        }
+    } catch (error) {
+        logger.error("Network probe error:", error)
     }
 }

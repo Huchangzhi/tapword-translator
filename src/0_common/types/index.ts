@@ -217,6 +217,8 @@ export type IconColor = "pink" | "blue" | "purple" | "green" | "orange" | "red" 
 
 export type TriggerKey = "meta" | "option" | "alt" | "ctrl"
 
+export type NetworkRegion = "auto" | "china" | "global"
+
 export interface CustomApiSettings {
     /** Whether to use user-provided LLM API instead of cloud translation */
     useCustomApi: boolean
@@ -266,6 +268,8 @@ export interface UserSettings {
     customApi: CustomApiSettings
     /** Whether to suppress translation when the detected source language matches the target language */
     suppressNativeLanguage: boolean
+    /** Network region preference for API calls (auto, china, global) */
+    networkRegion: NetworkRegion
 }
 
 /**
@@ -296,4 +300,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
         model: "",
     },
     suppressNativeLanguage: true,
+    networkRegion: "auto",
 }

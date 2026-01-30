@@ -7,6 +7,8 @@
 import { PRIVATE_CLOUD_ENABLED } from "@/0_common/constants"
 
 const PRIVATE_API_URL = import.meta.env.VITE_API_BASE_URL || ""
+const PRIVATE_API_URL_CHINA = import.meta.env.VITE_API_BASE_URL_CHINA || ""
+const PRIVATE_API_URL_GLOBAL = import.meta.env.VITE_API_BASE_URL_GLOBAL || ""
 
 /**
  * API base URL
@@ -51,3 +53,12 @@ export const CONFIG_ENDPOINTS = {
  * Default: 1 hours
  */
 export const CONFIG_REFRESH_INTERVAL_MS = 1 * 60 * 60 * 1000 // 1 hour
+
+/**
+ * API Base URLs for different network regions
+ */
+export const API_BASE_URL_MAP = {
+    auto: DEFAULT_BASE_URL,
+    china: PRIVATE_CLOUD_ENABLED ? PRIVATE_API_URL_CHINA : "",
+    global: PRIVATE_CLOUD_ENABLED ? PRIVATE_API_URL_GLOBAL : "",
+} as const
