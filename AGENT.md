@@ -114,3 +114,7 @@ The project uses a custom utility at `src/0_common/utils/i18n.ts` for in-app UI 
 
 - **HTML**: Add `data-i18n-key="key.name"` to elements. `applyTranslations()` will handle the rest.
 - **TypeScript**: Import with `import * as i18nModule from "@/0_common/utils/i18n"`, then use `i18nModule.translate('key.name')` for dynamic strings.
+
+### Architecture Principles
+- **Infrastructure Purity**: Infrastructure code MUST be agnostic of business logic and environment state.
+- **Inject, Don't Fetch**: Pass configuration via arguments (Dependency Injection). NEVER import business logic or state managers into infrastructure layers.
