@@ -297,3 +297,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     },
     suppressNativeLanguage: false,
 }
+
+export const DEFAULT_SUPPRESS_NATIVE_LANGUAGE = DEFAULT_USER_SETTINGS.suppressNativeLanguage

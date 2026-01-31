@@ -3,15 +3,12 @@
  *
  * Centralizes validation logic for text selections to determine if translation should be triggered.
  */
-import { type UserSettings } from "@/0_common/types"
-import * as loggerModule from "@/0_common/utils/logger"
+import * as types from "@/0_common/types"
 import * as constants from "@/1_content/constants"
 import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as editableElementDetector from "@/1_content/utils/editableElementDetector"
 
 import { shouldTriggerTranslationAsync } from "@/1_content/utils/languageValidator"
-
-const logger = loggerModule.createLogger("selectionValidator")
 
 const ELEMENT_NODE = 1
 
@@ -35,7 +32,7 @@ export interface ValidationResult {
  */
 export async function validateSelectionAsync(
     selection: Selection | null,
-    settings: UserSettings | null,
+    settings: types.UserSettings | null,
     trigger: ValidationTrigger
 ): Promise<ValidationResult> {
     // 1. Basic Selection Check
@@ -89,9 +86,9 @@ export async function validateSelectionAsync(
     }
 
     // 7. Language Suppression Check
-    const suppressNativeLanguage = settings?.suppressNativeLanguage ?? true
+    const suppressNativeLanguage = settings?.suppressNativeLanguage ?? types.DEFAULT_SUPPRESS_NATIVE_LANGUAGE
     if (suppressNativeLanguage) {
-        const targetLang = settings?.targetLanguage || "zh"
+        const targetLang = settings?.targetLanguage || types.DEFAULT_USER_SETTINGS.targetLanguage
         // Extract context for language detection (async)
         // Use surrounding text to get better accuracy for short selections
         const contextText = domSanitizer.getSurroundingTextForDetection(range, 100)
