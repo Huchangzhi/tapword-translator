@@ -6,7 +6,7 @@
     "popup.enableTapWord.label": "Activer TapWord",
     "popup.enableTapWord.helper": "Désactive la traduction par sélection et double-clic.",
     "popup.section.general": "Général",
-    "popup.suppressNativeLanguage.label": "Désactiver la traduction si la page est en {language}",
+    "popup.suppressNativeLanguage.label": "Désactiver automatiquement sur les pages en {language}",
     "popup.suppressNativeLanguage.tooltip": "Désactive automatiquement toutes les fonctions de traduction si la langue de la page correspond à la langue cible.",
     "popup.section.translate": "Traduction",
     "popup.targetLanguage.label": "Traduire en",
