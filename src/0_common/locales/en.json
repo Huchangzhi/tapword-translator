@@ -7,7 +7,7 @@
     "popup.enableTapWord.helper": "Disables translate-on-select and double-click features when turned off.",
     "popup.section.general": "General",
     "popup.section.translate": "Translation",
-    "popup.suppressNativeLanguage.label": "Disable translation when page language is {language}",
+    "popup.suppressNativeLanguage.label": "Auto-disable on {language} pages",
     "popup.suppressNativeLanguage.tooltip": "Automatically disables all translation features if the page's language matches your target language.",
     "popup.targetLanguage.label": "Translate to",
     "popup.showIcon.label": "Show icon on text selection",
