@@ -308,8 +308,8 @@ export class APIService {
         if (error instanceof APIError) {
             // 403 Forbidden (WAF), 429 Too Many Requests (WAF/RateLimit)
             if (error.code === 403 || error.code === 429) return true
-            // requestError (Network Error, 502, 504 etc) or timeout
-            if (error.type === "requestError" || error.type === "timeout") return true
+            // requestError (Network Error, 502, 504 etc), timeout, or unexpectedError (e.g. Failed to fetch)
+            if (error.type === "requestError" || error.type === "timeout" || error.type === "unexpectedError") return true
         }
         return false
     }
