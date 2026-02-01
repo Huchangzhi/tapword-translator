@@ -9,7 +9,7 @@
     "popup.section.advanced": "高级设置",
     "popup.section.network": "国家/地区",
     "popup.section.translate": "翻译设置",
-    "popup.suppressNativeLanguage.label": "当网页原语言为{language}时，禁用翻译功能",
+    "popup.suppressNativeLanguage.label": "{language}网页自动禁用翻译",
     "popup.suppressNativeLanguage.tooltip": "如果识别到网页原语言与翻译语言一致，会自动禁用所有翻译功能",
     "popup.targetLanguage.label": "翻译为",
     "popup.networkRegion.label": "选择地区",

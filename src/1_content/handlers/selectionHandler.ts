@@ -63,7 +63,9 @@ async function handleIconClick(selection: Selection, range: Range): Promise<void
     iconManager.removeTranslationIcon()
 
     // Clear the selection to remove the browser's native highlight
-    selection.removeAllRanges()
+    if (selection) {
+        selection.removeAllRanges()
+    }
 
     // Delegate to core translation logic, splitting multi-block selections into per-block translations
     const splitRanges = rangeSplitter.splitRangeByBlocks(range)
@@ -151,7 +153,9 @@ export async function handleDoubleClick(event: MouseEvent): Promise<void> {
     }
 
     // Clear the selection to remove the browser's native highlight
-    selection.removeAllRanges()
+    if (selection) {
+        selection.removeAllRanges()
+    }
 
     // Delegate to core translation logic, splitting multi-block selections into per-block translations
     // Note: For sentence mode, we typically want to keep the sentence as a single unit if possible,

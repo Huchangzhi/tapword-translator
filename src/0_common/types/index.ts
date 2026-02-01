@@ -289,7 +289,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     targetLanguage: "en",
     translationFontSizePreset: "medium",
     translationFontSize: 10,
-    tooltipNextLineGapPx: 3,
+    tooltipNextLineGapPx: 4,
     tooltipVerticalOffsetPx: 2,
     textUnderlineOffsetPx: 3,
     iconColor: "pink",
@@ -299,6 +299,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
         apiKey: "",
         model: "",
     },
-    suppressNativeLanguage: true,
+    suppressNativeLanguage: false,
     networkRegion: "auto",
 }
+
+export const DEFAULT_SUPPRESS_NATIVE_LANGUAGE = DEFAULT_USER_SETTINGS.suppressNativeLanguage

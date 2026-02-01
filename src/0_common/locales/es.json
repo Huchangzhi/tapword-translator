@@ -8,6 +8,8 @@
     "popup.section.general": "General",
     "popup.section.advanced": "Avanzado",
     "popup.section.network": "País / Región",
+    "popup.suppressNativeLanguage.label": "Desactivar automáticamente en páginas en {language}",
+    "popup.suppressNativeLanguage.tooltip": "Desactiva automáticamente la traducción cuando el idioma de la página coincide con el idioma de destino.",
     "popup.section.translate": "Traducción",
     "popup.targetLanguage.label": "Traducir al",
     "popup.networkRegion.label": "Seleccionar región",

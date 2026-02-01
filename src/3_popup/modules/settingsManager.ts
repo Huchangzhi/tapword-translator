@@ -6,12 +6,24 @@
 
 import type * as types from "@/0_common/types"
 import * as i18nModule from "@/0_common/utils/i18n"
+import * as languageDisplayModule from "@/0_common/utils/languageDisplay"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as storageManagerModule from "@/0_common/utils/storageManager"
 import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
 import * as toastManagerModule from "./toastManager"
 
 const logger = loggerModule.createLogger("Popup/Settings")
+
+function updateSuppressNativeLanguageLabel(targetLanguage: string): void {
+    const labelSpan = document.getElementById("suppressNativeLanguageLabel")
+    if (!labelSpan) return
+
+    const langName = languageDisplayModule.getLanguageDisplayName(targetLanguage)
+    const template = i18nModule.translate("popup.suppressNativeLanguage.label")
+    
+    // Simple text replacement, no extra HTML styling
+    labelSpan.textContent = template.replace("{language}", langName)
+}
 
 function setTranslationControlsEnabled(enabled: boolean): void {
     const dependentIds = ["showIcon", "doubleClickTranslate", "doubleClickSentenceTranslate", "doubleClickSentenceTriggerKey"]
@@ -126,6 +138,9 @@ export async function loadSettings(): Promise<void> {
         const settings = await storageManagerModule.getUserSettings()
         logger.info("Loaded settings:", settings)
 
+        // Update dynamic label for suppressNativeLanguage
+        updateSuppressNativeLanguageLabel(settings.targetLanguage)
+
         // Update all checkboxes
         const checkboxes = document.querySelectorAll('input[type="checkbox"][data-setting]')
         checkboxes.forEach((checkbox) => {
@@ -199,6 +214,11 @@ export function setupSettingChangeListeners(): void {
             const settingKey = selectElement.dataset.setting as keyof types.UserSettings
             if (settingKey) {
                 const value = selectElement.value
+
+                if (settingKey === "targetLanguage") {
+                    updateSuppressNativeLanguageLabel(value)
+                }
+
                 await saveSetting(settingKey, value)
 
                 // Show refresh reminder toast for translation font size preset change

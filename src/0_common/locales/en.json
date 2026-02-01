@@ -9,7 +9,7 @@
     "popup.section.advanced": "Advanced",
     "popup.section.network": "Country / Region",
     "popup.section.translate": "Translation",
-    "popup.suppressNativeLanguage.label": "Disable translation when page language is {language}",
+    "popup.suppressNativeLanguage.label": "Auto-disable on {language} pages",
     "popup.suppressNativeLanguage.tooltip": "Automatically disables all translation features if the page's language matches your target language.",
     "popup.targetLanguage.label": "Translate to",
     "popup.networkRegion.label": "Select Region",

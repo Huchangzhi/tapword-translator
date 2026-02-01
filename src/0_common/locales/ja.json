@@ -6,6 +6,8 @@
     "popup.enableTapWord.label": "TapWord を有効にする",
     "popup.enableTapWord.helper": "オフにすると、テキスト選択とダブルクリックによる翻訳が一時停止します。",
     "popup.section.general": "一般設定",
+    "popup.suppressNativeLanguage.label": "{language}のページでは翻訳を自動無効化",
+    "popup.suppressNativeLanguage.tooltip": "ページの言語が翻訳先の言語と同じ場合、自動的に翻訳機能をオフにします。",
     "popup.section.advanced": "詳細設定",
     "popup.section.network": "地域 / 国・地域",
     "popup.section.translate": "翻訳",
