@@ -13,7 +13,7 @@
  */
 export function isLikelyChineseUser(): boolean {
     // Check language
-    const language = navigator.language.toLowerCase()
+    const language = (navigator?.language || "").toLowerCase()
     const isChineseLang = language.startsWith("zh")
 
     if (!isChineseLang) {
@@ -21,19 +21,20 @@ export function isLikelyChineseUser(): boolean {
     }
 
     // Check timezone
+    const CHINA_TIMEZONE_NAMES = [
+        "asia/shanghai",
+        "asia/beijing",
+        "asia/chongqing",
+        "asia/harbin",
+        "asia/urumqi",
+        "prc",
+    ]
+
     try {
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-        const chinaTimeZones = [
-            "Asia/Shanghai",
-            "Asia/Chongqing", 
-            "Asia/Harbin",
-            "Asia/Urumqi",
-            "PRC"
-        ]
-        
-        return chinaTimeZones.includes(timeZone)
+        const resolvedOptions = Intl.DateTimeFormat().resolvedOptions()
+        const timeZone = (resolvedOptions.timeZone || "").toLowerCase()
+        return CHINA_TIMEZONE_NAMES.includes(timeZone)
     } catch (e) {
-        // If timezone detection fails, rely on language match
-        return true
+        return false
     }
 }

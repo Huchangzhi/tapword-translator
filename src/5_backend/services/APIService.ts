@@ -63,9 +63,12 @@ export class APIService {
      */
     updateConfig(config: Partial<APIServiceConfig>): void {
         logger.info("Updating configuration:", config)
+        const previousFallbackBaseURL = this.config.fallbackBaseURL
         this.config = { ...this.config, ...config }
+        const fallbackBaseURLChanged = Object.prototype.hasOwnProperty.call(config, "fallbackBaseURL")
+            && config.fallbackBaseURL !== previousFallbackBaseURL
         // If BaseURL is explicitly updated, reset fallback state
-        if (config.baseURL) {
+        if (config.baseURL || fallbackBaseURLChanged) {
             this.hasFallenBack = false
         }
         logger.info("Configuration updated. New baseURL:", this.config.baseURL)
@@ -111,7 +114,18 @@ export class APIService {
                 
                 // Retry request only if switch occurred
                 if (this.hasFallenBack) {
-                    return await this.performRequest<TResponse>(endpoint, method, bodyData, options)
+                    try {
+                        return await this.performRequest<TResponse>(endpoint, method, bodyData, options)
+                    } catch (fallbackError) {
+                        if (fallbackError instanceof APIError && fallbackError.type === "tokenExpired" && addAuthToken) {
+                            logger.info("Token expired after fallback, attempting refresh...")
+                            const authService = getAuthService()
+                            await authService.refreshToken()
+                            logger.info("Token refreshed, retrying request after fallback...")
+                            return await this.performRequest<TResponse>(endpoint, method, bodyData, options)
+                        }
+                        throw fallbackError
+                    }
                 }
             }
 

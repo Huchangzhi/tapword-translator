@@ -41,12 +41,9 @@ export async function initializeAPIService(): Promise<void> {
         logger.info(`Using Base URL for region ${settings.networkRegion}: ${currentBaseURL}`)
 
         // Determine fallback URL for auto mode
-        let fallbackBaseURL: string | undefined
-        if (settings.networkRegion === "auto") {
-            if (isLikelyChineseUser()) {
-                fallbackBaseURL = API_BASE_URL_MAP.china
-                logger.info("Auto-fallback to China Direct enabled for Chinese user")
-            }
+        const fallbackBaseURL = resolveFallbackBaseURL(settings)
+        if (fallbackBaseURL) {
+            logger.info("Auto-fallback to China Direct enabled for Chinese user")
         }
 
         // Initialize AuthService
@@ -81,11 +78,12 @@ function setupNetworkRegionListener(credentials: { apiKey: string; apiSecret: st
 
                 if (newSettings && newSettings.networkRegion !== oldSettings?.networkRegion) {
                     const newBaseURL = API_BASE_URL_MAP[newSettings.networkRegion] || API_BASE_URL_MAP.auto
+                    const fallbackBaseURL = resolveFallbackBaseURL(newSettings)
                     logger.info(`Network region changed to ${newSettings.networkRegion}, switching to: ${newBaseURL}`)
 
                     try {
                         // Update APIService
-                        backendModule.getAPIService().updateConfig({ baseURL: newBaseURL })
+                        backendModule.getAPIService().updateConfig({ baseURL: newBaseURL, fallbackBaseURL })
 
                         // Re-initialize AuthService with new URL
                         // This effectively clears the token and sets new base URL for auth requests
@@ -101,6 +99,18 @@ function setupNetworkRegionListener(credentials: { apiKey: string; apiSecret: st
     } catch (error) {
         logger.warn("Failed to setup network region listener:", error)
     }
+}
+
+function resolveFallbackBaseURL(settings: UserSettings): string | undefined {
+    if (settings.networkRegion !== "auto") {
+        return undefined
+    }
+
+    if (isLikelyChineseUser()) {
+        return API_BASE_URL_MAP.china
+    }
+
+    return undefined
 }
 
 /**
