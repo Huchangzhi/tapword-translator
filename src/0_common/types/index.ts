@@ -70,7 +70,7 @@ export interface SpeechSynthesisRequestData {
 /**
  * Message types for content-background communication
  */
-export type MessageType = "TRANSLATE_REQUEST" | "FRAGMENT_TRANSLATE_REQUEST" | "SPEECH_SYNTHESIS_REQUEST" | "POPUP_BOOTSTRAP_REQUEST"
+export type MessageType = "TRANSLATE_REQUEST" | "FRAGMENT_TRANSLATE_REQUEST" | "SPEECH_SYNTHESIS_REQUEST" | "SPEECH_STOP_REQUEST" | "POPUP_BOOTSTRAP_REQUEST"
 
 /**
  * Popup bootstrap request/response
@@ -181,6 +181,13 @@ export interface SpeechSynthesisRequestMessage {
 }
 
 /**
+ * Speech stop request message
+ */
+export interface SpeechStopRequestMessage {
+    type: "SPEECH_STOP_REQUEST"
+}
+
+/**
  * Speech synthesis response message (success)
  */
 export interface SpeechSynthesisResponseSuccessMessage {
@@ -188,7 +195,7 @@ export interface SpeechSynthesisResponseSuccessMessage {
     success: true
     data: {
         /** Audio data as a base64 string */
-        audio: string
+        audio?: string
     }
 }
 
