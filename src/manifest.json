@@ -10,7 +10,8 @@
         "128": "icons/icon-128.png"
     },
     "permissions": [
-        "storage"
+        "storage",
+        "offscreen"
     ],
     "background": {
         "service_worker": "background.js",

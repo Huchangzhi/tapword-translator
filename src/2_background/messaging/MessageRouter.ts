@@ -39,6 +39,10 @@ export function setupMessageListener(): void {
                 SpeechSynthesisRequestHandler.handleSpeechSynthesisRequest(message, sendResponse)
                 return true // Keep message channel open for async response
 
+            case "SPEECH_STOP_REQUEST":
+                SpeechSynthesisRequestHandler.handleSpeechStopRequest(sendResponse)
+                return true
+
             case "POPUP_BOOTSTRAP_REQUEST": {
                 const response = buildPopupBootstrapResponse()
                 sendResponse(response)

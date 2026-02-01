@@ -15,7 +15,7 @@ import * as toastNotification from "@/1_content/ui/toastNotification"
 import * as languageDetector from "@/1_content/utils/languageDetector"
 import { ModalPositioner } from "@/1_content/utils/modalPositioner"
 import * as versionStatus from "@/1_content/utils/versionStatus"
-import * as audioUtils from "@/1_content/utils/audioUtils"
+
 // Inject modal stylesheet into Shadow DOM to avoid host CSS leakage
 import modalCssRaw from "@/1_content/resources/modal.css?raw"
 
@@ -83,11 +83,7 @@ export interface TranslationDetailData {
 // State Management
 // ============================================================================
 
-/**
- * The currently playing audio object for speech synthesis.
- * Used to interrupt playback when a new request is made.
- */
-let currentAudio: HTMLAudioElement | null = null
+
 
 /**
  * Current modal content container (for dynamic updates)
@@ -205,13 +201,16 @@ export function closeTranslationModal(): void {
     // Disable scroll-to-close listeners immediately
     disableScrollAutoClose()
 
-    if (currentAudio) {
-        currentAudio.pause()
-        currentAudio = null
-    }
     if (!activeModalContainer && !activeModalHost) {
         return
     }
+
+    // Stop speech playback in background
+    chrome.runtime.sendMessage({ type: "SPEECH_STOP_REQUEST" }, () => {
+        if (chrome.runtime.lastError) {
+            logger.warn("Failed to send SPEECH_STOP_REQUEST:", chrome.runtime.lastError)
+        }
+    })
 
     const modalToClose = activeModalContainer
     const hostToRemove = activeModalHost
@@ -339,11 +338,6 @@ async function handleSpeakClick(event: Event, text: string, isAutoPlay: boolean 
         return
     }
 
-    if (currentAudio) {
-        currentAudio.pause()
-        currentAudio = null
-    }
-
     // Prefer provided language from earlier detection (e.g., original sentence).
     // Only if missing, optionally detect as a fallback to keep previous behavior in rare cases.
     const detectedLanguage = languageOverride || (await languageDetector.detectSourceLanguageAsync(text))
@@ -368,23 +362,7 @@ async function handleSpeakClick(event: Event, text: string, isAutoPlay: boolean 
             }
 
             if (response.success) {
-                // Detect audio format (wav or mp3) from base64 data
-                const mimeType = audioUtils.detectAudioMimeType(response.data.audio)
-                // Construct the data URL from the base64 string.
-                const audioDataUrl = `data:${mimeType};base64,${response.data.audio}`
-                const audio = new Audio(audioDataUrl)
-                currentAudio = audio
-                audio.play().catch((error) => {
-                    logger.error("Error playing audio:", error)
-                    currentAudio = null
-                    // Only show toast for user-triggered speech, not auto-play
-                    if (!isAutoPlay) {
-                        toastNotification.showToast("语音播放失败", "error", activeModalContainer || undefined)
-                    }
-                })
-                audio.onended = () => {
-                    currentAudio = null
-                }
+                logger.info("Speech synthesis started in background")
             } else {
                 // Handle different error types
                 let errorMessage = "语音播放失败, 请稍后再试"
