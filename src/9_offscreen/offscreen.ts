@@ -3,9 +3,36 @@ import { detectAudioMimeType } from "@/0_common/utils/audioUtils"
 
 const logger = createLogger("offscreen")
 
+const PLAYBACK_FAILED_ERROR = "Playback failed"
+const UNKNOWN_ERROR = "Unknown error"
+
 logger.info("Offscreen document initialized")
 
 let currentAudio: HTMLAudioElement | null = null
+
+function stopAndCleanupAudio(audio: HTMLAudioElement): void {
+    audio.onended = null
+    audio.onerror = null
+    audio.pause()
+}
+
+function clearCurrentAudioIfMatch(audio: HTMLAudioElement): void {
+    if (currentAudio === audio) {
+        currentAudio = null
+    }
+}
+
+function createResponseSender(sendResponse: (response: any) => void): (response: any) => void {
+    let responseSent = false
+
+    return (response: any) => {
+        if (responseSent) {
+            return
+        }
+        responseSent = true
+        sendResponse(response)
+    }
+}
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -22,42 +49,44 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 })
 
 async function handlePlayAudio(data: { audio: string }, sendResponse: (response: any) => void) {
+    const sendResponseOnce = createResponseSender(sendResponse)
+
     try {
         if (currentAudio) {
-            currentAudio.pause()
+            stopAndCleanupAudio(currentAudio)
             currentAudio = null
         }
 
         const mimeType = detectAudioMimeType(data.audio)
         const audioDataUrl = `data:${mimeType};base64,${data.audio}`
         
-        currentAudio = new Audio(audioDataUrl)
-        
-        // Handle playback end to clean up reference
-        currentAudio.onended = () => {
+        const audio = new Audio(audioDataUrl)
+        currentAudio = audio
+
+        audio.onended = () => {
             logger.info("Audio playback finished")
-            currentAudio = null
+            clearCurrentAudioIfMatch(audio)
         }
 
-        currentAudio.onerror = (e) => {
+        audio.onerror = (e) => {
             logger.error("Audio playback error:", e)
-            sendResponse({ success: false, error: "Playback failed" })
-            currentAudio = null
+            sendResponseOnce({ success: false, error: PLAYBACK_FAILED_ERROR })
+            clearCurrentAudioIfMatch(audio)
         }
 
-        await currentAudio.play()
+        await audio.play()
         logger.info("Audio playback started")
-        sendResponse({ success: true })
+        sendResponseOnce({ success: true })
         
     } catch (error) {
         logger.error("Failed to play audio:", error)
-        sendResponse({ success: false, error: error instanceof Error ? error.message : "Unknown error" })
+        sendResponseOnce({ success: false, error: error instanceof Error ? error.message : UNKNOWN_ERROR })
     }
 }
 
 function handleStopAudio(sendResponse: (response: any) => void) {
     if (currentAudio) {
-        currentAudio.pause()
+        stopAndCleanupAudio(currentAudio)
         currentAudio = null
         logger.info("Audio playback stopped")
     }

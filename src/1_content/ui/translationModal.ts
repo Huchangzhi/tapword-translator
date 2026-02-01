@@ -206,7 +206,11 @@ export function closeTranslationModal(): void {
     }
 
     // Stop speech playback in background
-    chrome.runtime.sendMessage({ type: "SPEECH_STOP_REQUEST" })
+    chrome.runtime.sendMessage({ type: "SPEECH_STOP_REQUEST" }, () => {
+        if (chrome.runtime.lastError) {
+            logger.warn("Failed to send SPEECH_STOP_REQUEST:", chrome.runtime.lastError)
+        }
+    })
 
     const modalToClose = activeModalContainer
     const hostToRemove = activeModalHost

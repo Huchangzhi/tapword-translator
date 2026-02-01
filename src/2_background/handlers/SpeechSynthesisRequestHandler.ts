@@ -43,8 +43,8 @@ export async function handleSpeechSynthesisRequest(
         }
 
         // Play audio in offscreen document
-        // We don't await this if we want to return quickly, but better to await to ensure playback starts
-        // or catch immediate errors (like document creation failure).
+        // We intentionally await this to ensure playback starts and to catch immediate errors
+        // (like offscreen document creation failure), at the cost of some added latency.
         await offscreenManager.playAudio(result.audio)
 
         // Send success response (audio data not needed in content script anymore)
