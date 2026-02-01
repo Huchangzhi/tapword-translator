@@ -107,5 +107,5 @@
     "error.contentBlocked": "Content blocked due to safety policy.",
     "error.rateLimited": "You are translating too fast. Please take a break.",
     "error.quotaExceeded": "Translation quota has been exceeded.",
-    "error.customApiConfigMissing": "Please complete the configuration in 'Custom API' settings."
+    "error.customApiConfigMissing": "Please complete the configuration in 'Advanced - Custom API' settings."
 }

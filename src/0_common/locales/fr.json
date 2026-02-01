@@ -105,5 +105,5 @@
     "error.contentBlocked": "Contenu bloqué pour des raisons de sécurité.",
     "error.rateLimited": "Vous traduisez trop vite. Veuillez faire une pause.",
     "error.quotaExceeded": "Quota de traduction dépassé.",
-    "error.customApiConfigMissing": "Veuillez compléter la configuration dans les paramètres 'API Personnalisée'."
+    "error.customApiConfigMissing": "Veuillez compléter la configuration dans 'Avancé - API Personnalisée'."
 }

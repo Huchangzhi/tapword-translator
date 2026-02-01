@@ -105,5 +105,5 @@
     "error.contentBlocked": "안전 정책으로 인해 콘텐츠가 차단되었습니다.",
     "error.rateLimited": "번역 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
     "error.quotaExceeded": "번역 할당량을 초과했습니다.",
-    "error.customApiConfigMissing": "'사용자 지정 API' 설정에서 구성을 완료하십시오."
+    "error.customApiConfigMissing": "'고급 설정 - 사용자 지정 API'에서 구성을 완료하십시오."
 }

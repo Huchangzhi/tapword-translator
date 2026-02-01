@@ -105,5 +105,5 @@
     "error.contentBlocked": "Contenido bloqueado por política de seguridad.",
     "error.rateLimited": "Está traduciendo demasiado rápido. Por favor, tómese un descanso.",
     "error.quotaExceeded": "Se ha excedido la cuota de traducción.",
-    "error.customApiConfigMissing": "Por favor, complete la configuración en los ajustes de 'API Personalizada'."
+    "error.customApiConfigMissing": "Por favor, complete la configuración en 'Avanzado - API Personalizada'."
 }

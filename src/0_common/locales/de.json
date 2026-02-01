@@ -105,5 +105,5 @@
     "error.contentBlocked": "Inhalt aufgrund von Sicherheitsrichtlinien blockiert.",
     "error.rateLimited": "Sie übersetzen zu schnell. Bitte machen Sie eine Pause.",
     "error.quotaExceeded": "Übersetzungskontingent überschritten.",
-    "error.customApiConfigMissing": "Bitte vervollständigen Sie die Konfiguration in den 'Eigene API' Einstellungen."
+    "error.customApiConfigMissing": "Bitte vervollständigen Sie die Konfiguration unter 'Erweitert - Eigene API'."
 }

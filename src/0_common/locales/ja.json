@@ -105,5 +105,5 @@
     "error.contentBlocked": "安全ポリシーによりコンテンツがブロックされました。",
     "error.rateLimited": "翻訳の頻度が高すぎます。少し時間をおいてください。",
     "error.quotaExceeded": "翻訳の利用上限に達しました。",
-    "error.customApiConfigMissing": "「カスタムAPI」設定で設定を完了してください。"
+    "error.customApiConfigMissing": "「詳細設定 - カスタムAPI」で設定を完了してください。"
 }

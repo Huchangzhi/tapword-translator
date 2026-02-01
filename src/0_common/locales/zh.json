@@ -107,5 +107,5 @@
     "error.contentBlocked": "翻译内容可能包含不适宜内容, 已被拦截",
     "error.rateLimited": "翻译太快啦, 休息一下吧",
     "error.quotaExceeded": "额度用光了",
-    "error.customApiConfigMissing": "请在“自定义API”设置中填写相关配置"
+    "error.customApiConfigMissing": "请在“高级设置 - 自定义API”中填写相关配置"
 }
