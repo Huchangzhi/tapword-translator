@@ -8,8 +8,18 @@
     "popup.section.general": "一般設定",
     "popup.suppressNativeLanguage.label": "{language}のページでは翻訳を自動無効化",
     "popup.suppressNativeLanguage.tooltip": "ページの言語が翻訳先の言語と同じ場合、自動的に翻訳機能をオフにします。",
+    "popup.section.advanced": "詳細設定",
+    "popup.section.network": "地域 / 国・地域",
     "popup.section.translate": "翻訳",
     "popup.targetLanguage.label": "翻訳先",
+    "popup.networkRegion.label": "地域を選択",
+    "popup.networkRegion.helper": "接続速度を最適化するために地域を選択してください（VPN使用時は中国本土を選択）。",
+    "popup.networkRegion.auto": "自動検出",
+    "popup.networkRegion.auto.desc": "",
+    "popup.networkRegion.china": "中国本土",
+    "popup.networkRegion.china.desc": "国内サーバーに強制接続（VPN接続の問題を解決）",
+    "popup.networkRegion.global": "国際",
+    "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "テキスト選択時にアイコンを表示",
     "popup.showIcon.tooltip": "単語の一部を選択するだけで、単語全体を翻訳できます。",
     "popup.doubleClickTranslate.label": "ダブルクリックで単語を翻訳",
@@ -95,5 +105,5 @@
     "error.contentBlocked": "安全ポリシーによりコンテンツがブロックされました。",
     "error.rateLimited": "翻訳の頻度が高すぎます。少し時間をおいてください。",
     "error.quotaExceeded": "翻訳の利用上限に達しました。",
-    "error.customApiConfigMissing": "「カスタムAPI」設定で設定を完了してください。"
+    "error.customApiConfigMissing": "「詳細設定 - カスタムAPI」で設定を完了してください。"
 }

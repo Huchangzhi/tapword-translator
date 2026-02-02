@@ -52,6 +52,16 @@ function applyCommunityUiOverrides(): void {
         communitySubtitle.style.display = "inline"
     }
 
+    const connectionCardTitle = document.getElementById("connectionCardTitle")
+    if (connectionCardTitle) {
+        connectionCardTitle.style.display = "none"
+    }
+
+    const connectionCard = document.getElementById("connectionCard")
+    if (connectionCard) {
+        connectionCard.style.display = "none"
+    }
+
     const customApiHelper = document.querySelector('[data-i18n-key="popup.section.customApi.helper"]')
     customApiHelper?.setAttribute("data-i18n-key", "popup.section.customApi.helper.community")
 

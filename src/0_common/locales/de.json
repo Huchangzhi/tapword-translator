@@ -8,8 +8,18 @@
     "popup.section.general": "Allgemein",
     "popup.suppressNativeLanguage.label": "Auf {language} Seiten automatisch deaktivieren",
     "popup.suppressNativeLanguage.tooltip": "Deaktiviert automatisch alle Übersetzungsfunktionen, wenn die Sprache der Seite mit der Zielsprache übereinstimmt.",
+    "popup.section.advanced": "Erweitert",
+    "popup.section.network": "Land / Region",
     "popup.section.translate": "Übersetzung",
-    "popup.targetLanguage.label": "Übersetzen nach",
+    "popup.targetLanguage.label": "Zielsprache",
+    "popup.networkRegion.label": "Region wählen",
+    "popup.networkRegion.helper": "Wählen Sie Ihre Region zur Optimierung der Verbindung (bei VPN 'Festlandchina' wählen).",
+    "popup.networkRegion.auto": "Automatisch",
+    "popup.networkRegion.auto.desc": "",
+    "popup.networkRegion.china": "Festlandchina",
+    "popup.networkRegion.china.desc": "Verbindung zu Inlandsservern erzwingen (löst VPN-Probleme)",
+    "popup.networkRegion.global": "International",
+    "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Symbol bei Textauswahl anzeigen",
     "popup.showIcon.tooltip": "Markieren Sie einen beliebigen Teil eines Wortes, um das ganze Wort zu übersetzen.",
     "popup.doubleClickTranslate.label": "Per Doppelklick Wort übersetzen",
@@ -95,5 +105,5 @@
     "error.contentBlocked": "Inhalt aufgrund von Sicherheitsrichtlinien blockiert.",
     "error.rateLimited": "Sie übersetzen zu schnell. Bitte machen Sie eine Pause.",
     "error.quotaExceeded": "Übersetzungskontingent überschritten.",
-    "error.customApiConfigMissing": "Bitte vervollständigen Sie die Konfiguration in den 'Eigene API' Einstellungen."
+    "error.customApiConfigMissing": "Bitte vervollständigen Sie die Konfiguration unter 'Erweitert - Eigene API'."
 }

@@ -6,10 +6,20 @@
     "popup.enableTapWord.label": "Enable TapWord",
     "popup.enableTapWord.helper": "Disables translate-on-select and double-click features when turned off.",
     "popup.section.general": "General",
+    "popup.section.advanced": "Advanced",
+    "popup.section.network": "Country / Region",
     "popup.section.translate": "Translation",
     "popup.suppressNativeLanguage.label": "Auto-disable on {language} pages",
     "popup.suppressNativeLanguage.tooltip": "Automatically disables all translation features if the page's language matches your target language.",
     "popup.targetLanguage.label": "Translate to",
+    "popup.networkRegion.label": "Select Region",
+    "popup.networkRegion.helper": "Select your region to optimize connection speed (Choose Mainland China if using VPN).",
+    "popup.networkRegion.auto": "Auto Detect",
+    "popup.networkRegion.auto.desc": "",
+    "popup.networkRegion.china": "Mainland China",
+    "popup.networkRegion.china.desc": "Force direct connection to domestic server (Fixes VPN connection issues)",
+    "popup.networkRegion.global": "International",
+    "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Show icon on text selection",
     "popup.showIcon.tooltip": "Translate a whole word by highlighting just a part of it.",
     "popup.doubleClickTranslate.label": "Double-click to translate word",
@@ -97,5 +107,5 @@
     "error.contentBlocked": "Content blocked due to safety policy.",
     "error.rateLimited": "You are translating too fast. Please take a break.",
     "error.quotaExceeded": "Translation quota has been exceeded.",
-    "error.customApiConfigMissing": "Please complete the configuration in 'Custom API' settings."
+    "error.customApiConfigMissing": "Please complete the configuration in 'Advanced - Custom API' settings."
 }

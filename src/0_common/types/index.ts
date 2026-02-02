@@ -70,7 +70,7 @@ export interface SpeechSynthesisRequestData {
 /**
  * Message types for content-background communication
  */
-export type MessageType = "TRANSLATE_REQUEST" | "FRAGMENT_TRANSLATE_REQUEST" | "SPEECH_SYNTHESIS_REQUEST" | "POPUP_BOOTSTRAP_REQUEST"
+export type MessageType = "TRANSLATE_REQUEST" | "FRAGMENT_TRANSLATE_REQUEST" | "SPEECH_SYNTHESIS_REQUEST" | "SPEECH_STOP_REQUEST" | "POPUP_BOOTSTRAP_REQUEST"
 
 /**
  * Popup bootstrap request/response
@@ -181,6 +181,13 @@ export interface SpeechSynthesisRequestMessage {
 }
 
 /**
+ * Speech stop request message
+ */
+export interface SpeechStopRequestMessage {
+    type: "SPEECH_STOP_REQUEST"
+}
+
+/**
  * Speech synthesis response message (success)
  */
 export interface SpeechSynthesisResponseSuccessMessage {
@@ -188,7 +195,7 @@ export interface SpeechSynthesisResponseSuccessMessage {
     success: true
     data: {
         /** Audio data as a base64 string */
-        audio: string
+        audio?: string
     }
 }
 
@@ -216,6 +223,8 @@ export type TranslationFontSizePreset = "small" | "medium" | "large" | "extraLar
 export type IconColor = "pink" | "blue" | "purple" | "green" | "orange" | "red" | "teal" | "indigo"
 
 export type TriggerKey = "meta" | "option" | "alt" | "ctrl"
+
+export type NetworkRegion = "auto" | "china" | "global"
 
 export interface CustomApiSettings {
     /** Whether to use user-provided LLM API instead of cloud translation */
@@ -266,6 +275,8 @@ export interface UserSettings {
     customApi: CustomApiSettings
     /** Whether to suppress translation when the detected source language matches the target language */
     suppressNativeLanguage: boolean
+    /** Network region preference for API calls (auto, china, global) */
+    networkRegion: NetworkRegion
 }
 
 /**
@@ -296,6 +307,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
         model: "",
     },
     suppressNativeLanguage: false,
+    networkRegion: "auto",
 }
 
 export const DEFAULT_SUPPRESS_NATIVE_LANGUAGE = DEFAULT_USER_SETTINGS.suppressNativeLanguage

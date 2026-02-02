@@ -8,9 +8,19 @@
     "popup.section.general": "Общие",
     "popup.suppressNativeLanguage.label": "Автоматически отключать на страницах на {language}",
     "popup.suppressNativeLanguage.tooltip": "Автоматически отключает все функции перевода, если язык страницы совпадает с языком перевода.",
+    "popup.section.advanced": "Расширенные",
+    "popup.section.network": "Страна / Регион",
     "popup.section.translate": "Перевод",
-    "popup.targetLanguage.label": "Перевести на",
-    "popup.showIcon.label": "Показывать иконку при выделении",
+    "popup.targetLanguage.label": "Язык перевода",
+    "popup.networkRegion.label": "Выберите регион",
+    "popup.networkRegion.helper": "Выберите регион для оптимизации соединения (выберите «Материковый Китай» при использовании VPN).",
+    "popup.networkRegion.auto": "Авто",
+    "popup.networkRegion.auto.desc": "",
+    "popup.networkRegion.china": "Материковый Китай",
+    "popup.networkRegion.china.desc": "Принудительное подключение к серверам в Китае (решает проблемы с VPN)",
+    "popup.networkRegion.global": "Международный",
+    "popup.networkRegion.global.desc": "",
+    "popup.showIcon.label": "Показывать иконку при выборе",
     "popup.showIcon.tooltip": "Переведите всё слово, выделив лишь его часть.",
     "popup.doubleClickTranslate.label": "Двойной клик для перевода слова",
     "popup.doubleClickSentenceTranslate.label": "Двойной клик для перевода предложения",
@@ -95,5 +105,5 @@
     "error.contentBlocked": "Содержимое заблокировано из-за политики безопасности.",
     "error.rateLimited": "Вы переводите слишком часто. Пожалуйста, сделайте перерыв.",
     "error.quotaExceeded": "Квота на перевод исчерпана.",
-    "error.customApiConfigMissing": "Пожалуйста, завершите конфигурацию в настройках 'Свой API'."
+    "error.customApiConfigMissing": "Пожалуйста, завершите настройку в разделе 'Расширенные - Свой API'."
 }

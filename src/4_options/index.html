@@ -37,7 +37,7 @@
           <a href="#display-settings" class="nav-item" data-section="display-settings" data-i18n-key="popup.section.text">Text</a>
           <a href="#audio-settings" class="nav-item" data-section="audio-settings" data-i18n-key="popup.section.audio">Audio</a>
           <a href="#appearance-settings" class="nav-item" data-section="appearance-settings" data-i18n-key="popup.section.appearance">Appearance</a>
-          <a href="#custom-api-settings" class="nav-item" data-section="custom-api-settings" data-i18n-key="popup.section.customApi">Custom API</a>
+          <a href="#advanced-settings" class="nav-item" data-section="advanced-settings" data-i18n-key="popup.section.advanced">Advanced</a>
         </nav>
       </aside>
       <section class="content">
@@ -331,10 +331,42 @@
           </div>
         </div>
 
-        <div id="custom-api-settings" class="settings-section">
+        <div id="advanced-settings" class="settings-section">
           <div class="section-header">
-            <h2 data-i18n-key="popup.section.customApi">Custom API</h2>
-            <p class="section-subtitle" data-i18n-key="popup.section.customApi.helper">Use your own API for translations.</p>
+            <h2 data-i18n-key="popup.section.advanced">Advanced</h2>
+          </div>
+
+          <h3 class="card-title" id="connectionCardTitle" data-i18n-key="popup.section.network" style="margin-bottom: 12px; font-size: 16px; font-weight: 600; color: var(--text-primary); padding-left: 2px;">Connection</h3>
+          <div class="card settings-card" id="connectionCard" style="margin-bottom: 32px; padding: 16px;">
+            <p class="section-subtitle" data-i18n-key="popup.networkRegion.helper" style="margin: 0 0 12px 0;">Choose a specific network route to bypass connection issues.</p>
+            <div class="radio-group">
+              <label class="radio-card">
+                <input type="radio" name="networkRegion" value="auto" data-setting="networkRegion">
+                <div class="radio-info">
+                  <span class="radio-title" data-i18n-key="popup.networkRegion.auto">Auto</span>
+                  <span class="radio-desc" data-i18n-key="popup.networkRegion.auto.desc">Automatically detects optimal route.</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="networkRegion" value="china" data-setting="networkRegion">
+                <div class="radio-info">
+                  <span class="radio-title" data-i18n-key="popup.networkRegion.china">China Direct</span>
+                  <span class="radio-desc" data-i18n-key="popup.networkRegion.china.desc">For users in Mainland China.</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="networkRegion" value="global" data-setting="networkRegion">
+                <div class="radio-info">
+                  <span class="radio-title" data-i18n-key="popup.networkRegion.global">Global</span>
+                  <span class="radio-desc" data-i18n-key="popup.networkRegion.global.desc">Force connection via Cloudflare.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px; padding-left: 2px;">
+            <h3 class="card-title" data-i18n-key="popup.section.customApi" style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Custom API</h3>
+            <p class="section-subtitle" data-i18n-key="popup.section.customApi.helper" style="margin: 0; font-size: 13px; color: var(--text-secondary);">Use your own API for translations.</p>
           </div>
           <div class="card settings-card" id="customApiCard">
             <div class="setting-item" id="useCustomApiSettingItem">

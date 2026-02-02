@@ -6,10 +6,20 @@
     "popup.enableTapWord.label": "Activar TapWord",
     "popup.enableTapWord.helper": "Desactiva la traducción al seleccionar y con doble clic.",
     "popup.section.general": "General",
+    "popup.section.advanced": "Avanzado",
+    "popup.section.network": "País / Región",
     "popup.suppressNativeLanguage.label": "Desactivar automáticamente en páginas en {language}",
     "popup.suppressNativeLanguage.tooltip": "Desactiva automáticamente la traducción cuando el idioma de la página coincide con el idioma de destino.",
     "popup.section.translate": "Traducción",
-    "popup.targetLanguage.label": "Traducir a",
+    "popup.targetLanguage.label": "Traducir al",
+    "popup.networkRegion.label": "Seleccionar región",
+    "popup.networkRegion.helper": "Seleccione su región para optimizar la conexión (elija 'China continental' si usa VPN).",
+    "popup.networkRegion.auto": "Detección auto",
+    "popup.networkRegion.auto.desc": "",
+    "popup.networkRegion.china": "China continental",
+    "popup.networkRegion.china.desc": "Forzar conexión al servidor nacional (soluciona problemas de VPN)",
+    "popup.networkRegion.global": "Internacional",
+    "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Mostrar icono al seleccionar texto",
     "popup.showIcon.tooltip": "Traduce una palabra completa con solo seleccionar una parte de ella.",
     "popup.doubleClickTranslate.label": "Doble clic para traducir palabra",
@@ -95,5 +105,5 @@
     "error.contentBlocked": "Contenido bloqueado por política de seguridad.",
     "error.rateLimited": "Está traduciendo demasiado rápido. Por favor, tómese un descanso.",
     "error.quotaExceeded": "Se ha excedido la cuota de traducción.",
-    "error.customApiConfigMissing": "Por favor, complete la configuración en los ajustes de 'API Personalizada'."
+    "error.customApiConfigMissing": "Por favor, complete la configuración en 'Avanzado - API Personalizada'."
 }

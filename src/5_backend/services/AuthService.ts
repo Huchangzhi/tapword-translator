@@ -88,6 +88,17 @@ export class AuthService {
     }
 
     /**
+     * Update Base URL for authentication requests
+     */
+    updateBaseURL(baseURL: string): void {
+        logger.info(`Updating AuthService Base URL to: ${baseURL}`)
+        this.baseURL = baseURL
+        // Clear token to force re-authentication with new URL
+        this.currentToken = null
+        this.refreshPromise = null
+    }
+
+    /**
      * Check if the service is initialized
      */
     isInitialized(): boolean {

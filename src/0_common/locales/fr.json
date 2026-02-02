@@ -8,8 +8,18 @@
     "popup.section.general": "Général",
     "popup.suppressNativeLanguage.label": "Désactiver automatiquement sur les pages en {language}",
     "popup.suppressNativeLanguage.tooltip": "Désactive automatiquement toutes les fonctions de traduction si la langue de la page correspond à la langue cible.",
+    "popup.section.advanced": "Avancé",
+    "popup.section.network": "Pays / Région",
     "popup.section.translate": "Traduction",
     "popup.targetLanguage.label": "Traduire en",
+    "popup.networkRegion.label": "Choisir la région",
+    "popup.networkRegion.helper": "Choisissez votre région pour optimiser la connexion (choisissez 'Chine continentale' si vous utilisez un VPN).",
+    "popup.networkRegion.auto": "Détection auto",
+    "popup.networkRegion.auto.desc": "",
+    "popup.networkRegion.china": "Chine continentale",
+    "popup.networkRegion.china.desc": "Forcer la connexion au serveur domestique (résout les problèmes VPN)",
+    "popup.networkRegion.global": "International",
+    "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Afficher l'icône sur sélection",
     "popup.showIcon.tooltip": "Traduisez un mot entier en surlignant juste une partie.",
     "popup.doubleClickTranslate.label": "Double-clic pour traduire un mot",
@@ -95,5 +105,5 @@
     "error.contentBlocked": "Contenu bloqué pour des raisons de sécurité.",
     "error.rateLimited": "Vous traduisez trop vite. Veuillez faire une pause.",
     "error.quotaExceeded": "Quota de traduction dépassé.",
-    "error.customApiConfigMissing": "Veuillez compléter la configuration dans les paramètres 'API Personnalisée'."
+    "error.customApiConfigMissing": "Veuillez compléter la configuration dans 'Avancé - API Personnalisée'."
 }
