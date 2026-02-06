@@ -307,7 +307,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     translationFontSizePreset: "medium",
     translationFontSize: 10,
     tooltipNextLineGapPx: 4,
-    tooltipNextLineGapPxV2: 5,
+    tooltipNextLineGapPxV2: 6,
     tooltipVerticalOffsetPx: 2,
     tooltipVerticalOffsetPxV2: 3,
     textUnderlineOffsetPx: 3,
