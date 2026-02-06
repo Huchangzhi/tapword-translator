@@ -88,12 +88,19 @@
     line-height: 1;
     white-space: nowrap;
     overflow: hidden;
-    /* JS applies manual ellipsis ('...') when needed */
+    /* Default behavior: clip text, gradient mask will be applied if truncated */
+    text-overflow: clip;
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
+}
+
+.ai-translator-tooltip.is-truncated {
+    /* Gradient mask for fade-out effect with extended fade zone */
+    -webkit-mask-image: linear-gradient(to right, black 75%, transparent 100%);
+    mask-image: linear-gradient(to right, black 75%, transparent 100%);
 }
 
 .ai-translator-tooltip.visible {
