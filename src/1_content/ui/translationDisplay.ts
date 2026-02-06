@@ -6,6 +6,7 @@
  */
 
 import type { TranslationContextData, TranslationFontSizePreset } from "@/0_common/types"
+import * as types from "@/0_common/types"
 import * as translationFontSizeModule from "@/0_common/constants/translationFontSize"
 import * as textTruncator from "@/0_common/utils/textTruncator"
 import * as constants from "@/1_content/constants"
@@ -674,7 +675,7 @@ function positionTooltip(anchorId: string): void {
         }
 
         const cachedSettings = contentIndex.getCachedUserSettings()
-        const verticalOffset = cachedSettings?.tooltipVerticalOffsetPx ?? 2
+        const verticalOffset = cachedSettings?.tooltipVerticalOffsetPxV2 ?? types.DEFAULT_USER_SETTINGS.tooltipVerticalOffsetPxV2
         const top = rect.bottom + scrollY + verticalOffset
 
         const tooltipWidth = tooltip.offsetWidth || 0

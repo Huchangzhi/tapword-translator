@@ -107,13 +107,13 @@ async function setupTooltipSpacingPreview(): Promise<void> {
     const tooltip1 = document.getElementById("tooltipPreviewTooltip1")
     const tooltip = document.getElementById("tooltipPreviewTooltip")
 
-    const gapInput = document.getElementById("tooltipNextLineGapPx") as HTMLInputElement | null
-    const offsetInput = document.getElementById("tooltipVerticalOffsetPx") as HTMLInputElement | null
-    const underlineInput = document.getElementById("textUnderlineOffsetPx") as HTMLInputElement | null
+    const gapInput = document.getElementById("tooltipNextLineGapPxV2") as HTMLInputElement | null
+    const offsetInput = document.getElementById("tooltipVerticalOffsetPxV2") as HTMLInputElement | null
+    const underlineInput = document.getElementById("textUnderlineOffsetPxV2") as HTMLInputElement | null
 
-    const gapWarning = document.getElementById("tooltipNextLineGapPxWarning")
-    const offsetWarning = document.getElementById("tooltipVerticalOffsetPxWarning")
-    const underlineWarning = document.getElementById("textUnderlineOffsetPxWarning")
+    const gapWarning = document.getElementById("tooltipNextLineGapPxV2Warning")
+    const offsetWarning = document.getElementById("tooltipVerticalOffsetPxV2Warning")
+    const underlineWarning = document.getElementById("textUnderlineOffsetPxV2Warning")
 
     const fontPresetSelect = document.getElementById("translationFontSizePreset") as HTMLSelectElement | null
     const autoAdjustHeightInput = document.getElementById("autoAdjustHeight") as HTMLInputElement | null
@@ -136,13 +136,13 @@ async function setupTooltipSpacingPreview(): Promise<void> {
 
     const settings = await storageManagerModule.getUserSettings()
     if (!gapInput.value) {
-        gapInput.value = String(settings.tooltipNextLineGapPx)
+        gapInput.value = String(settings.tooltipNextLineGapPxV2)
     }
     if (!offsetInput.value) {
-        offsetInput.value = String(settings.tooltipVerticalOffsetPx)
+        offsetInput.value = String(settings.tooltipVerticalOffsetPxV2)
     }
     if (!underlineInput.value) {
-        underlineInput.value = String(settings.textUnderlineOffsetPx)
+        underlineInput.value = String(settings.textUnderlineOffsetPxV2)
     }
 
     let didLogInvisibleOnce = false
@@ -186,9 +186,9 @@ async function setupTooltipSpacingPreview(): Promise<void> {
     }
 
     const updatePreview = () => {
-        let nextLineGapPx = readFiniteNumber(gapInput.value, settings.tooltipNextLineGapPx)
-        let verticalOffsetPx = readFiniteNumber(offsetInput.value, settings.tooltipVerticalOffsetPx)
-        let underlineOffsetPx = readFiniteNumber(underlineInput.value, settings.textUnderlineOffsetPx)
+        let nextLineGapPx = readFiniteNumber(gapInput.value, settings.tooltipNextLineGapPxV2)
+        let verticalOffsetPx = readFiniteNumber(offsetInput.value, settings.tooltipVerticalOffsetPxV2)
+        let underlineOffsetPx = readFiniteNumber(underlineInput.value, settings.textUnderlineOffsetPxV2)
 
         // Show warning if values are out of range
         const gapOutOfRange = nextLineGapPx < 0 || nextLineGapPx > 20

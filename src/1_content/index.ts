@@ -26,7 +26,7 @@ let userSettings: UserSettings | null = null
 
 function applyDynamicStyles(settings: UserSettings) {
     // Use CSS variable for better performance and cleaner code
-    document.documentElement.style.setProperty("--ai-translator-underline-offset", `${settings.textUnderlineOffsetPx}px`)
+    document.documentElement.style.setProperty("--ai-translator-underline-offset", `${settings.textUnderlineOffsetPxV2}px`)
 }
 
 /**
