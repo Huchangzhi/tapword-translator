@@ -534,7 +534,7 @@ function checkTruncation(element: HTMLElement, bufferPx: number = 1): void {
     }
 }
 
-function setTooltipText(tooltip: HTMLElement, rawText: string, maxWidthPx: number, isLastLine: boolean): void {
+function setTooltipText(tooltip: HTMLElement, rawText: string, _maxWidthPx: number, _isLastLine: boolean): void {
     // Spinner variant: do not split; keep existing spinner UI in the first tooltip only.
     if (tooltip.dataset.loadingVariant === "spinner") {
         return

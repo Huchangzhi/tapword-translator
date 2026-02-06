@@ -10,8 +10,10 @@
 
 import type { UserSettings } from "@/0_common/types"
 import { DEFAULT_USER_SETTINGS } from "@/0_common/types"
+import { UNDERLINE_OPACITY } from "@/0_common/constants"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as storageManager from "@/0_common/utils/storageManager"
+import * as colorUtils from "@/0_common/utils/colorUtils"
 import * as selectionHandler from "@/1_content/handlers/selectionHandler"
 import "@/1_content/resources/content.css"
 import "@/1_content/resources/modal.css"
@@ -27,6 +29,12 @@ let userSettings: UserSettings | null = null
 function applyDynamicStyles(settings: UserSettings) {
     // Use CSS variable for better performance and cleaner code
     document.documentElement.style.setProperty("--ai-translator-underline-offset", `${settings.textUnderlineOffsetPxV2}px`)
+    
+    const wordColor = colorUtils.addOpacityToHex(settings.wordUnderlineColor, UNDERLINE_OPACITY)
+    const sentenceColor = colorUtils.addOpacityToHex(settings.sentenceUnderlineColor, UNDERLINE_OPACITY)
+    
+    document.documentElement.style.setProperty("--modal-blue-accent-color", wordColor)
+    document.documentElement.style.setProperty("--modal-accent-color", sentenceColor)
 }
 
 /**

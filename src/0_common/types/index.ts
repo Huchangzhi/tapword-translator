@@ -275,6 +275,10 @@ export interface UserSettings {
     textUnderlineOffsetPx: number
     /** Distance between the text baseline and the underline (px) - V2 forced defaults */
     textUnderlineOffsetPxV2: number
+    /** Color for single word translation underline (hex code) */
+    wordUnderlineColor: string
+    /** Color for sentence translation underline (hex code) */
+    sentenceUnderlineColor: string
     /** Icon background color */
     iconColor: IconColor
     /** Custom API settings */
@@ -308,6 +312,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     tooltipVerticalOffsetPxV2: 3,
     textUnderlineOffsetPx: 3,
     textUnderlineOffsetPxV2: 4,
+    wordUnderlineColor: "#2A9D8F",
+    sentenceUnderlineColor: "#E9C46A",
     iconColor: "pink",
     customApi: {
         useCustomApi: false,

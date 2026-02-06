@@ -1,6 +1,7 @@
-import { APP_EDITION } from "@/0_common/constants"
+import { APP_EDITION, UNDERLINE_OPACITY } from "@/0_common/constants"
 import * as i18nModule from "@/0_common/utils/i18n"
 import * as loggerModule from "@/0_common/utils/logger"
+import * as colorUtils from "@/0_common/utils/colorUtils"
 import * as settingsManagerModule from "@/4_options/modules/settingsManager"
 import type * as types from "@/0_common/types"
 import * as storageManagerModule from "@/0_common/utils/storageManager"
@@ -185,10 +186,15 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         })
     }
 
-    const updatePreview = () => {
-        let nextLineGapPx = readFiniteNumber(gapInput.value, settings.tooltipNextLineGapPxV2)
-        let verticalOffsetPx = readFiniteNumber(offsetInput.value, settings.tooltipVerticalOffsetPxV2)
-        let underlineOffsetPx = readFiniteNumber(underlineInput.value, settings.textUnderlineOffsetPxV2)
+    const updatePreview = (updatedSettings?: types.UserSettings) => {
+        const currentSettings = updatedSettings || settings
+
+        let nextLineGapPx = readFiniteNumber(gapInput.value, currentSettings.tooltipNextLineGapPxV2)
+        let verticalOffsetPx = readFiniteNumber(offsetInput.value, currentSettings.tooltipVerticalOffsetPxV2)
+        let underlineOffsetPx = readFiniteNumber(underlineInput.value, currentSettings.textUnderlineOffsetPxV2)
+
+        const wordUnderlineColor = (document.getElementById("wordUnderlineColorSelect") as HTMLElement).dataset.value || currentSettings.wordUnderlineColor
+        const sentenceUnderlineColor = (document.getElementById("sentenceUnderlineColorSelect") as HTMLElement).dataset.value || currentSettings.sentenceUnderlineColor
 
         // Show warning if values are out of range
         const gapOutOfRange = nextLineGapPx < 0 || nextLineGapPx > 20
@@ -224,6 +230,8 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         
         anchor1.style.textUnderlineOffset = `${underlineOffsetPx}px`
         anchor.style.textUnderlineOffset = `${underlineOffsetPx}px`
+        anchor1.style.textDecorationColor = colorUtils.addOpacityToHex(wordUnderlineColor, UNDERLINE_OPACITY)
+        anchor.style.textDecorationColor = colorUtils.addOpacityToHex(sentenceUnderlineColor, UNDERLINE_OPACITY)
 
         // Force reflow to ensure tooltip dimensions are calculated before positioning
         void tooltip1.offsetWidth
@@ -232,12 +240,19 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         schedulePosition(verticalOffsetPx)
     }
 
-    gapInput.addEventListener("input", updatePreview)
-    offsetInput.addEventListener("input", updatePreview)
-    underlineInput.addEventListener("input", updatePreview)
-    fontPresetSelect.addEventListener("change", updatePreview)
-    autoAdjustHeightInput.addEventListener("change", updatePreview)
-    window.addEventListener("resize", updatePreview)
+    gapInput.addEventListener("input", () => updatePreview())
+    offsetInput.addEventListener("input", () => updatePreview())
+    underlineInput.addEventListener("input", () => updatePreview())
+    fontPresetSelect.addEventListener("change", () => updatePreview())
+    autoAdjustHeightInput.addEventListener("change", () => updatePreview())
+    window.addEventListener("resize", () => updatePreview())
+
+    document.addEventListener("settingChange", (event: Event) => {
+        const customEvent = event as CustomEvent
+        if (customEvent.detail.key === "wordUnderlineColor" || customEvent.detail.key === "sentenceUnderlineColor") {
+            updatePreview()
+        }
+    })
 
     const owningSection = stage.closest<HTMLElement>(".settings-section")
     if (owningSection) {
