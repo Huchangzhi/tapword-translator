@@ -209,6 +209,7 @@ export async function loadSettings(): Promise<void> {
         settings = await ensureCommunityCustomApiEnabled(settings)
         settings = await ensureCommunityAutoPlayDisabled(settings)
 
+        // TODO: Improve type safety. Instead of casting to unknown then Record, consider using keyof types.UserSettings type guards or maintaining the original type.
         const settingsRecord = settings as unknown as Record<string, unknown>
         logger.info("Loaded settings:", settings)
 
@@ -284,6 +285,16 @@ export async function loadSettings(): Promise<void> {
         setValue("customApiKey", customApi.apiKey)
         setValue("customApiModel", customApi.model)
 
+        // Initialize Custom Selects with loaded values
+        const customSelects = document.querySelectorAll(".custom-select-wrapper[data-setting]")
+        customSelects.forEach((wrapper) => {
+            const settingKey = (wrapper as HTMLElement).dataset.setting
+            if (settingKey && settingKey in settingsRecord) {
+                const value = String(settingsRecord[settingKey])
+                updateCustomSelectUI(wrapper as HTMLElement, value)
+            }
+        })
+        
         setTranslationControlsEnabled(settings.enableTapWord)
         setCustomApiControlsEnabled(isCommunityEdition ? true : customApi.useCustomApi)
         lockUseCustomApiToggle()
@@ -305,6 +316,8 @@ export async function saveSetting(settingKey: keyof types.UserSettings, value: b
 }
 
 export function setupSettingChangeListeners(): void {
+    setupCustomSelects()
+
     const checkboxes = document.querySelectorAll('input[type="checkbox"][data-setting]')
     checkboxes.forEach((checkbox) => {
         checkbox.addEventListener("change", async (event) => {
@@ -387,7 +400,7 @@ export function setupSettingChangeListeners(): void {
                 return
             }
 
-            if (settingKey === "tooltipNextLineGapPx" || settingKey === "tooltipVerticalOffsetPx" || settingKey === "textUnderlineOffsetPx") {
+            if (settingKey === "tooltipNextLineGapPxV2" || settingKey === "tooltipVerticalOffsetPxV2" || settingKey === "textUnderlineOffsetPxV2") {
                 parsed = Math.max(0, Math.min(20, parsed))
                 inputElement.value = String(parsed)
             }
@@ -468,6 +481,104 @@ function setValidationStatus(element: HTMLElement | null, status: "idle" | "succ
     if (status !== "idle") {
         element.classList.add(status)
     }
+}
+
+/**
+ * Custom Select Logic
+ */
+let isGlobalListenerAttached = false
+
+export function setupCustomSelects(): void {
+    const wrappers = document.querySelectorAll(".custom-select-wrapper")
+
+    wrappers.forEach((wrapper) => {
+        if (wrapper.getAttribute("data-listeners-attached") === "true") return
+        wrapper.setAttribute("data-listeners-attached", "true")
+
+        const trigger = wrapper.querySelector(".custom-select-trigger")
+        const options = wrapper.querySelectorAll(".custom-option")
+        const settingKey = (wrapper as HTMLElement).dataset.setting
+
+        if (!trigger || !settingKey) return
+
+        // Toggle open/close
+        trigger.addEventListener("click", (e) => {
+            e.stopPropagation() // Prevent immediate closing
+            // Close other selects
+            document.querySelectorAll(".custom-select-wrapper.open").forEach((other) => {
+                if (other !== wrapper) other.classList.remove("open")
+            })
+            wrapper.classList.toggle("open")
+        })
+
+        // Option selection
+        options.forEach((option) => {
+            option.addEventListener("click", async (e) => {
+                e.stopPropagation()
+                const value = (option as HTMLElement).dataset.value
+                if (!value) return
+
+                // Update UI
+                updateCustomSelectUI(wrapper as HTMLElement, value)
+                wrapper.classList.remove("open")
+
+                // Dispatch change event for preview updates
+                const changeEvent = new CustomEvent("settingChange", {
+                    detail: { key: settingKey, value },
+                })
+                document.dispatchEvent(changeEvent)
+
+                // Save setting
+                await saveSetting(settingKey as keyof types.UserSettings, value)
+            })
+        })
+    })
+
+    // Click outside to close
+    if (!isGlobalListenerAttached) {
+        document.addEventListener("click", () => {
+            document.querySelectorAll(".custom-select-wrapper.open").forEach((wrapper) => {
+                wrapper.classList.remove("open")
+            })
+        })
+        isGlobalListenerAttached = true
+    }
+}
+
+function updateCustomSelectUI(wrapper: HTMLElement, value: string): void {
+    const trigger = wrapper.querySelector(".custom-select-trigger")
+    if (!trigger) return
+
+    const selectedOption = wrapper.querySelector(`.custom-option[data-value="${value}"]`)
+    if (!selectedOption) return
+
+    // Update trigger content
+    const previewDot = trigger.querySelector(".color-dot") as HTMLElement
+    const label = trigger.querySelector(".color-name") as HTMLElement
+    
+    const optionDot = selectedOption.querySelector(".color-dot") as HTMLElement
+    const optionLabel = selectedOption.querySelector("span[data-i18n-key]") as HTMLElement
+    
+    if (previewDot && optionDot) {
+        previewDot.style.backgroundColor = optionDot.style.backgroundColor
+    }
+    
+    if (label && optionLabel) {
+        const key = optionLabel.getAttribute("data-i18n-key")
+        if (key) {
+             label.textContent = i18nModule.translate(key)
+             label.setAttribute("data-i18n-key", key)
+        } else {
+             label.textContent = optionLabel.textContent
+        }
+    }
+
+    // Store value in dataset for easy retrieval
+    wrapper.dataset.value = value
+
+    // Highlight selected option
+    wrapper.querySelectorAll(".custom-option").forEach(opt => opt.classList.remove("selected"))
+    selectedOption.classList.add("selected")
 }
 
 export function setupCustomApiValidation(): void {

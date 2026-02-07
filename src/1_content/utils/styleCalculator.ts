@@ -4,6 +4,7 @@
  * Calculates the optimal font size and color for the translation tooltip
  * based on the styles of the original selected text element.
  */
+import * as types from "@/0_common/types"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as contentConstants from "@/1_content/constants"
 import * as contentIndex from "@/1_content/index"
@@ -125,7 +126,7 @@ function calculateOptimalTranslationFontSize(
 
     const cachedSettings = contentIndex.getCachedUserSettings()
     const minFontSize = minFontSizeOverride ?? contentConstants.MIN_TOOLTIP_FONT_PX
-    const desiredGap = cachedSettings?.tooltipNextLineGapPx ?? 2
+    const desiredGap = cachedSettings?.tooltipNextLineGapPxV2 ?? types.DEFAULT_USER_SETTINGS.tooltipNextLineGapPxV2
 
     if (!originalElement) {
         const fallbackSize = originalFontSize * 0.7

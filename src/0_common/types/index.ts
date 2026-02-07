@@ -265,10 +265,20 @@ export interface UserSettings {
     translationFontSize: number
     /** Gap to keep between tooltip text and the next line (px) */
     tooltipNextLineGapPx: number
+    /** Gap to keep between tooltip text and the next line (px) - V2 forced defaults */
+    tooltipNextLineGapPxV2: number
     /** Vertical gap between selected text and tooltip (px, negative values pull tooltip upward/overlap) */
     tooltipVerticalOffsetPx: number
+    /** Vertical gap between selected text and tooltip (px, negative values pull tooltip upward/overlap) - V2 forced defaults */
+    tooltipVerticalOffsetPxV2: number
     /** Distance between the text baseline and the underline (px) */
     textUnderlineOffsetPx: number
+    /** Distance between the text baseline and the underline (px) - V2 forced defaults */
+    textUnderlineOffsetPxV2: number
+    /** Color for single word translation underline (hex code) */
+    wordUnderlineColor: string
+    /** Color for sentence translation underline (hex code) */
+    sentenceUnderlineColor: string
     /** Icon background color */
     iconColor: IconColor
     /** Custom API settings */
@@ -297,8 +307,13 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     translationFontSizePreset: "medium",
     translationFontSize: 10,
     tooltipNextLineGapPx: 4,
+    tooltipNextLineGapPxV2: 6,
     tooltipVerticalOffsetPx: 2,
+    tooltipVerticalOffsetPxV2: 3,
     textUnderlineOffsetPx: 3,
+    textUnderlineOffsetPxV2: 4,
+    wordUnderlineColor: "#2A9D8F",
+    sentenceUnderlineColor: "#E9C46A",
     iconColor: "pink",
     customApi: {
         useCustomApi: false,

@@ -18,6 +18,11 @@ export const CACHE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 export const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 /**
+ * Visual styling constants
+ */
+export const UNDERLINE_OPACITY = 0.9
+
+/**
  * Upgrade model enabled flag
  * When true, all translation requests will use upgraded model by default
  * Configured via VITE_UPGRADE_MODEL environment variable

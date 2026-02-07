@@ -75,6 +75,7 @@ function normalizeTriggerKey(key: types.TriggerKey, os: PlatformOS): types.Trigg
     return normalizedKey
 }
 
+// TODO: Add unit tests for this function to cover data migration and platform-specific defaults, as logic is becoming complex.
 function normalizeUserSettings(
     settings: Partial<types.UserSettings>,
     platformDefaults?: PlatformDefaultContext
@@ -120,7 +121,11 @@ function normalizeUserSettings(
         translationFontSizePreset: resolvedFont.preset,
         translationFontSize: resolvedFont.px,
         tooltipNextLineGapPx: mergedSettings.tooltipNextLineGapPx ?? DEFAULT_USER_SETTINGS.tooltipNextLineGapPx,
+        tooltipNextLineGapPxV2: mergedSettings.tooltipNextLineGapPxV2 ?? DEFAULT_USER_SETTINGS.tooltipNextLineGapPxV2,
         tooltipVerticalOffsetPx: mergedSettings.tooltipVerticalOffsetPx ?? DEFAULT_USER_SETTINGS.tooltipVerticalOffsetPx,
+        tooltipVerticalOffsetPxV2: mergedSettings.tooltipVerticalOffsetPxV2 ?? DEFAULT_USER_SETTINGS.tooltipVerticalOffsetPxV2,
+        textUnderlineOffsetPx: mergedSettings.textUnderlineOffsetPx ?? DEFAULT_USER_SETTINGS.textUnderlineOffsetPx,
+        textUnderlineOffsetPxV2: mergedSettings.textUnderlineOffsetPxV2 ?? DEFAULT_USER_SETTINGS.textUnderlineOffsetPxV2,
         customApi: normalizedCustomApi,
         doubleClickSentenceTriggerKey: validatedTriggerKey,
     }

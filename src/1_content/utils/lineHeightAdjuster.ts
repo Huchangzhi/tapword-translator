@@ -14,6 +14,7 @@
  * anchor is removed.
  */
 
+import * as types from "@/0_common/types"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as contentConstants from "@/1_content/constants"
 import * as contentIndex from "@/1_content/index"
@@ -86,7 +87,7 @@ export function findNearestBlockAncestor(element: HTMLElement | null): HTMLEleme
 export function calculateRequiredLineHeightIncrease(spaceCalc: SpaceCalculation): number {
     const { availableSpace, minFontSize } = spaceCalc
     const cachedSettings = contentIndex.getCachedUserSettings()
-    const desiredGap = cachedSettings?.tooltipNextLineGapPx ?? 2
+    const desiredGap = cachedSettings?.tooltipNextLineGapPxV2 ?? types.DEFAULT_USER_SETTINGS.tooltipNextLineGapPxV2
 
     // Target: make available space just above the minimum font size by a small safety delta
     const safetyDelta = contentConstants.MIN_TOOLTIP_SAFETY_DELTA_PX

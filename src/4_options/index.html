@@ -181,34 +181,34 @@
 
             <div class="setting-item">
               <div class="setting-info">
-                <label class="setting-label" for="tooltipNextLineGapPx" data-i18n-key="popup.tooltipNextLineGapPx.label">Tooltip Next-line Gap (px)</label>
+                <label class="setting-label" for="tooltipNextLineGapPxV2" data-i18n-key="popup.tooltipNextLineGapPx.label">Tooltip Next-line Gap (px)</label>
                 <p class="setting-helper" data-i18n-key="popup.tooltipNextLineGapPx.helper">Extra spacing reserved between the tooltip and the next line of text.</p>
               </div>
               <div class="setting-control">
-                <input type="number" id="tooltipNextLineGapPx" data-setting="tooltipNextLineGapPx" class="select-input" step="1" min="0" max="20" />
-                <p class="input-warning" id="tooltipNextLineGapPxWarning" data-i18n-key="popup.tooltipNextLineGapPx.warning">Value must be between 0 and 20</p>
+                <input type="number" id="tooltipNextLineGapPxV2" data-setting="tooltipNextLineGapPxV2" class="select-input" step="1" min="0" max="20" />
+                <p class="input-warning" id="tooltipNextLineGapPxV2Warning" data-i18n-key="popup.tooltipNextLineGapPx.warning">Value must be between 0 and 20</p>
               </div>
             </div>
 
             <div class="setting-item">
               <div class="setting-info">
-                <label class="setting-label" for="tooltipVerticalOffsetPx" data-i18n-key="popup.tooltipVerticalOffsetPx.label">Tooltip Vertical Offset (px)</label>
+                <label class="setting-label" for="tooltipVerticalOffsetPxV2" data-i18n-key="popup.tooltipVerticalOffsetPx.label">Tooltip Vertical Offset (px)</label>
                 <p class="setting-helper" data-i18n-key="popup.tooltipVerticalOffsetPx.helper">Moves the tooltip up/down relative to the selected text (negative pulls upward).</p>
               </div>
               <div class="setting-control">
-                <input type="number" id="tooltipVerticalOffsetPx" data-setting="tooltipVerticalOffsetPx" class="select-input" step="1" min="0" max="20" />
-                <p class="input-warning" id="tooltipVerticalOffsetPxWarning" data-i18n-key="popup.tooltipVerticalOffsetPx.warning">Value must be between 0 and 20</p>
+                <input type="number" id="tooltipVerticalOffsetPxV2" data-setting="tooltipVerticalOffsetPxV2" class="select-input" step="1" min="0" max="20" />
+                <p class="input-warning" id="tooltipVerticalOffsetPxV2Warning" data-i18n-key="popup.tooltipVerticalOffsetPx.warning">Value must be between 0 and 20</p>
               </div>
             </div>
 
             <div class="setting-item">
               <div class="setting-info">
-                <label class="setting-label" for="textUnderlineOffsetPx" data-i18n-key="popup.textUnderlineOffsetPx.label">Underline Offset (px)</label>
+                <label class="setting-label" for="textUnderlineOffsetPxV2" data-i18n-key="popup.textUnderlineOffsetPx.label">Underline Offset (px)</label>
                 <p class="setting-helper" data-i18n-key="popup.textUnderlineOffsetPx.helper">Adjust the distance between the text and the underline.</p>
               </div>
               <div class="setting-control">
-                <input type="number" id="textUnderlineOffsetPx" data-setting="textUnderlineOffsetPx" class="select-input" step="1" min="0" max="20" />
-                <p class="input-warning" id="textUnderlineOffsetPxWarning" data-i18n-key="popup.textUnderlineOffsetPx.warning">Value must be between 0 and 20</p>
+                <input type="number" id="textUnderlineOffsetPxV2" data-setting="textUnderlineOffsetPxV2" class="select-input" step="1" min="0" max="20" />
+                <p class="input-warning" id="textUnderlineOffsetPxV2Warning" data-i18n-key="popup.textUnderlineOffsetPx.warning">Value must be between 0 and 20</p>
               </div>
             </div>
 
@@ -327,6 +327,138 @@
                   </svg>
                 </span>
               </label>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <label class="setting-label" for="wordUnderlineColor" data-i18n-key="popup.wordUnderlineColor.label">Word Underline Color</label>
+              </div>
+              <div class="setting-control">
+                <!-- Custom Select for Word Color -->
+                <div class="custom-select-wrapper" id="wordUnderlineColorSelect" data-setting="wordUnderlineColor">
+                  <div class="custom-select-trigger">
+                    <span class="color-dot" id="wordUnderlineColorPreview"></span>
+                    <span class="color-name" id="wordUnderlineColorLabel">Select Color</span>
+                    <span class="custom-select-arrow"></span>
+                  </div>
+                  <div class="custom-select-options">
+                    <div class="custom-option" data-value="#2A9D8F">
+                      <span class="color-dot" style="background-color: #2A9D8F;"></span>
+                      <span data-i18n-key="popup.color.teal">Teal</span>
+                    </div>
+                    <div class="custom-option" data-value="#6366F1">
+                      <span class="color-dot" style="background-color: #6366F1;"></span>
+                      <span data-i18n-key="popup.color.indigo">Indigo</span>
+                    </div>
+                    <div class="custom-option" data-value="#0EA5E9">
+                      <span class="color-dot" style="background-color: #0EA5E9;"></span>
+                      <span data-i18n-key="popup.color.skyBlue">Sky Blue</span>
+                    </div>
+                    <div class="custom-option" data-value="#1F7FDB">
+                      <span class="color-dot" style="background-color: #1F7FDB;"></span>
+                      <span data-i18n-key="popup.color.standardBlue">Standard Blue</span>
+                    </div>
+                    <div class="custom-option" data-value="#E9C46A">
+                      <span class="color-dot" style="background-color: #E9C46A;"></span>
+                      <span data-i18n-key="popup.color.mustardYellow">Mustard Yellow</span>
+                    </div>
+                    <div class="custom-option" data-value="#F59E0B">
+                      <span class="color-dot" style="background-color: #F59E0B;"></span>
+                      <span data-i18n-key="popup.color.amber">Amber</span>
+                    </div>
+                    <div class="custom-option" data-value="#8B5CF6">
+                      <span class="color-dot" style="background-color: #8B5CF6;"></span>
+                      <span data-i18n-key="popup.color.softViolet">Soft Violet</span>
+                    </div>
+                    <div class="custom-option" data-value="#F4A261">
+                      <span class="color-dot" style="background-color: #F4A261;"></span>
+                      <span data-i18n-key="popup.color.goldenSand">Golden Sand</span>
+                    </div>
+                    <div class="custom-option" data-value="#D4A373">
+                      <span class="color-dot" style="background-color: #D4A373;"></span>
+                      <span data-i18n-key="popup.color.earthyOchre">Earthy Ochre</span>
+                    </div>
+                    <div class="custom-option" data-value="#FFB703">
+                      <span class="color-dot" style="background-color: #FFB703;"></span>
+                      <span data-i18n-key="popup.color.brightMarigold">Bright Marigold</span>
+                    </div>
+                    <div class="custom-option" data-value="#C1A162">
+                      <span class="color-dot" style="background-color: #C1A162;"></span>
+                      <span data-i18n-key="popup.color.mutedGold">Muted Gold</span>
+                    </div>
+                    <div class="custom-option" data-value="#E59E47">
+                      <span class="color-dot" style="background-color: #E59E47;"></span>
+                      <span data-i18n-key="popup.color.standardOrange">Standard Orange</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <label class="setting-label" for="sentenceUnderlineColor" data-i18n-key="popup.sentenceUnderlineColor.label">Sentence Underline Color</label>
+              </div>
+              <div class="setting-control">
+                <!-- Custom Select for Sentence Color -->
+                <div class="custom-select-wrapper" id="sentenceUnderlineColorSelect" data-setting="sentenceUnderlineColor">
+                  <div class="custom-select-trigger">
+                    <span class="color-dot" id="sentenceUnderlineColorPreview"></span>
+                    <span class="color-name" id="sentenceUnderlineColorLabel">Select Color</span>
+                    <span class="custom-select-arrow"></span>
+                  </div>
+                  <div class="custom-select-options">
+                    <div class="custom-option" data-value="#2A9D8F">
+                      <span class="color-dot" style="background-color: #2A9D8F;"></span>
+                      <span data-i18n-key="popup.color.teal">Teal</span>
+                    </div>
+                    <div class="custom-option" data-value="#6366F1">
+                      <span class="color-dot" style="background-color: #6366F1;"></span>
+                      <span data-i18n-key="popup.color.indigo">Indigo</span>
+                    </div>
+                    <div class="custom-option" data-value="#0EA5E9">
+                      <span class="color-dot" style="background-color: #0EA5E9;"></span>
+                      <span data-i18n-key="popup.color.skyBlue">Sky Blue</span>
+                    </div>
+                    <div class="custom-option" data-value="#1F7FDB">
+                      <span class="color-dot" style="background-color: #1F7FDB;"></span>
+                      <span data-i18n-key="popup.color.standardBlue">Standard Blue</span>
+                    </div>
+                    <div class="custom-option" data-value="#E9C46A">
+                      <span class="color-dot" style="background-color: #E9C46A;"></span>
+                      <span data-i18n-key="popup.color.mustardYellow">Mustard Yellow</span>
+                    </div>
+                    <div class="custom-option" data-value="#F59E0B">
+                      <span class="color-dot" style="background-color: #F59E0B;"></span>
+                      <span data-i18n-key="popup.color.amber">Amber</span>
+                    </div>
+                    <div class="custom-option" data-value="#8B5CF6">
+                      <span class="color-dot" style="background-color: #8B5CF6;"></span>
+                      <span data-i18n-key="popup.color.softViolet">Soft Violet</span>
+                    </div>
+                    <div class="custom-option" data-value="#F4A261">
+                      <span class="color-dot" style="background-color: #F4A261;"></span>
+                      <span data-i18n-key="popup.color.goldenSand">Golden Sand</span>
+                    </div>
+                    <div class="custom-option" data-value="#D4A373">
+                      <span class="color-dot" style="background-color: #D4A373;"></span>
+                      <span data-i18n-key="popup.color.earthyOchre">Earthy Ochre</span>
+                    </div>
+                    <div class="custom-option" data-value="#FFB703">
+                      <span class="color-dot" style="background-color: #FFB703;"></span>
+                      <span data-i18n-key="popup.color.brightMarigold">Bright Marigold</span>
+                    </div>
+                    <div class="custom-option" data-value="#C1A162">
+                      <span class="color-dot" style="background-color: #C1A162;"></span>
+                      <span data-i18n-key="popup.color.mutedGold">Muted Gold</span>
+                    </div>
+                    <div class="custom-option" data-value="#E59E47">
+                      <span class="color-dot" style="background-color: #E59E47;"></span>
+                      <span data-i18n-key="popup.color.standardOrange">Standard Orange</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@
  */
 
 import type { TranslationContextData, TranslationFontSizePreset } from "@/0_common/types"
+import * as types from "@/0_common/types"
 import * as translationFontSizeModule from "@/0_common/constants/translationFontSize"
 import * as textTruncator from "@/0_common/utils/textTruncator"
 import * as constants from "@/1_content/constants"
@@ -522,15 +523,33 @@ function ensureTooltipSegmentCount(anchorId: string, count: number, baseTooltip?
     return next
 }
 
-function setTooltipText(tooltip: HTMLElement, rawText: string, maxWidthPx: number, isLastLine: boolean): void {
+/**
+ * Check if the tooltip content overflows its container and apply/remove the truncation class.
+ */
+function checkTruncation(element: HTMLElement, bufferPx: number = 1): void {
+    if (element.scrollWidth > element.clientWidth + bufferPx) {
+        element.classList.add("is-truncated")
+    } else {
+        element.classList.remove("is-truncated")
+    }
+}
+
+function setTooltipText(tooltip: HTMLElement, rawText: string, _maxWidthPx: number, _isLastLine: boolean): void {
     // Spinner variant: do not split; keep existing spinner UI in the first tooltip only.
     if (tooltip.dataset.loadingVariant === "spinner") {
         return
     }
 
-    const ellipsis = isLastLine ? "..." : ""
-    const truncated = textTruncator.truncateUsingElement(rawText, maxWidthPx, tooltip, ellipsis)
-    tooltip.textContent = truncated
+    // New logic: Do not truncate with "...", allow CSS mask to handle overflow.
+    // If it's the last line (or single line), we give it the full remaining text.
+    // We still limit it slightly to avoid extreme DOM size if something goes wrong, but generous.
+    const textToSet = rawText.length > 200 ? rawText.slice(0, 200) : rawText
+    tooltip.textContent = textToSet
+
+    // Check for truncation after layout update
+    requestAnimationFrame(() => {
+        checkTruncation(tooltip)
+    })
 }
 
 function splitTextAcrossRects(fullText: string, rectWidths: number[], elementForFont: HTMLElement): string[] {
@@ -545,7 +564,9 @@ function splitTextAcrossRects(fullText: string, rectWidths: number[], elementFor
         if (!remaining) break
 
         if (isLast) {
-            segments.push(textTruncator.truncateTextToWidth(remaining, width, font, "..."))
+            // For the last line, take the rest of the text.
+            // CSS fade-out will handle the overflow if it's too long.
+            segments.push(remaining)
             continue
         }
 
@@ -674,7 +695,7 @@ function positionTooltip(anchorId: string): void {
         }
 
         const cachedSettings = contentIndex.getCachedUserSettings()
-        const verticalOffset = cachedSettings?.tooltipVerticalOffsetPx ?? 2
+        const verticalOffset = cachedSettings?.tooltipVerticalOffsetPxV2 ?? types.DEFAULT_USER_SETTINGS.tooltipVerticalOffsetPxV2
         const top = rect.bottom + scrollY + verticalOffset
 
         const tooltipWidth = tooltip.offsetWidth || 0

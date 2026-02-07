@@ -1,6 +1,7 @@
-import { APP_EDITION } from "@/0_common/constants"
+import { APP_EDITION, UNDERLINE_OPACITY } from "@/0_common/constants"
 import * as i18nModule from "@/0_common/utils/i18n"
 import * as loggerModule from "@/0_common/utils/logger"
+import * as colorUtils from "@/0_common/utils/colorUtils"
 import * as settingsManagerModule from "@/4_options/modules/settingsManager"
 import type * as types from "@/0_common/types"
 import * as storageManagerModule from "@/0_common/utils/storageManager"
@@ -99,6 +100,7 @@ function positionPreviewTooltip(stage: HTMLElement, anchor: HTMLElement, tooltip
     tooltip.style.left = `${left}px`
 }
 
+// TODO: Refactor this function into a separate class (e.g., TooltipPreviewRenderer) to separate DOM querying, layout calculation, and event handling.
 async function setupTooltipSpacingPreview(): Promise<void> {
     const stage = document.getElementById("tooltipPreviewStage")
     const paragraph = document.getElementById("tooltipPreviewParagraph")
@@ -107,13 +109,13 @@ async function setupTooltipSpacingPreview(): Promise<void> {
     const tooltip1 = document.getElementById("tooltipPreviewTooltip1")
     const tooltip = document.getElementById("tooltipPreviewTooltip")
 
-    const gapInput = document.getElementById("tooltipNextLineGapPx") as HTMLInputElement | null
-    const offsetInput = document.getElementById("tooltipVerticalOffsetPx") as HTMLInputElement | null
-    const underlineInput = document.getElementById("textUnderlineOffsetPx") as HTMLInputElement | null
+    const gapInput = document.getElementById("tooltipNextLineGapPxV2") as HTMLInputElement | null
+    const offsetInput = document.getElementById("tooltipVerticalOffsetPxV2") as HTMLInputElement | null
+    const underlineInput = document.getElementById("textUnderlineOffsetPxV2") as HTMLInputElement | null
 
-    const gapWarning = document.getElementById("tooltipNextLineGapPxWarning")
-    const offsetWarning = document.getElementById("tooltipVerticalOffsetPxWarning")
-    const underlineWarning = document.getElementById("textUnderlineOffsetPxWarning")
+    const gapWarning = document.getElementById("tooltipNextLineGapPxV2Warning")
+    const offsetWarning = document.getElementById("tooltipVerticalOffsetPxV2Warning")
+    const underlineWarning = document.getElementById("textUnderlineOffsetPxV2Warning")
 
     const fontPresetSelect = document.getElementById("translationFontSizePreset") as HTMLSelectElement | null
     const autoAdjustHeightInput = document.getElementById("autoAdjustHeight") as HTMLInputElement | null
@@ -136,13 +138,13 @@ async function setupTooltipSpacingPreview(): Promise<void> {
 
     const settings = await storageManagerModule.getUserSettings()
     if (!gapInput.value) {
-        gapInput.value = String(settings.tooltipNextLineGapPx)
+        gapInput.value = String(settings.tooltipNextLineGapPxV2)
     }
     if (!offsetInput.value) {
-        offsetInput.value = String(settings.tooltipVerticalOffsetPx)
+        offsetInput.value = String(settings.tooltipVerticalOffsetPxV2)
     }
     if (!underlineInput.value) {
-        underlineInput.value = String(settings.textUnderlineOffsetPx)
+        underlineInput.value = String(settings.textUnderlineOffsetPxV2)
     }
 
     let didLogInvisibleOnce = false
@@ -185,10 +187,18 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         })
     }
 
-    const updatePreview = () => {
-        let nextLineGapPx = readFiniteNumber(gapInput.value, settings.tooltipNextLineGapPx)
-        let verticalOffsetPx = readFiniteNumber(offsetInput.value, settings.tooltipVerticalOffsetPx)
-        let underlineOffsetPx = readFiniteNumber(underlineInput.value, settings.textUnderlineOffsetPx)
+    const updatePreview = (updatedSettings?: types.UserSettings) => {
+        const currentSettings = updatedSettings || settings
+
+        let nextLineGapPx = readFiniteNumber(gapInput.value, currentSettings.tooltipNextLineGapPxV2)
+        let verticalOffsetPx = readFiniteNumber(offsetInput.value, currentSettings.tooltipVerticalOffsetPxV2)
+        let underlineOffsetPx = readFiniteNumber(underlineInput.value, currentSettings.textUnderlineOffsetPxV2)
+
+        const wordElement = document.getElementById("wordUnderlineColorSelect")
+        const wordUnderlineColor = wordElement?.dataset.value || currentSettings.wordUnderlineColor
+        
+        const sentenceElement = document.getElementById("sentenceUnderlineColorSelect")
+        const sentenceUnderlineColor = sentenceElement?.dataset.value || currentSettings.sentenceUnderlineColor
 
         // Show warning if values are out of range
         const gapOutOfRange = nextLineGapPx < 0 || nextLineGapPx > 20
@@ -224,6 +234,8 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         
         anchor1.style.textUnderlineOffset = `${underlineOffsetPx}px`
         anchor.style.textUnderlineOffset = `${underlineOffsetPx}px`
+        anchor1.style.textDecorationColor = colorUtils.addOpacityToHex(wordUnderlineColor, UNDERLINE_OPACITY)
+        anchor.style.textDecorationColor = colorUtils.addOpacityToHex(sentenceUnderlineColor, UNDERLINE_OPACITY)
 
         // Force reflow to ensure tooltip dimensions are calculated before positioning
         void tooltip1.offsetWidth
@@ -232,12 +244,19 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         schedulePosition(verticalOffsetPx)
     }
 
-    gapInput.addEventListener("input", updatePreview)
-    offsetInput.addEventListener("input", updatePreview)
-    underlineInput.addEventListener("input", updatePreview)
-    fontPresetSelect.addEventListener("change", updatePreview)
-    autoAdjustHeightInput.addEventListener("change", updatePreview)
-    window.addEventListener("resize", updatePreview)
+    gapInput.addEventListener("input", () => updatePreview())
+    offsetInput.addEventListener("input", () => updatePreview())
+    underlineInput.addEventListener("input", () => updatePreview())
+    fontPresetSelect.addEventListener("change", () => updatePreview())
+    autoAdjustHeightInput.addEventListener("change", () => updatePreview())
+    window.addEventListener("resize", () => updatePreview())
+
+    document.addEventListener("settingChange", (event: Event) => {
+        const customEvent = event as CustomEvent
+        if (customEvent.detail.key === "wordUnderlineColor" || customEvent.detail.key === "sentenceUnderlineColor") {
+            updatePreview()
+        }
+    })
 
     const owningSection = stage.closest<HTMLElement>(".settings-section")
     if (owningSection) {
