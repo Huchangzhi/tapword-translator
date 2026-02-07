@@ -209,6 +209,7 @@ export async function loadSettings(): Promise<void> {
         settings = await ensureCommunityCustomApiEnabled(settings)
         settings = await ensureCommunityAutoPlayDisabled(settings)
 
+        // TODO: Improve type safety. Instead of casting to unknown then Record, consider using keyof types.UserSettings type guards or maintaining the original type.
         const settingsRecord = settings as unknown as Record<string, unknown>
         logger.info("Loaded settings:", settings)
 
@@ -485,10 +486,15 @@ function setValidationStatus(element: HTMLElement | null, status: "idle" | "succ
 /**
  * Custom Select Logic
  */
-function setupCustomSelects(): void {
+let isGlobalListenerAttached = false
+
+export function setupCustomSelects(): void {
     const wrappers = document.querySelectorAll(".custom-select-wrapper")
 
     wrappers.forEach((wrapper) => {
+        if (wrapper.getAttribute("data-listeners-attached") === "true") return
+        wrapper.setAttribute("data-listeners-attached", "true")
+
         const trigger = wrapper.querySelector(".custom-select-trigger")
         const options = wrapper.querySelectorAll(".custom-option")
         const settingKey = (wrapper as HTMLElement).dataset.setting
@@ -529,11 +535,14 @@ function setupCustomSelects(): void {
     })
 
     // Click outside to close
-    document.addEventListener("click", () => {
-        document.querySelectorAll(".custom-select-wrapper.open").forEach((wrapper) => {
-            wrapper.classList.remove("open")
+    if (!isGlobalListenerAttached) {
+        document.addEventListener("click", () => {
+            document.querySelectorAll(".custom-select-wrapper.open").forEach((wrapper) => {
+                wrapper.classList.remove("open")
+            })
         })
-    })
+        isGlobalListenerAttached = true
+    }
 }
 
 function updateCustomSelectUI(wrapper: HTMLElement, value: string): void {
@@ -561,11 +570,11 @@ function updateCustomSelectUI(wrapper: HTMLElement, value: string): void {
              label.setAttribute("data-i18n-key", key)
         } else {
              label.textContent = optionLabel.textContent
-    
-    // Store value in dataset for easy retrieval
-    wrapper.dataset.value = value
         }
     }
+
+    // Store value in dataset for easy retrieval
+    wrapper.dataset.value = value
 
     // Highlight selected option
     wrapper.querySelectorAll(".custom-option").forEach(opt => opt.classList.remove("selected"))

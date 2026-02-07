@@ -100,6 +100,7 @@ function positionPreviewTooltip(stage: HTMLElement, anchor: HTMLElement, tooltip
     tooltip.style.left = `${left}px`
 }
 
+// TODO: Refactor this function into a separate class (e.g., TooltipPreviewRenderer) to separate DOM querying, layout calculation, and event handling.
 async function setupTooltipSpacingPreview(): Promise<void> {
     const stage = document.getElementById("tooltipPreviewStage")
     const paragraph = document.getElementById("tooltipPreviewParagraph")
@@ -193,8 +194,11 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         let verticalOffsetPx = readFiniteNumber(offsetInput.value, currentSettings.tooltipVerticalOffsetPxV2)
         let underlineOffsetPx = readFiniteNumber(underlineInput.value, currentSettings.textUnderlineOffsetPxV2)
 
-        const wordUnderlineColor = (document.getElementById("wordUnderlineColorSelect") as HTMLElement).dataset.value || currentSettings.wordUnderlineColor
-        const sentenceUnderlineColor = (document.getElementById("sentenceUnderlineColorSelect") as HTMLElement).dataset.value || currentSettings.sentenceUnderlineColor
+        const wordElement = document.getElementById("wordUnderlineColorSelect")
+        const wordUnderlineColor = wordElement?.dataset.value || currentSettings.wordUnderlineColor
+        
+        const sentenceElement = document.getElementById("sentenceUnderlineColorSelect")
+        const sentenceUnderlineColor = sentenceElement?.dataset.value || currentSettings.sentenceUnderlineColor
 
         // Show warning if values are out of range
         const gapOutOfRange = nextLineGapPx < 0 || nextLineGapPx > 20
