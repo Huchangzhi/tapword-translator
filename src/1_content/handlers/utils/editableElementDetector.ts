@@ -2,18 +2,22 @@ const EDITABLE_TAGS = new Set(["INPUT", "TEXTAREA"])
 const EDITABLE_SELECTOR = `${Array.from(EDITABLE_TAGS)
     .map((tag) => tag.toLowerCase())
     .join(", ")}, [contenteditable]`
-const INTERACTIVE_TAG_SELECTOR =
+const CLICK_ATTRIBUTE = "onclick"
+const TABINDEX_ATTRIBUTE = "tabindex"
+const CURSOR_POINTER = "pointer"
+const TEXT_CURSOR_ALLOWLIST = new Set(["text", "auto", "default"])
+const STRONG_INTERACTIVE_TAG_SELECTOR =
     "a, button, input, select, textarea, label, video, audio, area, map, summary, details, iframe, embed, object, [contenteditable='true']"
-const INTERACTIVE_ROLE_SELECTOR =
+const STRONG_INTERACTIVE_ROLE_SELECTOR =
     "[role='button'], [role='link'], [role='checkbox'], [role='radio'], [role='switch'], " +
     "[role='option'], [role='menuitem'], [role='menuitemcheckbox'], [role='menuitemradio'], " +
     "[role='tab'], [role='treeitem'], [role='gridcell'], " +
     "[role='combobox'], [role='listbox'], [role='menu'], [role='menubar'], " +
     "[role='tablist'], [role='tree'], [role='treegrid'], [role='grid']"
-const INTERACTIVE_SELECTOR = `${INTERACTIVE_TAG_SELECTOR}, ${INTERACTIVE_ROLE_SELECTOR}`
-const CLICK_ATTRIBUTE = "onclick"
-const TABINDEX_ATTRIBUTE = "tabindex"
-const CURSOR_POINTER = "pointer"
+const STRONG_INTERACTIVE_SELECTOR = `${STRONG_INTERACTIVE_TAG_SELECTOR}, ${STRONG_INTERACTIVE_ROLE_SELECTOR}`
+
+import * as loggerModule from "@/0_common/utils/logger"
+const logger = loggerModule.createLogger("editableElementDetector")
 
 function isDirectlyEditable(element: Element): boolean {
     if (EDITABLE_TAGS.has(element.tagName)) {
@@ -44,25 +48,6 @@ export function isEditableElement(element: Element | null): boolean {
     return isDirectlyEditable(closestEditable)
 }
 
-export function isInteractiveElement(target: EventTarget | null, event?: Event): boolean {
-    const element = getElementFromTarget(target)
-    if (!element) {
-        return false
-    }
-
-    if (event?.composedPath) {
-        const path = event.composedPath()
-        for (const node of path) {
-            if (node instanceof HTMLElement && isInteractiveElementSelf(node, node === element)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    return isInteractiveElementByClosest(element)
-}
-
 function getElementFromTarget(target: EventTarget | null): HTMLElement | null {
     if (!target) {
         return null
@@ -79,47 +64,99 @@ function getElementFromTarget(target: EventTarget | null): HTMLElement | null {
     return null
 }
 
-function isInteractiveElementSelf(node: HTMLElement, checkCursor: boolean): boolean {
-    if (node.isContentEditable) {
-        return true
+export function isInteractiveElement(target: EventTarget | null, event?: Event): boolean {
+    const element = getElementFromTarget(target)
+    if (!element) {
+        return false
     }
 
-    if (node.matches(INTERACTIVE_TAG_SELECTOR)) {
-        return true
-    }
+    if (event?.composedPath) {
+        const path = event.composedPath()
+        for (const node of path) {
+            if (node instanceof HTMLElement) {
+                const result = isInteractiveElementSelf(node, node === element)
+                if (result.isInteractive) {
+                    if (result.level === "weak" && isTextContentException(element)) {
+                        logger.debug("Weak interactive element ignored (Text Exception)", {
+                            elementTag: node.tagName,
+                            elementReason: result.reason,
+                            targetIsNode: node === element,
+                        })
+                        return false
+                    }
 
-    if (node.matches(INTERACTIVE_ROLE_SELECTOR)) {
-        return true
-    }
-
-    if (node.hasAttribute(CLICK_ATTRIBUTE)) {
-        return true
-    }
-
-    if (node.hasAttribute(TABINDEX_ATTRIBUTE)) {
-        const tabIndex = parseInt(node.getAttribute(TABINDEX_ATTRIBUTE) || "-1", 10)
-        if (tabIndex >= 0) {
-            return true
+                    logger.debug("Interactive element detected (path)", {
+                        tag: node.tagName,
+                        reason: result.reason,
+                        level: result.level,
+                        targetIsNode: node === element,
+                        nodeClasses: node.className,
+                    })
+                    return true
+                }
+            }
         }
+        return false
     }
 
-    if (checkCursor) {
-        const style = window.getComputedStyle(node)
-        if (style.cursor === CURSOR_POINTER) {
-            return true
+    const result = isInteractiveElementByClosest(element)
+    if (result.isInteractive) {
+        if (result.level === "weak" && isTextContentException(element)) {
+            logger.debug("Weak interactive element ignored (Text Exception - closest)", {
+                elementTag: result.element?.tagName,
+                elementReason: result.reason,
+            })
+            return false
         }
-    }
 
+        logger.debug("Interactive element detected (closest)", {
+            tag: result.element?.tagName,
+            reason: result.reason,
+            level: result.level,
+        })
+        return true
+    }
     return false
 }
 
-function isInteractiveElementByClosest(node: HTMLElement): boolean {
-    if (node.closest(INTERACTIVE_SELECTOR)) {
-        return true
+/**
+ * Check if the element looks like plain text content that should be translatable,
+ * even if it's inside an interactive container.
+ */
+function isTextContentException(element: HTMLElement): boolean {
+    // 1. Must check cursor style. 'text' or 'auto' or 'default' usually implies non-clickable text.
+    // 'pointer' implies it's meant to be clicked.
+    const style = window.getComputedStyle(element)
+    return TEXT_CURSOR_ALLOWLIST.has(style.cursor)
+}
+interface InteractiveResult {
+    isInteractive: boolean
+    reason?: string
+    level?: "strong" | "weak"
+}
+
+function isInteractiveElementSelf(node: HTMLElement, checkCursor: boolean): InteractiveResult {
+    const strongResult = getStrongInteractiveResult(node, checkCursor)
+    if (strongResult.isInteractive) {
+        return strongResult
+    }
+
+    return getWeakInteractiveResult(node)
+}
+
+function isInteractiveElementByClosest(node: HTMLElement): InteractiveResult & { element?: Element } {
+    const strongMatch = node.closest(STRONG_INTERACTIVE_SELECTOR)
+    if (strongMatch) {
+        return { isInteractive: true, reason: "closest strong match", level: "strong", element: strongMatch }
     }
 
     if (node.closest(`[${CLICK_ATTRIBUTE}]`)) {
-        return true
+        return {
+            isInteractive: true,
+            reason: "closest onclick",
+            level: "weak",
+            element: node.closest(`[${CLICK_ATTRIBUTE}]`)!,
+        }
     }
 
     let current: HTMLElement | null = node
@@ -127,7 +164,7 @@ function isInteractiveElementByClosest(node: HTMLElement): boolean {
         if (current.hasAttribute(TABINDEX_ATTRIBUTE)) {
             const tabIndex = parseInt(current.getAttribute(TABINDEX_ATTRIBUTE) || "-1", 10)
             if (tabIndex >= 0) {
-                return true
+                return { isInteractive: true, reason: "ancestor tabindex", level: "weak", element: current }
             }
         }
         current = current.parentElement
@@ -135,8 +172,46 @@ function isInteractiveElementByClosest(node: HTMLElement): boolean {
 
     const style = window.getComputedStyle(node)
     if (style.cursor === CURSOR_POINTER) {
-        return true
+        return { isInteractive: true, reason: "cursor: pointer", level: "strong", element: node }
     }
 
-    return false
+    return { isInteractive: false }
+}
+
+function getStrongInteractiveResult(node: HTMLElement, checkCursor: boolean): InteractiveResult {
+    if (node.isContentEditable) {
+        return { isInteractive: true, reason: "contentEditable", level: "strong" }
+    }
+
+    if (node.matches(STRONG_INTERACTIVE_TAG_SELECTOR)) {
+        return { isInteractive: true, reason: `tag: ${node.tagName}`, level: "strong" }
+    }
+
+    if (node.matches(STRONG_INTERACTIVE_ROLE_SELECTOR)) {
+        return { isInteractive: true, reason: `role: ${node.getAttribute("role")}`, level: "strong" }
+    }
+
+    if (checkCursor) {
+        const style = window.getComputedStyle(node)
+        if (style.cursor === CURSOR_POINTER) {
+            return { isInteractive: true, reason: "cursor: pointer", level: "strong" }
+        }
+    }
+
+    return { isInteractive: false }
+}
+
+function getWeakInteractiveResult(node: HTMLElement): InteractiveResult {
+    if (node.hasAttribute(CLICK_ATTRIBUTE)) {
+        return { isInteractive: true, reason: "onclick attribute", level: "weak" }
+    }
+
+    if (node.hasAttribute(TABINDEX_ATTRIBUTE)) {
+        const tabIndex = parseInt(node.getAttribute(TABINDEX_ATTRIBUTE) || "-1", 10)
+        if (tabIndex >= 0) {
+            return { isInteractive: true, reason: `tabindex: ${tabIndex}`, level: "weak" }
+        }
+    }
+
+    return { isInteractive: false }
 }

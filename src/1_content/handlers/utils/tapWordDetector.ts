@@ -4,21 +4,27 @@
  * Provides helpers to resolve a word range from a click/tap point.
  */
 
+import * as loggerModule from "@/0_common/utils/logger"
+
 const WORD_CHAR_REGEX = /[A-Za-z0-9'-]/
 const HIT_TEST_PADDING_PX = 2
+const logger = loggerModule.createLogger("tapWordDetector")
 
 export function getWordRangeFromPoint(x: number, y: number): Range | null {
     const caretRange = getCaretRangeFromPoint(x, y)
     if (!caretRange) {
+        logger.debug("No caret range at point", { x, y })
         return null
     }
 
     const wordRange = expandRangeToWord(caretRange)
     if (!wordRange) {
+        logger.debug("Failed to expand caret range to word", { x, y })
         return null
     }
 
     if (!isPointInRects(x, y, wordRange.getClientRects())) {
+        logger.debug("Point not within word range rects", { x, y })
         return null
     }
 
@@ -39,6 +45,7 @@ function getCaretRangeFromPoint(x: number, y: number): Range | null {
 
     const caretPosition = documentWithCaretPosition.caretPositionFromPoint?.(x, y)
     if (!caretPosition) {
+        logger.debug("No caret position at point", { x, y })
         return null
     }
 
