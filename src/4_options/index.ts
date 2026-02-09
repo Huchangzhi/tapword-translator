@@ -195,7 +195,7 @@ async function setupTooltipSpacingPreview(): Promise<void> {
         let underlineOffsetPx = readFiniteNumber(underlineInput.value, currentSettings.textUnderlineOffsetPxV2)
 
         const wordElement = document.getElementById("wordUnderlineColorSelect")
-        const wordUnderlineColor = wordElement?.dataset.value || currentSettings.wordUnderlineColor
+        const wordUnderlineColor = wordElement?.dataset.value || currentSettings.wordUnderlineColorV2
         
         const sentenceElement = document.getElementById("sentenceUnderlineColorSelect")
         const sentenceUnderlineColor = sentenceElement?.dataset.value || currentSettings.sentenceUnderlineColor
@@ -253,7 +253,7 @@ async function setupTooltipSpacingPreview(): Promise<void> {
 
     document.addEventListener("settingChange", (event: Event) => {
         const customEvent = event as CustomEvent
-        if (customEvent.detail.key === "wordUnderlineColor" || customEvent.detail.key === "sentenceUnderlineColor") {
+        if (customEvent.detail.key === "wordUnderlineColorV2" || customEvent.detail.key === "sentenceUnderlineColor") {
             updatePreview()
         }
     })

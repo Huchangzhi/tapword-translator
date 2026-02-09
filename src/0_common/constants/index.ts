@@ -20,7 +20,7 @@ export const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000 // 24 hours
 /**
  * Visual styling constants
  */
-export const UNDERLINE_OPACITY = 0.9
+export const UNDERLINE_OPACITY = 1
 
 /**
  * Upgrade model enabled flag
