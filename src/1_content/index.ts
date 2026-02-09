@@ -81,6 +81,9 @@ async function init(): Promise<void> {
     // Listen for double-click to trigger direct translation
     document.addEventListener("dblclick", selectionHandler.handleDoubleClick)
 
+    // Listen for single-click to trigger word translation
+    document.addEventListener("click", selectionHandler.handleSingleClick)
+
     // Listen for text selection (for manual drag selection)
     document.addEventListener("mouseup", selectionHandler.handleTextSelection)
 

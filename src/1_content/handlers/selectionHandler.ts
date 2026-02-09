@@ -22,11 +22,14 @@ import * as rangeSplitter from "@/1_content/utils/rangeSplitter"
 import * as rangeAdjuster from "@/1_content/utils/rangeAdjuster"
 import * as selectionClassifier from "@/1_content/utils/selectionClassifier"
 import * as translationOverlapDetector from "@/1_content/utils/translationOverlapDetector"
+import * as tapWordDetector from "@/1_content/utils/tapWordDetector"
 import { createConcurrencyLimiter, type RequestLimiter } from "@/1_content/utils/concurrencyLimiter"
 import { validateSelectionAsync } from "@/1_content/utils/selectionValidator"
 
 const logger = loggerModule.createLogger("selectionHandler")
 const MAX_PARALLEL_TRANSLATIONS = 3
+const SINGLE_WORD_WHITESPACE_REGEX = /\s/
+const SINGLE_CLICK_TRIGGER_LABEL = "Single Click"
 
 function buildDisplaySettings(settings: Partial<{ translationFontSizePreset?: TranslationFontSizePreset; autoAdjustHeight?: boolean }> | null) {
     const resolvedFont = translationFontSizeModule.resolveTranslationFontSize(settings?.translationFontSizePreset)
@@ -112,6 +115,43 @@ export async function handleTextSelection(): Promise<void> {
 }
 
 /**
+ * Handle single-click to trigger word translation
+ */
+export async function handleSingleClick(event: MouseEvent): Promise<void> {
+    if (event.button !== 0 || event.defaultPrevented) {
+        return
+    }
+
+    if (editableElementDetector.isInteractiveElement(event.target, event)) {
+        return
+    }
+
+    if (isContentScriptUiTarget(event.target)) {
+        return
+    }
+
+    const selection = window.getSelection()
+    if (selection && !selection.isCollapsed) {
+        return
+    }
+
+    const range = tapWordDetector.getWordRangeFromPoint(event.clientX, event.clientY)
+    if (!range) {
+        return
+    }
+
+    const sanitizedText = domSanitizer.getCleanTextFromRange(range).trim()
+    if (!sanitizedText || SINGLE_WORD_WHITESPACE_REGEX.test(sanitizedText)) {
+        return
+    }
+
+    iconManager.removeTranslationIcon()
+
+    const limiter = createConcurrencyLimiter(MAX_PARALLEL_TRANSLATIONS)
+    await processTranslation(range, SINGLE_CLICK_TRIGGER_LABEL, limiter, "text")
+}
+
+/**
  * Handle double-click to trigger direct translation
  */
 export async function handleDoubleClick(event: MouseEvent): Promise<void> {
@@ -194,6 +234,24 @@ export function handleDocumentClick(event: Event): void {
 
     // Hide icon on outside clicks
     iconManager.removeTranslationIcon()
+}
+
+function isContentScriptUiTarget(target: EventTarget | null): boolean {
+    if (!target) {
+        return false
+    }
+
+    if (!(target instanceof Element)) {
+        return false
+    }
+
+    return (
+        target.closest(`.${constants.CSS_CLASSES.ICON}`) !== null ||
+        target.closest(`.${constants.CSS_CLASSES.ANCHOR}`) !== null ||
+        target.closest(`.${constants.CSS_CLASSES.TOOLTIP}`) !== null ||
+        target.closest(`.${constants.CSS_CLASSES.MODAL}`) !== null ||
+        target.closest(`.${constants.CSS_CLASSES.MODAL_BACKDROP}`) !== null
+    )
 }
 
 /**
