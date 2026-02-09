@@ -5,8 +5,8 @@
  * to word boundaries, without performing classification.
  */
 
-import * as domSanitizer from "./domSanitizer"
-import * as selectionClassifier from "./selectionClassifier"
+import * as domSanitizer from "@/1_content/utils/domSanitizer"
+import * as selectionClassifier from "@/1_content/handlers/utils/selectionClassifier"
 
 const WORD_BOUNDARY_REGEX = /[\s\p{P}\p{S}]/u
 const NBSP = "\u00A0"

@@ -14,7 +14,7 @@ import { UNDERLINE_OPACITY } from "@/0_common/constants"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as storageManager from "@/0_common/utils/storageManager"
 import * as colorUtils from "@/0_common/utils/colorUtils"
-import * as selectionHandler from "@/1_content/handlers/selectionHandler"
+import * as inputListener from "@/1_content/handlers/InputListener"
 import "@/1_content/resources/content.css"
 import "@/1_content/resources/modal.css"
 import * as iconManager from "@/1_content/ui/iconManager"
@@ -79,16 +79,16 @@ async function init(): Promise<void> {
     await initializeUserSettings()
 
     // Listen for double-click to trigger direct translation
-    document.addEventListener("dblclick", selectionHandler.handleDoubleClick)
+    document.addEventListener("dblclick", inputListener.handleDoubleClick)
 
     // Listen for single-click to trigger word translation
-    document.addEventListener("click", selectionHandler.handleSingleClick)
+    document.addEventListener("click", inputListener.handleSingleClick)
 
     // Listen for text selection (for manual drag selection)
-    document.addEventListener("mouseup", selectionHandler.handleTextSelection)
+    document.addEventListener("mouseup", inputListener.handleTextSelection)
 
     // Listen for clicks on other text elements to hide icon
-    document.addEventListener("mousedown", selectionHandler.handleDocumentClick)
+    document.addEventListener("mousedown", inputListener.handleDocumentClick)
 
     // Listen for scroll to hide icon
     document.addEventListener("scroll", iconManager.removeTranslationIcon, { passive: true })

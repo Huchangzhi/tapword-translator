@@ -6,7 +6,7 @@
 import * as types from "@/0_common/types"
 import * as constants from "@/1_content/constants"
 import * as domSanitizer from "@/1_content/utils/domSanitizer"
-import * as editableElementDetector from "@/1_content/utils/editableElementDetector"
+import * as editableElementDetector from "@/1_content/handlers/utils/editableElementDetector"
 
 import { shouldTriggerTranslationAsync } from "@/1_content/utils/languageValidator"
 
