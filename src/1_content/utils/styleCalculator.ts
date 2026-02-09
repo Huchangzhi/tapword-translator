@@ -86,6 +86,27 @@ function lightenColor(colorString: string, lightenAmount: number, alpha: number)
     return `rgba(${r}, ${g}, ${b}, ${finalAlpha})`
 }
 
+/**
+ * Determines whether to use black or white text based on the brightness of the reference color.
+ * If the reference color is dark (implies light background), returns black.
+ * If the reference color is light (implies dark background), returns white.
+ */
+function getHighContrastColor(colorString: string): string {
+    const color = parseColor(colorString)
+    if (!color) return "rgb(0, 0, 0)"
+
+    // Calculate perceived brightness (luminance)
+    // Formula: (R * 299 + G * 587 + B * 114) / 1000
+    // Range: 0 (black) to 255 (white)
+    const brightness = (color.r * 299 + color.g * 587 + color.b * 114) / 1000
+
+    // Threshold of 150 biases slightly towards using black text on mid-tones,
+    // which is generally safer for readability on most web pages.
+    // < 150: Dark text -> Light background -> Use Black tooltip
+    // >= 150: Light text -> Dark background -> Use White tooltip
+    return brightness < 150 ? "rgb(0, 0, 0)" : "rgb(255, 255, 255)"
+}
+
 // ============================================================================
 // Font Size Calculation
 // ============================================================================
@@ -261,7 +282,7 @@ export function calculateTooltipStyle(
     const originalColor = computedStyle ? computedStyle.color : "rgb(0, 0, 0)"
 
     const result = calculateOptimalTranslationFontSize(originalElement, originalFontSize, anchor, minFontSize)
-    const color = lightenColor(originalColor, 0.02, 0.98) // 10% lighter, 90% alpha
+    const color = getHighContrastColor(originalColor)
 
     return {
         fontSize: result.fontSize,
