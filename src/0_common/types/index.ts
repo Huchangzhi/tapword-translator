@@ -277,6 +277,8 @@ export interface UserSettings {
     textUnderlineOffsetPxV2: number
     /** Color for single word translation underline (hex code) */
     wordUnderlineColor: string
+    /** Color for single word translation underline (hex code) - V2 forced defaults */
+    wordUnderlineColorV2: string
     /** Color for sentence translation underline (hex code) */
     sentenceUnderlineColor: string
     /** Icon background color */
@@ -313,6 +315,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     textUnderlineOffsetPx: 3,
     textUnderlineOffsetPxV2: 4,
     wordUnderlineColor: "#2A9D8F",
+    wordUnderlineColorV2: "#1F7FDB",
     sentenceUnderlineColor: "#E9C46A",
     iconColor: "pink",
     customApi: {

@@ -30,7 +30,7 @@ function applyDynamicStyles(settings: UserSettings) {
     // Use CSS variable for better performance and cleaner code
     document.documentElement.style.setProperty("--ai-translator-underline-offset", `${settings.textUnderlineOffsetPxV2}px`)
     
-    const wordColor = colorUtils.addOpacityToHex(settings.wordUnderlineColor, UNDERLINE_OPACITY)
+    const wordColor = colorUtils.addOpacityToHex(settings.wordUnderlineColorV2, UNDERLINE_OPACITY)
     const sentenceColor = colorUtils.addOpacityToHex(settings.sentenceUnderlineColor, UNDERLINE_OPACITY)
     
     document.documentElement.style.setProperty("--modal-blue-accent-color", wordColor)
