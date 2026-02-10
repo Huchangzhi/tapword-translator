@@ -80,14 +80,31 @@ export async function handleDoubleClick(event: MouseEvent): Promise<void> {
     const settings = contentIndex.getCachedUserSettings()
     const selection = window.getSelection()
 
-    const validation = await validateSelectionAsync(selection, settings, "doubleClick")
+    // 1. Determine Intent (Sentence vs Word)
+    const sentenceModeEnabled = settings?.doubleClickSentenceTranslate ?? true
+    const triggerKey = settings?.doubleClickSentenceTriggerKey ?? "alt"
+    let isSentenceMode = false
+
+    if (sentenceModeEnabled) {
+        if (triggerKey === "meta") isSentenceMode = event.metaKey
+        else if (triggerKey === "option" || triggerKey === "alt") isSentenceMode = event.altKey
+        else if (triggerKey === "ctrl") isSentenceMode = event.ctrlKey
+    }
+
+    // 2. Validate based on intent
+    // If it's sentence mode, we validate for "doubleClickSentence" (which might bypass some word-specific checks if needed, but currently shares logic)
+    // If it's word mode, we validate for "doubleClickWord"
+    // For now, we reuse "doubleClick" but pass the intent via settings check inside validator or just check here.
+    
+    const validationTrigger = isSentenceMode ? "doubleClickSentence" : "doubleClickWord"
+    const validation = await validateSelectionAsync(selection, settings, validationTrigger)
 
     if (!validation.isValid) {
         if (validation.shouldCleanup) {
             iconManager.removeTranslationIcon()
         }
         if (validation.reason) {
-            logger.debug(`Double-click validation failed: ${validation.reason}`)
+            logger.debug(`Double-click (${validationTrigger}) validation failed: ${validation.reason}`)
         }
         return
     }
@@ -96,18 +113,6 @@ export async function handleDoubleClick(event: MouseEvent): Promise<void> {
     iconManager.removeTranslationIcon()
 
     let range = validation.range!
-
-    // Check for configured modifier key to trigger sentence translation
-    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
-    const sentenceModeEnabled = userSettings.doubleClickSentenceTranslate ?? true
-    const triggerKey = userSettings.doubleClickSentenceTriggerKey ?? "alt"
-
-    let isSentenceMode = false
-    if (sentenceModeEnabled) {
-        if (triggerKey === "meta") isSentenceMode = event.metaKey
-        else if (triggerKey === "option" || triggerKey === "alt") isSentenceMode = event.altKey
-        else if (triggerKey === "ctrl") isSentenceMode = event.ctrlKey
-    }
 
     if (isSentenceMode) {
         logger.info(`Modifier key (${triggerKey}) pressed, expanding selection to full sentence.`)

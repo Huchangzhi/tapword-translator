@@ -18,7 +18,7 @@ const ELEMENT_NODE = 1
 const SINGLE_WORD_WHITESPACE_REGEX = /\s/
 const MAX_SINGLE_CLICK_WORD_LENGTH = 30 // Reasonable max length for a single word
 
-export type ValidationTrigger = "icon" | "doubleClick"
+export type ValidationTrigger = "icon" | "doubleClickWord" | "doubleClickSentence"
 
 export interface ValidationResult {
     isValid: boolean
@@ -67,14 +67,15 @@ export async function validateSelectionAsync(
             // Original logic: just return, don't explicitly remove icon (though often desirable, we stick to original)
             return { isValid: false, text: "", reason: "Icon disabled via settings", shouldCleanup: false }
         }
-    } else if (trigger === "doubleClick") {
+    } else if (trigger === "doubleClickWord") {
         const doubleClickTranslate = settings?.doubleClickTranslateV2 ?? true
         if (!doubleClickTranslate) {
-            logger.debug("[SelectionValidator] DoubleClickV2 check failed", {
-                settingsObj: settings,
-                doubleClickTranslateV2: settings?.doubleClickTranslateV2,
-            })
-            return { isValid: false, text: "", reason: "Double-click translation disabled via settings", shouldCleanup: false }
+            return { isValid: false, text: "", reason: "Double-click word translation disabled via settings", shouldCleanup: false }
+        }
+    } else if (trigger === "doubleClickSentence") {
+        const sentenceModeEnabled = settings?.doubleClickSentenceTranslate ?? true
+        if (!sentenceModeEnabled) {
+            return { isValid: false, text: "", reason: "Double-click sentence translation disabled via settings", shouldCleanup: false }
         }
     }
 
@@ -114,7 +115,7 @@ export async function validateSelectionAsync(
     const suppressNativeLanguage = settings?.suppressNativeLanguage ?? types.DEFAULT_SUPPRESS_NATIVE_LANGUAGE
 
     // Force suppression for doubleClick trigger if it is native language
-    if (trigger === "doubleClick") {
+    if (trigger === "doubleClickWord" || trigger === "doubleClickSentence") {
         const isNative = await isNativeLanguageAsync(selectedText, targetLang, contextText)
         if (isNative) {
              return { isValid: false, text: selectedText, reason: "Double-click suppressed on native language", shouldCleanup: true }
@@ -173,6 +174,15 @@ export async function validateSingleClickAsync(
     // 1. Event Check
     if (event.button !== 0 || event.defaultPrevented) {
         return { isValid: false, text: "", reason: "Invalid event", shouldCleanup: false }
+    }
+
+    // 1.5. Modifier Key Check
+    // If any modifier key is pressed, we should skip single-click translation.
+    // This allows users to:
+    // - Perform double-click sentence translation (which requires a modifier)
+    // - Perform native browser actions (e.g. Cmd+Click, Shift+Click) without interference
+    if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+        return { isValid: false, text: "", reason: "Modifier key pressed", shouldCleanup: false }
     }
 
     // 2. Interactive Element Check

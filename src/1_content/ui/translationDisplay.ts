@@ -20,6 +20,7 @@ import * as loggerModule from "@/0_common/utils/logger"
 const logger = loggerModule.createLogger("1_content/ui/translationDisplay")
 
 const CLICK_DEBOUNCE_DELAY_MS = 250
+const INTERACTION_GRACE_PERIOD_MS = 400
 
 // ============================================================================
 // Type Definitions
@@ -340,12 +341,20 @@ function handleAnchorClick(anchorId: string): void {
  * Attach click and double-click event listeners to the anchor
  */
 function attachAnchorEventListeners(anchor: HTMLElement, anchorId: string): void {
+    const creationTime = Date.now()
     // Timer for click debounce to distinguish from double-click
     let clickTimer: number | undefined
 
     // Add click handler to show detail modal (debounced)
     anchor.addEventListener("click", (e) => {
         e.stopPropagation()
+
+        // Ignore single-click if the anchor was just created (e.g. from single-click translate)
+        // This prevents accidental opening of modal when the user double-clicks for other reasons
+        const settings = contentIndex.getCachedUserSettings()
+        if (settings?.singleClickTranslate && Date.now() - creationTime < INTERACTION_GRACE_PERIOD_MS) {
+            return
+        }
 
         // If there is a pending click (rare in this context but good practice), clear it
         if (clickTimer) {
@@ -363,6 +372,14 @@ function attachAnchorEventListeners(anchor: HTMLElement, anchorId: string): void
     anchor.addEventListener("dblclick", (e) => {
         e.stopPropagation()
         e.preventDefault()
+
+        // Ignore double-click if the anchor was just created (e.g. from single-click translate)
+        // This prevents accidental closure when the user double-clicks for other reasons
+        // or when single-click translate is enabled and the second click hits the new anchor
+        const settings = contentIndex.getCachedUserSettings()
+        if (settings?.singleClickTranslate && Date.now() - creationTime < INTERACTION_GRACE_PERIOD_MS) {
+            return
+        }
 
         // Cancel any pending single-click action (modal open)
         if (clickTimer) {
