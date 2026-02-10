@@ -23,7 +23,8 @@ const AUTO_PLAY_AUDIO_SETTING_ID = "autoPlayAudio"
 function setTranslationControlsEnabled(enabled: boolean): void {
     const dependentIds = [
         "showIcon",
-        "doubleClickTranslate",
+        "singleClickTranslate",
+        "doubleClickTranslateV2",
         "doubleClickSentenceTranslate",
         "doubleClickSentenceTriggerKey"
     ]
@@ -114,25 +115,29 @@ async function ensureCommunityCustomApiEnabled(settings: types.UserSettings): Pr
 
 async function restoreDependentTogglesIfAllOff(): Promise<void> {
     const showIconInput = document.getElementById("showIcon") as HTMLInputElement | null
-    const doubleClickInput = document.getElementById("doubleClickTranslate") as HTMLInputElement | null
+    const singleClickInput = document.getElementById("singleClickTranslate") as HTMLInputElement | null
+    const doubleClickInput = document.getElementById("doubleClickTranslateV2") as HTMLInputElement | null
     const sentenceTranslateInput = document.getElementById("doubleClickSentenceTranslate") as HTMLInputElement | null
 
-    if (!showIconInput || !doubleClickInput || !sentenceTranslateInput) {
+    if (!showIconInput || !singleClickInput || !doubleClickInput || !sentenceTranslateInput) {
         return
     }
 
-    const allDisabled = !showIconInput.checked && !doubleClickInput.checked && !sentenceTranslateInput.checked
+    const allDisabled = !showIconInput.checked && !singleClickInput.checked && !doubleClickInput.checked && !sentenceTranslateInput.checked
     if (!allDisabled) {
         return
     }
 
     showIconInput.checked = true
-    doubleClickInput.checked = true
+    singleClickInput.checked = true
+    // V2 default: Double Click OFF, Single Click ON
+    // doubleClickInput.checked = false // already false if allDisabled
     sentenceTranslateInput.checked = true
 
     await storageManagerModule.updateUserSettings({
         showIcon: true,
-        doubleClickTranslate: true,
+        singleClickTranslate: true,
+        doubleClickTranslateV2: false,
         doubleClickSentenceTranslate: true,
     })
 }
@@ -344,6 +349,21 @@ export function setupSettingChangeListeners(): void {
                 input.checked = false
                 lockAutoPlayAudioToggle()
                 return
+            }
+
+            // Implement mutual exclusion between single-click and double-click (V2)
+            if (settingKey === "singleClickTranslate" && input.checked) {
+                const doubleClickInput = document.getElementById("doubleClickTranslateV2") as HTMLInputElement
+                if (doubleClickInput && doubleClickInput.checked) {
+                    doubleClickInput.checked = false
+                    await saveSetting("doubleClickTranslateV2", false)
+                }
+            } else if (settingKey === "doubleClickTranslateV2" && input.checked) {
+                const singleClickInput = document.getElementById("singleClickTranslate") as HTMLInputElement
+                if (singleClickInput && singleClickInput.checked) {
+                    singleClickInput.checked = false
+                    await saveSetting("singleClickTranslate", false)
+                }
             }
 
             await saveSetting(settingKey as keyof types.UserSettings, input.checked)

@@ -22,6 +22,7 @@
     "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Show icon on text selection",
     "popup.showIcon.tooltip": "Translate a whole word by highlighting just a part of it.",
+    "popup.singleClickTranslate.label": "Single-click to translate word",
     "popup.doubleClickTranslate.label": "Double-click to translate word",
     "popup.doubleClickSentenceTranslate.label": "Double-click translates sentence",
     "popup.doubleClickSentenceTranslate.tooltip": "Hold the trigger key and double-click a sentence to translate it.",

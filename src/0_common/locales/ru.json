@@ -22,6 +22,7 @@
     "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Показывать иконку при выборе",
     "popup.showIcon.tooltip": "Переведите всё слово, выделив лишь его часть.",
+    "popup.singleClickTranslate.label": "Одиночный клик для перевода слова",
     "popup.doubleClickTranslate.label": "Двойной клик для перевода слова",
     "popup.doubleClickSentenceTranslate.label": "Двойной клик для перевода предложения",
     "popup.doubleClickSentenceTranslate.tooltip": "Удерживайте заданную клавишу и дважды щелкните по предложению, чтобы перевести его.",

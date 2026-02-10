@@ -242,8 +242,12 @@ export interface UserSettings {
     enableTapWord: boolean
     /** Whether to show translation icon on text selection */
     showIcon: boolean
-    /** Whether to translate single words on double-click */
+    /** Whether to translate single words on single-click */
+    singleClickTranslate: boolean
+    /** Whether to translate single words on double-click (Legacy, replaced by V2) */
     doubleClickTranslate: boolean
+    /** Whether to translate single words on double-click (V2 default OFF) */
+    doubleClickTranslateV2: boolean
     /** Whether to translate full sentences on Modifier+double-click */
     doubleClickSentenceTranslate: boolean
     /** Modifier key for sentence translation (meta, option, alt, ctrl) */
@@ -299,7 +303,9 @@ export interface UserSettings {
 export const DEFAULT_USER_SETTINGS: UserSettings = {
     enableTapWord: true,
     showIcon: true,
-    doubleClickTranslate: true,
+    singleClickTranslate: true,
+    doubleClickTranslate: false,
+    doubleClickTranslateV2: false,
     doubleClickSentenceTranslate: true,
     doubleClickSentenceTriggerKey: "alt",
     autoAdjustHeight: true,

@@ -7,7 +7,7 @@ const TABINDEX_ATTRIBUTE = "tabindex"
 const CURSOR_POINTER = "pointer"
 const TEXT_CURSOR_ALLOWLIST = new Set(["text", "auto", "default"])
 const STRONG_INTERACTIVE_TAG_SELECTOR =
-    "a, button, input, select, textarea, label, video, audio, area, map, summary, details, iframe, embed, object, [contenteditable='true']"
+    "a, button, select, label, video, audio, area, map, summary, details, iframe, embed, object"
 const STRONG_INTERACTIVE_ROLE_SELECTOR =
     "[role='button'], [role='link'], [role='checkbox'], [role='radio'], [role='switch'], " +
     "[role='option'], [role='menuitem'], [role='menuitemcheckbox'], [role='menuitemradio'], " +
@@ -68,6 +68,13 @@ export function isInteractiveElement(target: EventTarget | null, event?: Event):
     const element = getElementFromTarget(target)
     if (!element) {
         return false
+    }
+
+    if (isEditableElement(element)) {
+        logger.debug("Editable element detected", {
+            tag: element.tagName,
+        })
+        return true
     }
 
     if (event?.composedPath) {
@@ -179,10 +186,6 @@ function isInteractiveElementByClosest(node: HTMLElement): InteractiveResult & {
 }
 
 function getStrongInteractiveResult(node: HTMLElement, checkCursor: boolean): InteractiveResult {
-    if (node.isContentEditable) {
-        return { isInteractive: true, reason: "contentEditable", level: "strong" }
-    }
-
     if (node.matches(STRONG_INTERACTIVE_TAG_SELECTOR)) {
         return { isInteractive: true, reason: `tag: ${node.tagName}`, level: "strong" }
     }

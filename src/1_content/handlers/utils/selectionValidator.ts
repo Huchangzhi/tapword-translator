@@ -7,10 +7,16 @@ import * as types from "@/0_common/types"
 import * as constants from "@/1_content/constants"
 import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as editableElementDetector from "@/1_content/handlers/utils/editableElementDetector"
+import * as tapWordDetector from "@/1_content/handlers/utils/tapWordDetector"
 
 import { shouldTriggerTranslationAsync } from "@/1_content/utils/languageValidator"
 
+import * as loggerModule from "@/0_common/utils/logger"
+
+const logger = loggerModule.createLogger("selectionHandler")
 const ELEMENT_NODE = 1
+const SINGLE_WORD_WHITESPACE_REGEX = /\s/
+const MAX_SINGLE_CLICK_WORD_LENGTH = 30 // Reasonable max length for a single word
 
 export type ValidationTrigger = "icon" | "doubleClick"
 
@@ -20,6 +26,14 @@ export interface ValidationResult {
     range?: Range
     reason?: string
     shouldCleanup?: boolean // true if the caller should remove the icon/cancel UI
+}
+
+/**
+ * Helper to check if source language matches target language (i.e. user's native language)
+ */
+async function isNativeLanguageAsync(text: string, targetLanguage: string, context?: string): Promise<boolean> {
+    const shouldTrigger = await shouldTriggerTranslationAsync(text, targetLanguage, context)
+    return !shouldTrigger
 }
 
 /**
@@ -54,8 +68,12 @@ export async function validateSelectionAsync(
             return { isValid: false, text: "", reason: "Icon disabled via settings", shouldCleanup: false }
         }
     } else if (trigger === "doubleClick") {
-        const doubleClickTranslate = settings?.doubleClickTranslate ?? true
+        const doubleClickTranslate = settings?.doubleClickTranslateV2 ?? true
         if (!doubleClickTranslate) {
+            logger.debug("[SelectionValidator] DoubleClickV2 check failed", {
+                settingsObj: settings,
+                doubleClickTranslateV2: settings?.doubleClickTranslateV2,
+            })
             return { isValid: false, text: "", reason: "Double-click translation disabled via settings", shouldCleanup: false }
         }
     }
@@ -86,13 +104,23 @@ export async function validateSelectionAsync(
     }
 
     // 7. Language Suppression Check
+    // Always check for native language suppression for doubleClick (unless explicitly disabled in future)
+    // For 'icon' trigger, we respect the suppressNativeLanguage setting (which might be false)
+    // BUT user requirement says: "single-click and double-click, default closed under native text"
+    
+    const targetLang = settings?.targetLanguage || types.DEFAULT_USER_SETTINGS.targetLanguage
+    const contextText = domSanitizer.getSurroundingTextForDetection(range, 100)
+    
     const suppressNativeLanguage = settings?.suppressNativeLanguage ?? types.DEFAULT_SUPPRESS_NATIVE_LANGUAGE
-    if (suppressNativeLanguage) {
-        const targetLang = settings?.targetLanguage || types.DEFAULT_USER_SETTINGS.targetLanguage
-        // Extract context for language detection (async)
-        // Use surrounding text to get better accuracy for short selections
-        const contextText = domSanitizer.getSurroundingTextForDetection(range, 100)
 
+    // Force suppression for doubleClick trigger if it is native language
+    if (trigger === "doubleClick") {
+        const isNative = await isNativeLanguageAsync(selectedText, targetLang, contextText)
+        if (isNative) {
+             return { isValid: false, text: selectedText, reason: "Double-click suppressed on native language", shouldCleanup: true }
+        }
+    } else if (suppressNativeLanguage) {
+        // Standard suppression logic for icon trigger
         const shouldTrigger = await shouldTriggerTranslationAsync(selectedText, targetLang, contextText)
         if (!shouldTrigger) {
             return { isValid: false, text: selectedText, reason: "Suppressed by language detector", shouldCleanup: true }
@@ -112,4 +140,97 @@ export async function validateSelectionAsync(
     }
 
     return { isValid: true, text: selectedText, range, reason: "Valid selection", shouldCleanup: false }
+}
+
+export interface SingleClickValidationResult {
+    isValid: boolean
+    text: string
+    range?: Range
+    reason?: string
+    shouldCleanup?: boolean
+}
+
+/**
+ * Validates whether the current single click should trigger a translation.
+ *
+ * @param event - The MouseEvent object
+ * @param settings - The user settings
+ * @returns Promise<SingleClickValidationResult> object containing validity status, extracted text, and optional range/reason
+ */
+export async function validateSingleClickAsync(
+    event: MouseEvent,
+    settings: types.UserSettings | null
+): Promise<SingleClickValidationResult> {
+    // 0. Global & Feature Settings Check
+    const enableTapWord = settings?.enableTapWord ?? true
+    if (!enableTapWord) {
+        return { isValid: false, text: "", reason: "Extension disabled via enableTapWord", shouldCleanup: false }
+    }
+    if (!settings?.singleClickTranslate) {
+        return { isValid: false, text: "", reason: "Feature disabled", shouldCleanup: false }
+    }
+
+    // 1. Event Check
+    if (event.button !== 0 || event.defaultPrevented) {
+        return { isValid: false, text: "", reason: "Invalid event", shouldCleanup: false }
+    }
+
+    // 2. Interactive Element Check
+    if (editableElementDetector.isInteractiveElement(event.target, event)) {
+        return { isValid: false, text: "", reason: "Interactive element", shouldCleanup: false }
+    }
+
+    // 3. Extension UI Check
+    const target = event.target as Element
+    if (
+        target &&
+        (target.closest(`.${constants.CSS_CLASSES.ICON}`) ||
+            target.closest(`.${constants.CSS_CLASSES.ANCHOR}`) ||
+            target.closest(`.${constants.CSS_CLASSES.TOOLTIP}`) ||
+            target.closest(`.${constants.CSS_CLASSES.MODAL}`) ||
+            target.closest(`.${constants.CSS_CLASSES.MODAL_BACKDROP}`))
+    ) {
+        return { isValid: false, text: "", reason: "Extension UI element", shouldCleanup: false }
+    }
+
+    // 4. Selection Check
+    const selection = window.getSelection()
+    if (selection && !selection.isCollapsed) {
+        return { isValid: false, text: "", reason: "Active selection present", shouldCleanup: false }
+    }
+
+    // 5. Range Extraction
+    const range = tapWordDetector.getWordRangeFromPoint(event.clientX, event.clientY)
+    if (!range) {
+        return { isValid: false, text: "", reason: "No word range at point", shouldCleanup: false }
+    }
+
+    // 6. Text Validation
+    const sanitizedText = domSanitizer.getCleanTextFromRange(range).trim()
+    if (!sanitizedText || SINGLE_WORD_WHITESPACE_REGEX.test(sanitizedText)) {
+        return { isValid: false, text: sanitizedText, reason: "Invalid text (empty or whitespace)", shouldCleanup: false }
+    }
+
+    if (sanitizedText.length > MAX_SINGLE_CLICK_WORD_LENGTH) {
+        return { isValid: false, text: sanitizedText, reason: `Word too long (${sanitizedText.length} chars)`, shouldCleanup: false }
+    }
+
+    // 7. Contentless Check (Numeric, Symbols, Punctuation only)
+    if (/^[\d\s\p{P}\p{S}]+$/u.test(sanitizedText)) {
+        return { isValid: false, text: sanitizedText, reason: "Contentless selection skipped", shouldCleanup: false }
+    }
+
+    // 8. Language Suppression Check
+    // Requirement: Single-click (and double-click) default closed under native text
+    const targetLang = settings?.targetLanguage || types.DEFAULT_USER_SETTINGS.targetLanguage
+    const contextText = domSanitizer.getSurroundingTextForDetection(range, 100)
+    
+    // Always suppress native language for single-click, regardless of global suppressNativeLanguage setting
+    // Unless we want to introduce a specific setting for this later. Currently interpreted as "default closed".
+    const isNative = await isNativeLanguageAsync(sanitizedText, targetLang, contextText)
+    if (isNative) {
+         return { isValid: false, text: sanitizedText, reason: "Single-click suppressed on native language", shouldCleanup: true }
+    }
+    
+    return { isValid: true, text: sanitizedText, range, reason: "Valid single click", shouldCleanup: true }
 }

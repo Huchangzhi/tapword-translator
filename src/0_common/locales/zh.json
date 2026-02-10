@@ -22,6 +22,7 @@
     "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "划词翻译",
     "popup.showIcon.tooltip": "无需精准选中完整单词，划取单词任意部分即可翻译整词",
+    "popup.singleClickTranslate.label": "单击翻译单词",
     "popup.doubleClickTranslate.label": "双击翻译单词",
     "popup.doubleClickSentenceTranslate.label": "双击翻译句子",
     "popup.doubleClickSentenceTranslate.tooltip": "按住设定的快捷键并双击句子，可翻译整句",

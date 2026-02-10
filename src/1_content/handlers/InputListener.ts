@@ -14,10 +14,9 @@ import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as translationPipeline from "@/1_content/handlers/TranslationPipeline"
 import * as editableElementDetector from "@/1_content/handlers/utils/editableElementDetector"
 import * as tapWordDetector from "@/1_content/handlers/utils/tapWordDetector"
-import { validateSelectionAsync } from "@/1_content/handlers/utils/selectionValidator"
+import { validateSelectionAsync, validateSingleClickAsync } from "@/1_content/handlers/utils/selectionValidator"
 
 const logger = loggerModule.createLogger("selectionHandler")
-const SINGLE_WORD_WHITESPACE_REGEX = /\s/
 const SINGLE_CLICK_TRIGGER_LABEL = "Single Click"
 const SINGLE_CLICK_LOG_PREFIX = "[Single Click]"
 
@@ -59,49 +58,19 @@ export async function handleTextSelection(): Promise<void> {
  * Handle single-click to trigger word translation
  */
 export async function handleSingleClick(event: MouseEvent): Promise<void> {
-    if (event.button !== 0 || event.defaultPrevented) {
-        if (event.defaultPrevented) {
-            logger.debug(`${SINGLE_CLICK_LOG_PREFIX} Skipped: event.defaultPrevented`, getEventTargetDebugInfo(event.target))
+    const settings = contentIndex.getCachedUserSettings()
+    const validation = await validateSingleClickAsync(event, settings)
+
+    if (!validation.isValid) {
+        if (validation.reason) {
+            logger.debug(`${SINGLE_CLICK_LOG_PREFIX} Skipped: ${validation.reason}`)
         }
-        return
-    }
-
-    if (editableElementDetector.isInteractiveElement(event.target, event)) {
-        logger.debug(`${SINGLE_CLICK_LOG_PREFIX} Skipped: interactive element`, getEventTargetDebugInfo(event.target))
-        return
-    }
-
-    if (isContentScriptUiTarget(event.target)) {
-        logger.debug(`${SINGLE_CLICK_LOG_PREFIX} Skipped: extension UI`, getEventTargetDebugInfo(event.target))
-        return
-    }
-
-    const selection = window.getSelection()
-    if (selection && !selection.isCollapsed) {
-        logger.debug(`${SINGLE_CLICK_LOG_PREFIX} Skipped: selection not collapsed`)
-        return
-    }
-
-    const range = tapWordDetector.getWordRangeFromPoint(event.clientX, event.clientY)
-    if (!range) {
-        logger.debug(`${SINGLE_CLICK_LOG_PREFIX} No word range at point`, {
-            x: event.clientX,
-            y: event.clientY,
-        })
-        return
-    }
-
-    const sanitizedText = domSanitizer.getCleanTextFromRange(range).trim()
-    if (!sanitizedText || SINGLE_WORD_WHITESPACE_REGEX.test(sanitizedText)) {
-        logger.debug(`${SINGLE_CLICK_LOG_PREFIX} Skipped: invalid text`, {
-            text: sanitizedText,
-        })
         return
     }
 
     iconManager.removeTranslationIcon()
 
-    await translationPipeline.triggerTranslationForRange(range, SINGLE_CLICK_TRIGGER_LABEL, "text")
+    await translationPipeline.triggerTranslationForRange(validation.range!, SINGLE_CLICK_TRIGGER_LABEL, "text")
 }
 
 /**

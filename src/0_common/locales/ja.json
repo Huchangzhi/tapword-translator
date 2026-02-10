@@ -22,6 +22,7 @@
     "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "テキスト選択時にアイコンを表示",
     "popup.showIcon.tooltip": "単語の一部を選択するだけで、単語全体を翻訳できます。",
+    "popup.singleClickTranslate.label": "シングルクリックで単語翻訳",
     "popup.doubleClickTranslate.label": "ダブルクリックで単語を翻訳",
     "popup.doubleClickSentenceTranslate.label": "ダブルクリックで文を翻訳",
     "popup.doubleClickSentenceTranslate.tooltip": "設定したショートカットキーを押しながら文をダブルクリックすると翻訳されます。",
