@@ -241,8 +241,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 6px 10px;
+    gap: 0;
+    padding: 6px 10px 6px 0;
     position: relative;
 }
 
@@ -255,9 +255,18 @@ body {
     border-top: 1px solid #F2F0EB;
 }
 
+.setting-gutter {
+    width: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .setting-info {
     flex: 1;
     min-width: 0;
+    margin-right: 12px;
 }
 
 .setting-control {
@@ -473,6 +482,16 @@ body {
     box-shadow: 0 2px 6px rgba(244, 114, 182, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
+/* Pink variant for highlighting specific features */
+.toggle-switch-pink input:checked+.toggle-slider {
+    background: linear-gradient(180deg, var(--popup-master-on-top) 0%, var(--popup-master-on-bottom) 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.toggle-switch-pink input:checked+.toggle-slider:before {
+    box-shadow: 0 2px 6px rgba(244, 114, 182, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
 /* Scrollbar Styling */
 .settings-list::-webkit-scrollbar {
     width: 6px;
@@ -493,6 +512,23 @@ body {
 
 [data-app-edition="community"] .section-audio {
     display: none !important;
+}
+
+/* Feature highlight dot */
+.feature-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #ff4757;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* Hide/dim dot when unchecked - target the specific setting item */
+.setting-item:has(input#singleClickTranslate:not(:checked)) .feature-dot {
+    background-color: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    opacity: 0.3;
 }
 
 /* Footer */
