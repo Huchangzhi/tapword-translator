@@ -12,9 +12,11 @@
     --popup-primary-color: rgba(30, 30, 30, 1);
     --popup-section-bg: var(--modal-section-bg, #f9f9f7);
     --popup-divider-color: #efefefe6;
-    --popup-master-bg: linear-gradient(135deg, #f4f8ff 0%, #f1f5ff 100%);
-    --popup-master-border: #dbe7ff;
-    --popup-master-shadow: 0 10px 28px rgba(31, 127, 219, 0.08);
+    --popup-master-bg: linear-gradient(135deg, #fff5f9 0%, #fff0f5 100%);
+    --popup-master-bg-off: #f8f8f8;
+    --popup-master-border: transparent;
+    --popup-master-shadow: 0 4px 10px rgba(244, 114, 182, 0.12);
+    --popup-master-shadow-off: 0 2px 6px rgba(0, 0, 0, 0.05);
     --popup-master-accent: #1f7fdb;
     --popup-master-on-top: #f789c0;
     --popup-master-on-bottom: #f472b6;
@@ -192,6 +194,13 @@ body {
     border: 1px solid var(--popup-master-border);
     box-shadow: var(--popup-master-shadow);
     padding: 8px 10px 10px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* State: OFF (Gray Background) */
+.section-master:has(input:not(:checked)) .section-body {
+    background: var(--popup-master-bg-off);
+    box-shadow: var(--popup-master-shadow-off);
 }
 
 .section-master {
@@ -432,9 +441,11 @@ body {
     box-shadow: 0 2px 6px rgba(31, 127, 219, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
+/* Remove focus outline
 .toggle-switch input:focus+.toggle-slider {
     box-shadow: 0 0 0 2px rgba(31, 127, 219, 0.2);
 }
+*/
 
 .toggle-switch-master {
     width: 48px;

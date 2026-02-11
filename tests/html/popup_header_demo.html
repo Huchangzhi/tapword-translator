@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popup Header Styles Demo</title>
+  <style>
+    body {
+      background: #f0f0f0;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .demo-container {
+      background: #fff;
+      border-radius: 8px;
+      width: 340px;
+      padding-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .demo-label {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      font-weight: bold;
+      color: #333;
+    }
+
+    /* --- Base Popup Styles (Copied from src/3_popup/styles/popup.css) --- */
+    :root {
+      --popup-primary-color: rgba(30, 30, 30, 1);
+      --popup-section-bg: #f9f9f7;
+      --popup-divider-color: #efefefe6;
+      --popup-master-accent: #1f7fdb;
+      --popup-master-on-top: #f789c0;
+      --popup-master-on-bottom: #f472b6;
+    }
+
+    .popup-header {
+      padding: 14px 22px 10px;
+      border-bottom: 1px solid var(--popup-divider-color);
+      text-align: left;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .popup-title {
+      margin: 0;
+      font-family: inherit;
+      font-weight: 600;
+      color: var(--popup-primary-color);
+      font-size: 16px;
+      line-height: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .popup-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .settings-list {
+      padding: 4px 18px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-card {
+      background: transparent;
+      border: none;
+      position: relative;
+      margin-top: 12px;
+    }
+
+    .section-body {
+      display: flex;
+      flex-direction: column;
+      background: var(--popup-section-bg);
+      padding: 8px 10px 10px;
+      border-radius: 4px;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 10px;
+    }
+
+    .setting-info {
+      flex: 1;
+    }
+
+    .setting-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 20px;
+      margin: 0;
+    }
+
+    .help-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(30, 30, 30, 0.25);
+      font-size: 9px;
+      color: rgba(30, 30, 30, 0.45);
+      cursor: default;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #E3E2DE 0%, #D7D5D0 100%);
+      transition: 0.28s;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.06);
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 4px;
+      background: radial-gradient(circle at 30% 30%, #FFFFFF 0%, #F7F6F4 80%);
+      transition: 0.28s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: linear-gradient(180deg, var(--popup-master-on-top) 0%, var(--popup-master-on-bottom) 100%);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(22px);
+    }
+
+
+    /* --- VARIATION 1: Original (Blue) --- */
+    .style-original {
+      --popup-master-bg: linear-gradient(135deg, #f4f8ff 0%, #f1f5ff 100%);
+      --popup-master-border: #dbe7ff;
+      --popup-master-shadow: 0 10px 28px rgba(31, 127, 219, 0.08);
+    }
+    
+    .style-original .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid var(--popup-master-border);
+        box-shadow: var(--popup-master-shadow);
+    }
+
+
+    /* --- VARIATION 2: Pink Harmony --- */
+    .style-pink {
+      /* Lavender Blush */
+      --popup-master-bg: linear-gradient(135deg, #fff5f9 0%, #fff0f5 100%); 
+      --popup-master-border: #fce7f3; /* Light Pink border */
+      --popup-master-shadow: 0 10px 28px rgba(244, 114, 182, 0.12); /* Pink shadow */
+    }
+
+    .style-pink .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid var(--popup-master-border);
+        box-shadow: var(--popup-master-shadow);
+    }
+
+
+    /* --- VARIATION 3: Neutral Clean --- */
+    .style-neutral {
+      --popup-master-bg: #FFFFFF;
+      --popup-master-border: #E5E7EB; /* Neutral Gray */
+      --popup-master-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Soft gray shadow */
+    }
+
+    .style-neutral .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid var(--popup-master-border);
+        box-shadow: var(--popup-master-shadow);
+    }
+
+    /* --- VARIATION 3: Transparent --- */
+    .style-transparent .section-master .section-body {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0 10px;
+    }
+
+    /* --- VARIATION 4: Pink No Border --- */
+    .style-pink-noborder {
+      --popup-master-bg: linear-gradient(135deg, #fff5f9 0%, #fff0f5 100%); 
+      --popup-master-border: transparent; /* Transparent border */
+      --popup-master-shadow: 0 8px 24px rgba(244, 114, 182, 0.08);
+    }
+    .style-pink-noborder .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid var(--popup-master-border);
+        box-shadow: var(--popup-master-shadow);
+    }
+
+    /* --- VARIATION 5: Pink Hover Effect --- */
+    .style-pink-hover {
+      --popup-master-bg: #fffbfd; /* Very subtle pink initially */
+      --popup-master-border: #fce7f3;
+      --popup-master-shadow: 0 4px 12px rgba(244, 114, 182, 0.05);
+    }
+    .style-pink-hover .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid var(--popup-master-border);
+        box-shadow: var(--popup-master-shadow);
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .style-pink-hover .section-master .section-body:hover {
+        background: linear-gradient(135deg, #fff5f9 0%, #fff0f5 100%); 
+        border-color: #fbcfe8;
+        box-shadow: 0 8px 20px rgba(244, 114, 182, 0.15);
+        transform: translateY(-1px);
+    }
+
+    /* --- VARIATION 6: Blue No Border --- */
+    .style-blue-noborder {
+      --popup-master-bg: linear-gradient(135deg, #f4f8ff 0%, #f1f5ff 100%);
+      --popup-master-border: transparent;
+      --popup-master-shadow: 0 8px 24px rgba(31, 127, 219, 0.06);
+    }
+    .style-blue-noborder .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid var(--popup-master-border);
+        box-shadow: var(--popup-master-shadow);
+    }
+
+    /* --- VARIATION 7: No Border + Shadow Lift (Hover) --- */
+    .style-hover-shadow-lift {
+      --popup-master-bg: linear-gradient(135deg, #fff5f9 0%, #fff0f5 100%);
+      --popup-master-border: transparent;
+      --popup-master-shadow: 0 4px 12px rgba(244, 114, 182, 0.08);
+    }
+    .style-hover-shadow-lift .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid transparent; /* Keep layout stable */
+        box-shadow: var(--popup-master-shadow);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    .style-hover-shadow-lift .section-master .section-body:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(244, 114, 182, 0.18);
+    }
+
+    /* --- VARIATION 8: No Border + Background Shift (Hover) --- */
+    .style-hover-bg-shift {
+      --popup-master-bg: #fffbfd;
+      --popup-master-border: transparent;
+      --popup-master-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+    .style-hover-bg-shift .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid transparent;
+        box-shadow: var(--popup-master-shadow);
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    .style-hover-bg-shift .section-master .section-body:hover {
+        background: linear-gradient(135deg, #fff0f7 0%, #ffeaf4 100%);
+        box-shadow: 0 6px 16px rgba(244, 114, 182, 0.12);
+    }
+
+    /* --- VARIATION 9: No Border + Border Reveal (Hover) --- */
+    .style-hover-border-reveal {
+      --popup-master-bg: #ffffff;
+      --popup-master-border: transparent;
+      --popup-master-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .style-hover-border-reveal .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid transparent;
+        box-shadow: var(--popup-master-shadow);
+        transition: all 0.2s ease-out;
+        cursor: pointer;
+    }
+    .style-hover-border-reveal .section-master .section-body:hover {
+        background: #fff5f9;
+        border-color: #fce7f3;
+        box-shadow: 0 4px 12px rgba(244, 114, 182, 0.1);
+    }
+
+    /* --- VARIATION 10: Pink Static (Gray when OFF) --- */
+    .style-pink-static {
+      --popup-master-bg: linear-gradient(135deg, #fff5f9 0%, #fff0f5 100%);
+      --popup-master-bg-off: #f8f8f8;
+      --popup-master-border: transparent;
+      /* Static shadow, slightly more pronounced than others to look "floating" */
+      --popup-master-shadow: 0 6px 16px rgba(244, 114, 182, 0.14);
+      --popup-master-shadow-off: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .style-pink-static .section-master .section-body {
+        background: var(--popup-master-bg);
+        border: 1px solid var(--popup-master-border);
+        box-shadow: var(--popup-master-shadow);
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    /* State: OFF (Gray Background) */
+    /* Note: This requires browser support for :has(). Works in Chrome/Edge/Safari */
+    .style-pink-static .section-master:has(input:not(:checked)) .section-body {
+        background: var(--popup-master-bg-off);
+        box-shadow: var(--popup-master-shadow-off);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Original Style -->
+  <div class="demo-container style-original">
+    <div class="demo-label">Original (Blue)</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 1: Pink Harmony -->
+  <div class="demo-container style-pink">
+    <div class="demo-label">Scheme 1: Pink Harmony</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 2: Neutral Clean -->
+  <div class="demo-container style-neutral">
+    <div class="demo-label">Scheme 2: Neutral Clean</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 3: Transparent -->
+  <div class="demo-container style-transparent">
+    <div class="demo-label">Scheme 3: Transparent</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 4: Pink No Border -->
+  <div class="demo-container style-pink-noborder">
+    <div class="demo-label">Scheme 4: Pink No Border</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 5: Pink Hover Effect -->
+  <div class="demo-container style-pink-hover">
+    <div class="demo-label">Scheme 5: Pink Hover</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 6: Blue No Border -->
+  <div class="demo-container style-blue-noborder">
+    <div class="demo-label">Scheme 6: Blue No Border</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 7: Shadow Lift -->
+  <div class="demo-container style-hover-shadow-lift">
+    <div class="demo-label">Scheme 7: Hover Lift</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 8: Background Shift -->
+  <div class="demo-container style-hover-bg-shift">
+    <div class="demo-label">Scheme 8: Hover Color</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 9: Border Reveal -->
+  <div class="demo-container style-hover-border-reveal">
+    <div class="demo-label">Scheme 9: Hover Reveal</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scheme 10: Pink Static -->
+  <div class="demo-container style-pink-static">
+    <div class="demo-label">Scheme 10: Pink Static (Try Toggle)</div>
+    <div class="popup-header">
+      <h1 class="popup-title">
+        <img src="../../resources/icons/icon-48.png" alt="" class="popup-icon">
+        <span class="popup-title-wrapper">TapWord</span>
+      </h1>
+    </div>
+    <div class="settings-list">
+      <section class="section-card section-master">
+        <div class="section-body">
+          <div class="setting-item setting-item-master">
+            <div class="setting-info">
+              <label class="setting-label master-label">
+                <span>Enable TapWord</span>
+                <span class="help-icon">?</span>
+              </label>
+            </div>
+            <label class="toggle-switch toggle-switch-master">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+</body>
+</html>
