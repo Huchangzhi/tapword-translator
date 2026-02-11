@@ -7,7 +7,7 @@ const TABINDEX_ATTRIBUTE = "tabindex"
 const CURSOR_POINTER = "pointer"
 const TEXT_CURSOR_ALLOWLIST = new Set(["text", "auto", "default"])
 const STRONG_INTERACTIVE_TAG_SELECTOR =
-    "a, button, select, label, video, audio, area, map, summary, details, iframe, embed, object"
+    "a, button, select, label, video, audio, area, map, summary, iframe, embed, object"
 const STRONG_INTERACTIVE_ROLE_SELECTOR =
     "[role='button'], [role='link'], [role='checkbox'], [role='radio'], [role='switch'], " +
     "[role='option'], [role='menuitem'], [role='menuitemcheckbox'], [role='menuitemradio'], " +
