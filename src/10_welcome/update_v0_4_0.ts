@@ -5,6 +5,8 @@ const logger = createLogger("UpdatePage_v0_4_0")
 
 // Initialize
 document.addEventListener("DOMContentLoaded", async () => {
+    logger.info("Initializing update_v0_4_0 page")
+
     // Apply translations
     i18nModule.applyTranslations()
 

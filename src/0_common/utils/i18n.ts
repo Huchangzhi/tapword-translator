@@ -29,6 +29,9 @@ import ruLocale from "@/0_common/locales/ru.json"
 import zhLocale from "@/0_common/locales/zh.json"
 
 const logger = loggerModule.createLogger("i18n")
+const SCRIPT_TAG_REGEX = /<\s*script\b/i
+const HTML_EVENT_HANDLER_REGEX = /\son\w+\s*=/i
+const JAVASCRIPT_URL_REGEX = /javascript\s*:/i
 
 // Type definitions
 export type LocaleCode = "en" | "zh" | "es" | "ja" | "fr" | "de" | "ko" | "ru"
@@ -55,6 +58,17 @@ const LOCALES: Record<LocaleCode, LocaleMessages> = {
 // Current locale (cached)
 let currentLocale: LocaleCode = DEFAULT_LOCALE
 let isInitialized = false
+
+function sanitizeTrustedLocaleHtml(value: string): string {
+    const hasUnsafePattern = SCRIPT_TAG_REGEX.test(value) || HTML_EVENT_HANDLER_REGEX.test(value) || JAVASCRIPT_URL_REGEX.test(value)
+
+    if (hasUnsafePattern) {
+        logger.warn("Blocked unsafe HTML in locale string")
+        return value.replace(/<[^>]+>/g, "")
+    }
+
+    return value
+}
 
 /**
  * Get the best matching locale from browser settings
@@ -165,7 +179,7 @@ export function applyTranslations(root: Document | Element = document): void {
                 ;(element as HTMLInputElement).placeholder = translatedText
             } else if (element.hasAttribute("data-i18n-html")) {
                 // For elements explicitly marked to allow HTML content
-                element.innerHTML = translatedText
+                element.innerHTML = sanitizeTrustedLocaleHtml(translatedText)
             } else {
                 // For other elements, update inner text
                 element.textContent = translatedText

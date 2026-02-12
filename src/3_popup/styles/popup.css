@@ -203,6 +203,11 @@ body {
     box-shadow: var(--popup-master-shadow-off);
 }
 
+.section-master.section-master-off .section-body {
+    background: var(--popup-master-bg-off);
+    box-shadow: var(--popup-master-shadow-off);
+}
+
 .section-master {
     margin-top: 12px;
 }
@@ -450,11 +455,9 @@ body {
     box-shadow: 0 2px 6px rgba(31, 127, 219, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
-/* Remove focus outline
-.toggle-switch input:focus+.toggle-slider {
+.toggle-switch input:focus-visible + .toggle-slider {
     box-shadow: 0 0 0 2px rgba(31, 127, 219, 0.2);
 }
-*/
 
 .toggle-switch-master {
     width: 48px;

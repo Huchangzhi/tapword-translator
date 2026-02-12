@@ -19,6 +19,13 @@ const logger = loggerModule.createLogger("Options/Settings")
 const CUSTOM_API_CONTROL_SELECTOR = '[data-custom-api-control="true"]'
 const isCommunityEdition = APP_EDITION === "community"
 const AUTO_PLAY_AUDIO_SETTING_ID = "autoPlayAudio"
+const FEATURE_DOT_OFF_CLASS = "feature-dot-off"
+
+function syncSingleClickFeatureDotState(enabled: boolean): void {
+    const singleClickInput = document.getElementById("singleClickTranslate")
+    const settingItem = singleClickInput?.closest(".setting-item")
+    settingItem?.classList.toggle(FEATURE_DOT_OFF_CLASS, !enabled)
+}
 
 function setTranslationControlsEnabled(enabled: boolean): void {
     const dependentIds = [
@@ -304,6 +311,7 @@ export async function loadSettings(): Promise<void> {
         setCustomApiControlsEnabled(isCommunityEdition ? true : customApi.useCustomApi)
         lockUseCustomApiToggle()
         lockAutoPlayAudioToggle()
+        syncSingleClickFeatureDotState(settings.singleClickTranslate)
     } catch (error) {
         logger.error("Failed to load settings:", error)
     }
@@ -367,6 +375,10 @@ export function setupSettingChangeListeners(): void {
             }
 
             await saveSetting(settingKey as keyof types.UserSettings, input.checked)
+
+            if (settingKey === "singleClickTranslate") {
+                syncSingleClickFeatureDotState(input.checked)
+            }
 
             if (settingKey === "enableTapWord") {
                 setTranslationControlsEnabled(input.checked)

@@ -472,6 +472,12 @@ body {
   opacity: 0.3;
 }
 
+.setting-item.feature-dot-off .feature-dot {
+  background-color: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  opacity: 0.3;
+}
+
 .help-icon {
   display: inline-flex;
   align-items: center;

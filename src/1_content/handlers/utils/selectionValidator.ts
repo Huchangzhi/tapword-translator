@@ -10,10 +10,6 @@ import * as editableElementDetector from "@/1_content/handlers/utils/editableEle
 import * as tapWordDetector from "@/1_content/handlers/utils/tapWordDetector"
 
 import { shouldTriggerTranslationAsync } from "@/1_content/utils/languageValidator"
-
-import * as loggerModule from "@/0_common/utils/logger"
-
-const logger = loggerModule.createLogger("selectionHandler")
 const ELEMENT_NODE = 1
 const SINGLE_WORD_WHITESPACE_REGEX = /\s/
 const MAX_SINGLE_CLICK_WORD_LENGTH = 30 // Reasonable max length for a single word

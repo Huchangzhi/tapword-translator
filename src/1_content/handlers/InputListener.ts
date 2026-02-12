@@ -4,16 +4,12 @@
  * Handles DOM events and translates user intent into pipeline calls.
  */
 
-import { DEFAULT_USER_SETTINGS } from "@/0_common/types"
 import * as loggerModule from "@/0_common/utils/logger"
 import * as constants from "@/1_content/constants"
 import * as contentIndex from "@/1_content/index"
 import * as iconManager from "@/1_content/ui/iconManager"
 import { expandRangeToSentence } from "@/1_content/utils/contextExtractorV2"
-import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as translationPipeline from "@/1_content/handlers/TranslationPipeline"
-import * as editableElementDetector from "@/1_content/handlers/utils/editableElementDetector"
-import * as tapWordDetector from "@/1_content/handlers/utils/tapWordDetector"
 import { validateSelectionAsync, validateSingleClickAsync } from "@/1_content/handlers/utils/selectionValidator"
 
 const logger = loggerModule.createLogger("selectionHandler")
@@ -141,40 +137,4 @@ export function handleDocumentClick(event: Event): void {
 
     // Hide icon on outside clicks
     iconManager.removeTranslationIcon()
-}
-
-function isContentScriptUiTarget(target: EventTarget | null): boolean {
-    if (!target) {
-        return false
-    }
-
-    if (!(target instanceof Element)) {
-        return false
-    }
-
-    return (
-        target.closest(`.${constants.CSS_CLASSES.ICON}`) !== null ||
-        target.closest(`.${constants.CSS_CLASSES.ANCHOR}`) !== null ||
-        target.closest(`.${constants.CSS_CLASSES.TOOLTIP}`) !== null ||
-        target.closest(`.${constants.CSS_CLASSES.MODAL}`) !== null ||
-        target.closest(`.${constants.CSS_CLASSES.MODAL_BACKDROP}`) !== null
-    )
-}
-
-function getEventTargetDebugInfo(target: EventTarget | null): Record<string, string> | null {
-    if (!target) {
-        return null
-    }
-
-    if (!(target instanceof Element)) {
-        return { nodeType: target.constructor?.name ?? "Unknown" }
-    }
-
-    return {
-        tagName: target.tagName.toLowerCase(),
-        id: target.id || "",
-        className: target.className?.toString?.() ?? "",
-        role: target.getAttribute("role") || "",
-        dataTestId: target.getAttribute("data-testid") || "",
-    }
 }

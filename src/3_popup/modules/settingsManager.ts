@@ -13,6 +13,12 @@ import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
 import * as toastManagerModule from "./toastManager"
 
 const logger = loggerModule.createLogger("Popup/Settings")
+const MASTER_SECTION_OFF_CLASS = "section-master-off"
+
+function syncMasterSectionVisualState(enabled: boolean): void {
+    const masterSection = document.querySelector(".section-master")
+    masterSection?.classList.toggle(MASTER_SECTION_OFF_CLASS, !enabled)
+}
 
 function updateSuppressNativeLanguageLabel(targetLanguage: string): void {
     const labelSpan = document.getElementById("suppressNativeLanguageLabel")
@@ -168,6 +174,7 @@ export async function loadSettings(): Promise<void> {
 
         // Apply master toggle effect to dependent controls
         setTranslationControlsEnabled(settings.enableTapWord)
+        syncMasterSectionVisualState(settings.enableTapWord)
     } catch (error) {
         logger.error("Failed to load settings:", error)
     }
@@ -217,6 +224,7 @@ export function setupSettingChangeListeners(): void {
 
                 if (settingKey === "enableTapWord") {
                     setTranslationControlsEnabled(input.checked)
+                    syncMasterSectionVisualState(input.checked)
                     if (input.checked) {
                         await restoreDependentTogglesIfAllOff()
                     }
