@@ -163,6 +163,9 @@ export function applyTranslations(root: Document | Element = document): void {
             if (tagName === "input" || tagName === "textarea") {
                 // For input elements, update placeholder
                 ;(element as HTMLInputElement).placeholder = translatedText
+            } else if (element.hasAttribute("data-i18n-html")) {
+                // For elements explicitly marked to allow HTML content
+                element.innerHTML = translatedText
             } else {
                 // For other elements, update inner text
                 element.textContent = translatedText

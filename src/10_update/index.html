@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="update.title">触词翻译 v0.4.0 更新说明</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-media">
+            <div class="demo-area">
+                <img src="/demo.gif" alt="Demo">
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <header>
+                <div class="brand-row">
+                    <img src="/icons/icon-128.png" alt="Icon" class="logo">
+                    <span class="brand-version" data-i18n-key="update.brand_version">触词翻译 v0.4.0</span>
+                </div>
+                <h1 data-i18n-key="update.heading" data-i18n-html="true">新增<span class="highlight">单击翻译单词</span>，更快更便捷</h1>
+                <p class="description" data-i18n-key="update.description" data-i18n-html="true">
+                    我们升级了！现在只需单击单词，翻译即刻呈现。<br>
+                    告别繁琐双击，享受更流畅的沉浸式阅读。
+                </p>
+            </header>
+
+            <div class="action-area">
+                <div class="status-badge">
+                    <span id="status-text" data-i18n-key="update.status_combined" class="status-text">当前状态：✅ 单击翻译单词 (已开启)  🚫 双击翻译单词 (已关闭)</span>
+                </div>
+                
+                <!-- Contact Section (Always visible) -->
+                <div class="contact-section visible">
+                    <div class="contact-label" data-i18n-key="contact.title">联系我们</div>
+                    <div class="contact-icons">
+                        <button id="btn-xhs-group" class="group flex items-center gap-1 px-3 py-1 bg-[#FF2442] hover:bg-[#ff4d63] text-white rounded-full shadow-sm hover:shadow transition-all hover:scale-105 active:scale-95 flex-shrink-0 whitespace-nowrap"
+                          title="加入小红书群聊">
+                          <span class="text-xs font-bold" style="font-family: 'Yuanti SC', 'YouYuan', 'Microsoft YaHei', sans-serif;" data-i18n-key="contact.xhs_group.text">小红书群聊</span>
+                        </button>
+                        <a href="https://xhslink.com/m/97qXFtcaxbh" target="_blank" class="contact-item xhs-link" title="访问小红书主页">
+                            <img src="/assets/pic/xiaohongshu_icon.png" alt="小红书">
+                        </a>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="btn-close" class="btn-primary" data-i18n-key="update.btn_close">我知道了</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple QR Modal -->
+    <div id="qr-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="close-modal" class="close-btn">&times;</button>
+            <h3 id="modal-title">加入小红书群聊，与大家一起交流<br>（如果二维码过期了，请直接私信我）</h3>
+            <div class="qr-container">
+                <img id="qr-image" src="" alt="QR Code">
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="module" src="index.ts"></script>
+</body>
+</html>

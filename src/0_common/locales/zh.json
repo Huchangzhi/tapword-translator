@@ -122,5 +122,22 @@
     "error.contentBlocked": "翻译内容可能包含不适宜内容, 已被拦截",
     "error.rateLimited": "翻译太快啦, 休息一下吧",
     "error.quotaExceeded": "额度用光了",
-    "error.customApiConfigMissing": "请在“高级设置 - 自定义API”中填写相关配置"
+    "error.customApiConfigMissing": "请在“高级设置 - 自定义API”中填写相关配置",
+    "update.title": "触词翻译 v0.4.0 更新说明",
+    "update.brand_version": "触词翻译 0.4.0 版本",
+    "update.heading": "新增<span class=\"highlight\">单击翻译单词</span>，更快更便捷",
+    "update.demo_placeholder": "(演示动图占位符) <br> 单击单词，即刻翻译",
+    "update.description": "新年好呀，我们新增了单击翻译功能，现在只需单击单词，翻译即刻呈现！",
+    "update.status_combined": "当前状态：✅ 单击翻译单词 (已开启)  🚫 双击翻译单词 (已关闭)",
+    "update.btn_close": "我知道了",
+    "contact.title": "找到我们：",
+    "contact.xhs_group.text": "小红书群聊",
+    "contact.xhs.alt": "小红书",
+    "contact.wechat.alt": "微信",
+    "contact.twitter.alt": "Twitter",
+    "contact.email.alt": "Gmail",
+    "update.btn_restore_single": "切换回单击模式",
+    "update.toast_revert": "已恢复双击翻译",
+    "update.toast_single": "已开启单击翻译",
+    "update.status_double": "当前状态：⚠️ 双击翻译"
 }
