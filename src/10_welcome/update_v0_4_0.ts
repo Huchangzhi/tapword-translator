@@ -1,7 +1,7 @@
 import * as i18nModule from "@/0_common/utils/i18n"
 import { createLogger } from "@/0_common/utils/logger"
 
-const logger = createLogger("UpdatePage")
+const logger = createLogger("UpdatePage_v0_4_0")
 
 // Initialize
 document.addEventListener("DOMContentLoaded", async () => {
