@@ -14,6 +14,7 @@
  */
 
 import * as loggerModule from "@/0_common/utils/logger"
+import { isLowerVersion } from "@/0_common/utils/version"
 import * as MessageRouter from "./messaging/MessageRouter"
 import * as ServiceInitializer from "./services/ServiceInitializer"
 
@@ -52,7 +53,29 @@ initialize().catch((error) => {
 /**
  * Extension installation/update handler
  */
-chrome.runtime.onInstalled.addListener(() => {
-    logger.info("Extension installed or updated")
-    // TODO: Add migration logic if needed
+chrome.runtime.onInstalled.addListener((details) => {
+    logger.info("Extension installed or updated", details)
+
+    // Check if we need to show the update page for v0.4.0
+    // SCENARIO 1: Update from older version
+    if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
+        const previousVersion = details.previousVersion
+        // Show update page if the user is upgrading from a version lower than 0.4.0
+        if (previousVersion && isLowerVersion(previousVersion, "0.4.0")) {
+            logger.info(
+                `Upgrading from version ${previousVersion} to ${chrome.runtime.getManifest().version}. Showing update page.`
+            )
+            chrome.tabs.create({
+                url: chrome.runtime.getURL("src/10_welcome/update_v0_4_0.html"),
+            })
+        }
+    }
+
+    // SCENARIO 2: First time install
+    if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+        logger.info("First time install. Showing welcome page.")
+        chrome.tabs.create({
+            url: chrome.runtime.getURL("src/10_welcome/update_v0_4_0.html"),
+        })
+    }
 })
