@@ -1,7 +1,7 @@
 /**
- * Selection Handler
+ * Translation Pipeline
  *
- * Handles text selection detection and validation
+ * Handles translation flow for a given Range without direct event bindings.
  */
 
 import { ERROR_MESSAGES, UPGRADE_MODEL_ENABLED } from "@/0_common/constants"
@@ -9,21 +9,19 @@ import * as translationFontSizeModule from "@/0_common/constants/translationFont
 import { type TranslationFontSizePreset, DEFAULT_USER_SETTINGS } from "@/0_common/types"
 import * as i18nModule from "@/0_common/utils/i18n"
 import * as loggerModule from "@/0_common/utils/logger"
-import * as constants from "@/1_content/constants"
 import * as contentIndex from "@/1_content/index"
 import * as translationRequest from "@/1_content/services/translationRequest"
 import * as iconManager from "@/1_content/ui/iconManager"
 import * as translationDisplay from "@/1_content/ui/translationDisplay"
-import { extractContextV2, expandRangeToSentence } from "@/1_content/utils/contextExtractorV2"
+import { extractContextV2 } from "@/1_content/utils/contextExtractorV2"
 import * as domSanitizer from "@/1_content/utils/domSanitizer"
 import * as languageDetector from "@/1_content/utils/languageDetector"
-import * as editableElementDetector from "@/1_content/utils/editableElementDetector"
-import * as rangeSplitter from "@/1_content/utils/rangeSplitter"
-import * as rangeAdjuster from "@/1_content/utils/rangeAdjuster"
-import * as selectionClassifier from "@/1_content/utils/selectionClassifier"
-import * as translationOverlapDetector from "@/1_content/utils/translationOverlapDetector"
+import * as rangeSplitter from "@/1_content/handlers/utils/rangeSplitter"
+import * as rangeAdjuster from "@/1_content/handlers/utils/rangeAdjuster"
+import * as selectionClassifier from "@/1_content/handlers/utils/selectionClassifier"
+import * as translationOverlapDetector from "@/1_content/handlers/utils/translationOverlapDetector"
+import * as editableElementDetector from "@/1_content/handlers/utils/editableElementDetector"
 import { createConcurrencyLimiter, type RequestLimiter } from "@/1_content/utils/concurrencyLimiter"
-import { validateSelectionAsync } from "@/1_content/utils/selectionValidator"
 
 const logger = loggerModule.createLogger("selectionHandler")
 const MAX_PARALLEL_TRANSLATIONS = 3
@@ -44,7 +42,7 @@ function buildDisplaySettings(settings: Partial<{ translationFontSizePreset?: Tr
  * @param selection - The captured Selection object.
  * @param range - The captured Range object.
  */
-async function handleIconClick(selection: Selection, range: Range): Promise<void> {
+export async function handleIconClick(selection: Selection, range: Range): Promise<void> {
     if (!selection || !range) {
         logger.warn("No selection available for translation.")
         return
@@ -67,104 +65,23 @@ async function handleIconClick(selection: Selection, range: Range): Promise<void
         selection.removeAllRanges()
     }
 
-    // Delegate to core translation logic, splitting multi-block selections into per-block translations
-    const splitRanges = rangeSplitter.splitRangeByBlocks(range)
-    const targets = splitRanges.length > 0 ? splitRanges : [range]
+    await triggerTranslationWithSplit(range, "Icon Click")
+}
 
-    const triggerLabel = splitRanges.length > 1 ? "Icon Click (Split)" : "Icon Click"
+export async function triggerTranslationForRange(
+    range: Range,
+    triggerSource: string,
+    loadingVariant: "text" | "spinner" = "text"
+): Promise<void> {
     const limiter = createConcurrencyLimiter(MAX_PARALLEL_TRANSLATIONS)
-    const loadingVariant: "text" | "spinner" = targets.length > 1 ? "spinner" : "text"
-    await runBatchedTranslations(triggerLabel, targets, limiter, loadingVariant)
+    await processTranslation(range, triggerSource, limiter, loadingVariant)
 }
 
-/**
- * Handle text selection on the page
- */
-export async function handleTextSelection(): Promise<void> {
-    const selection = window.getSelection()
-    const settings = contentIndex.getCachedUserSettings()
-
-    const validation = await validateSelectionAsync(selection, settings, "icon")
-
-    if (!validation.isValid) {
-        if (validation.shouldCleanup) {
-            iconManager.removeTranslationIcon()
-        }
-        if (validation.reason) {
-            logger.debug(`Selection validation failed: ${validation.reason}`)
-        }
-        return
-    }
-
-    const range = validation.range!
-
-    // Create a click handler that captures the current selection and range.
-    const onIconClick = (event: Event) => {
-        event.stopPropagation()
-        handleIconClick(selection!, range)
-    }
-
-    // Get icon color from settings
-    const iconColor = settings?.iconColor ?? "pink"
-
-    // Show the icon
-    iconManager.showTranslationIcon(range, onIconClick, iconColor)
-}
-
-/**
- * Handle double-click to trigger direct translation
- */
-export async function handleDoubleClick(event: MouseEvent): Promise<void> {
-    const settings = contentIndex.getCachedUserSettings()
-    const selection = window.getSelection()
-
-    const validation = await validateSelectionAsync(selection, settings, "doubleClick")
-
-    if (!validation.isValid) {
-        if (validation.shouldCleanup) {
-            iconManager.removeTranslationIcon()
-        }
-        if (validation.reason) {
-            logger.debug(`Double-click validation failed: ${validation.reason}`)
-        }
-        return
-    }
-
-    // Must remove icon if proceeding (double click started)
-    iconManager.removeTranslationIcon()
-
-    let range = validation.range!
-
-    // Check for configured modifier key to trigger sentence translation
-    const userSettings = contentIndex.getCachedUserSettings() ?? DEFAULT_USER_SETTINGS
-    const sentenceModeEnabled = userSettings.doubleClickSentenceTranslate ?? true
-    const triggerKey = userSettings.doubleClickSentenceTriggerKey ?? "alt"
-
-    let isSentenceMode = false
-    if (sentenceModeEnabled) {
-        if (triggerKey === "meta") isSentenceMode = event.metaKey
-        else if (triggerKey === "option" || triggerKey === "alt") isSentenceMode = event.altKey
-        else if (triggerKey === "ctrl") isSentenceMode = event.ctrlKey
-    }
-
-    if (isSentenceMode) {
-        logger.info(`Modifier key (${triggerKey}) pressed, expanding selection to full sentence.`)
-        range = expandRangeToSentence(range)
-    }
-
-    // Clear the selection to remove the browser's native highlight
-    if (selection) {
-        selection.removeAllRanges()
-    }
-
-    // Delegate to core translation logic, splitting multi-block selections into per-block translations
-    // Note: For sentence mode, we typically want to keep the sentence as a single unit if possible,
-    // but splitting by blocks is safer for rendering. If expandRangeToSentence respects blocks, this is fine.
+export async function triggerTranslationWithSplit(range: Range, baseLabel: string): Promise<void> {
     const splitRanges = rangeSplitter.splitRangeByBlocks(range)
     const targets = splitRanges.length > 0 ? splitRanges : [range]
 
-    const baseLabel = isSentenceMode ? "Double Click (Sentence)" : "Double Click"
-    const triggerLabel = splitRanges.length > 1 ? `${baseLabel} (Split)` : baseLabel
+    const triggerLabel = targets.length > 1 ? `${baseLabel} (Split)` : baseLabel
     const limiter = createConcurrencyLimiter(MAX_PARALLEL_TRANSLATIONS)
     const loadingVariant: "text" | "spinner" = targets.length > 1 ? "spinner" : "text"
     await runBatchedTranslations(triggerLabel, targets, limiter, loadingVariant)
@@ -177,23 +94,6 @@ async function runBatchedTranslations(
     loadingVariant: "text" | "spinner"
 ): Promise<void> {
     await Promise.all(ranges.map((targetRange) => processTranslation(targetRange, triggerLabel, limiter, loadingVariant)))
-}
-
-/**
-
- * Handle clicks outside selection to hide icon
-
- */
-export function handleDocumentClick(event: Event): void {
-    const target = event.target as Element
-
-    // Don't hide if clicking on our icon or tooltip
-    if (target.closest(`.${constants.CSS_CLASSES.ICON}`) || target.closest(`.${constants.CSS_CLASSES.ANCHOR}`)) {
-        return
-    }
-
-    // Hide icon on outside clicks
-    iconManager.removeTranslationIcon()
 }
 
 /**

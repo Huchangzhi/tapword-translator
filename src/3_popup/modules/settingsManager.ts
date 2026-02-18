@@ -13,6 +13,12 @@ import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
 import * as toastManagerModule from "./toastManager"
 
 const logger = loggerModule.createLogger("Popup/Settings")
+const MASTER_SECTION_OFF_CLASS = "section-master-off"
+
+function syncMasterSectionVisualState(enabled: boolean): void {
+    const masterSection = document.querySelector(".section-master")
+    masterSection?.classList.toggle(MASTER_SECTION_OFF_CLASS, !enabled)
+}
 
 function updateSuppressNativeLanguageLabel(targetLanguage: string): void {
     const labelSpan = document.getElementById("suppressNativeLanguageLabel")
@@ -26,7 +32,7 @@ function updateSuppressNativeLanguageLabel(targetLanguage: string): void {
 }
 
 function setTranslationControlsEnabled(enabled: boolean): void {
-    const dependentIds = ["showIcon", "doubleClickTranslate", "doubleClickSentenceTranslate", "doubleClickSentenceTriggerKey"]
+    const dependentIds = ["showIcon", "singleClickTranslate", "doubleClickTranslateV2", "doubleClickSentenceTranslate", "doubleClickSentenceTriggerKey"]
 
     dependentIds.forEach((id) => {
         const input = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null
@@ -46,26 +52,30 @@ function setTranslationControlsEnabled(enabled: boolean): void {
 
 async function restoreDependentTogglesIfAllOff(): Promise<void> {
     const showIconInput = document.getElementById("showIcon") as HTMLInputElement | null
-    const doubleClickInput = document.getElementById("doubleClickTranslate") as HTMLInputElement | null
+    const singleClickInput = document.getElementById("singleClickTranslate") as HTMLInputElement | null
+    const doubleClickInput = document.getElementById("doubleClickTranslateV2") as HTMLInputElement | null
     const sentenceTranslateInput = document.getElementById("doubleClickSentenceTranslate") as HTMLInputElement | null
 
-    if (!showIconInput || !doubleClickInput || !sentenceTranslateInput) {
+    if (!showIconInput || !singleClickInput || !doubleClickInput || !sentenceTranslateInput) {
         return
     }
 
-    const allDisabled = !showIconInput.checked && !doubleClickInput.checked && !sentenceTranslateInput.checked
+    const allDisabled = !showIconInput.checked && !singleClickInput.checked && !doubleClickInput.checked && !sentenceTranslateInput.checked
     if (!allDisabled) {
         return
     }
 
     showIconInput.checked = true
-    doubleClickInput.checked = true
+    singleClickInput.checked = true
+    // V2 default: Double Click OFF, Single Click ON
+    // doubleClickInput.checked = false // already false if allDisabled
     sentenceTranslateInput.checked = true
 
     // Atomic update to avoid concurrent overwrite
     await storageManagerModule.updateUserSettings({
         showIcon: true,
-        doubleClickTranslate: true,
+        singleClickTranslate: true,
+        doubleClickTranslateV2: false,
         doubleClickSentenceTranslate: true,
     })
 }
@@ -164,6 +174,7 @@ export async function loadSettings(): Promise<void> {
 
         // Apply master toggle effect to dependent controls
         setTranslationControlsEnabled(settings.enableTapWord)
+        syncMasterSectionVisualState(settings.enableTapWord)
     } catch (error) {
         logger.error("Failed to load settings:", error)
     }
@@ -194,10 +205,26 @@ export function setupSettingChangeListeners(): void {
             const input = event.target as HTMLInputElement
             const settingKey = input.dataset.setting as keyof types.UserSettings
             if (settingKey) {
+                // Implement mutual exclusion between single-click and double-click (V2)
+                if (settingKey === "singleClickTranslate" && input.checked) {
+                    const doubleClickInput = document.getElementById("doubleClickTranslateV2") as HTMLInputElement
+                    if (doubleClickInput && doubleClickInput.checked) {
+                        doubleClickInput.checked = false
+                        await saveSetting("doubleClickTranslateV2", false)
+                    }
+                } else if (settingKey === "doubleClickTranslateV2" && input.checked) {
+                    const singleClickInput = document.getElementById("singleClickTranslate") as HTMLInputElement
+                    if (singleClickInput && singleClickInput.checked) {
+                        singleClickInput.checked = false
+                        await saveSetting("singleClickTranslate", false)
+                    }
+                }
+
                 await saveSetting(settingKey, input.checked)
 
                 if (settingKey === "enableTapWord") {
                     setTranslationControlsEnabled(input.checked)
+                    syncMasterSectionVisualState(input.checked)
                     if (input.checked) {
                         await restoreDependentTogglesIfAllOff()
                     }

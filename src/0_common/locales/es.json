@@ -22,6 +22,7 @@
     "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Mostrar icono al seleccionar texto",
     "popup.showIcon.tooltip": "Traduce una palabra completa con solo seleccionar una parte de ella.",
+    "popup.singleClickTranslate.label": "Un solo clic para traducir palabra",
     "popup.doubleClickTranslate.label": "Doble clic para traducir palabra",
     "popup.doubleClickSentenceTranslate.label": "Doble clic para traducir frase",
     "popup.doubleClickSentenceTranslate.tooltip": "Mantén pulsada la tecla configurada y haz doble clic en la frase para traducirla.",

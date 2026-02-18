@@ -71,7 +71,7 @@ export default defineConfig(({ mode }) => {
 				},
 				watchFilePaths: ['src/manifest.json', 'src/manifest-firefox.json'],
 				printSummary: true,
-				additionalInputs: ['src/9_offscreen/offscreen.html'],
+				additionalInputs: ['src/9_offscreen/offscreen.html', 'src/10_welcome/update_v0_4_0.html'],
 				webExtConfig: {
 					target: browserTarget,
 					startUrl: ['https://en.wikipedia.org/wiki/A_Game_of_Thrones'],

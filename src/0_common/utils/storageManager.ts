@@ -114,6 +114,15 @@ function normalizeUserSettings(
         ? (triggerKey as types.TriggerKey)
         : platformDefaultTriggerKey
 
+    // [Migration Logic]
+    // Case 1: Legacy User Migration (Has 'doubleClickTranslate', Missing 'doubleClickTranslateV2')
+    //         - We DO NOT respect their explicit choice for double-click.
+    //         - We enforce new defaults: DoubleV2=FALSE, Single=TRUE.
+    //         - This ensures a consistent experience for everyone moving to V2.
+    // Case 2: Fresh Install / Post-Migration
+    //         - 'mergedSettings' already contains correct defaults or updated values.
+    //         - Default is Single=TRUE, DoubleV2=FALSE.
+
     const resolvedFont = translationFontSizeModule.resolveTranslationFontSize(mergedSettings.translationFontSizePreset)
 
     return {
@@ -128,6 +137,8 @@ function normalizeUserSettings(
         textUnderlineOffsetPxV2: mergedSettings.textUnderlineOffsetPxV2 ?? DEFAULT_USER_SETTINGS.textUnderlineOffsetPxV2,
         customApi: normalizedCustomApi,
         doubleClickSentenceTriggerKey: validatedTriggerKey,
+        // Ensure V2 key is always populated for internal usage
+        doubleClickTranslateV2: mergedSettings.doubleClickTranslateV2 ?? DEFAULT_USER_SETTINGS.doubleClickTranslateV2,
     }
 }
 

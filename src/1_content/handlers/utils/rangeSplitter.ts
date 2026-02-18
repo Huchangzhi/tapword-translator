@@ -86,7 +86,8 @@ function rangeIntersectsNode(range: Range, node: Node): boolean {
             const nodeRange = document.createRange()
             nodeRange.selectNodeContents(node)
             return !(
-                range.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0 || range.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0
+                range.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0 ||
+                range.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0
             )
         } catch {
             return false

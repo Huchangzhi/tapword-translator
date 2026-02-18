@@ -279,7 +279,11 @@ export function calculateTooltipStyle(
 ): TooltipStyle {
     const computedStyle = originalElement ? window.getComputedStyle(originalElement) : null
     const originalFontSize = computedStyle ? parseFloat(computedStyle.fontSize) : fallbackFontSize
-    const originalColor = computedStyle ? computedStyle.color : "rgb(0, 0, 0)"
+
+    // Use anchor for color if available, as it captures the specific text color (e.g. inline styles)
+    const colorElement = anchor ?? originalElement
+    const colorStyle = colorElement ? window.getComputedStyle(colorElement) : null
+    const originalColor = colorStyle ? colorStyle.color : "rgb(0, 0, 0)"
 
     const result = calculateOptimalTranslationFontSize(originalElement, originalFontSize, anchor, minFontSize)
     const color = getHighContrastColor(originalColor)

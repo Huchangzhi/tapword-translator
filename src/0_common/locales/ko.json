@@ -22,6 +22,7 @@
     "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "텍스트 선택 시 아이콘 표시",
     "popup.showIcon.tooltip": "단어의 일부만 선택해도 단어 전체를 번역할 수 있습니다.",
+    "popup.singleClickTranslate.label": "한 번 클릭으로 단어 번역",
     "popup.doubleClickTranslate.label": "더블클릭으로 단어 번역",
     "popup.doubleClickSentenceTranslate.label": "더블클릭으로 문장 번역",
     "popup.doubleClickSentenceTranslate.tooltip": "설정된 단축키를 누른 채 문장을 더블 클릭하면 번역됩니다.",

@@ -22,6 +22,7 @@
     "popup.networkRegion.global.desc": "",
     "popup.showIcon.label": "Symbol bei Textauswahl anzeigen",
     "popup.showIcon.tooltip": "Markieren Sie einen beliebigen Teil eines Wortes, um das ganze Wort zu übersetzen.",
+    "popup.singleClickTranslate.label": "Per Einzelklick Wort übersetzen",
     "popup.doubleClickTranslate.label": "Per Doppelklick Wort übersetzen",
     "popup.doubleClickSentenceTranslate.label": "Per Doppelklick Satz übersetzen",
     "popup.doubleClickSentenceTranslate.tooltip": "Halten Sie die festgelegte Taste gedrückt und doppelklicken Sie auf den Satz, um ihn zu übersetzen.",

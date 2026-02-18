@@ -12,9 +12,11 @@
     --popup-primary-color: rgba(30, 30, 30, 1);
     --popup-section-bg: var(--modal-section-bg, #f9f9f7);
     --popup-divider-color: #efefefe6;
-    --popup-master-bg: linear-gradient(135deg, #f4f8ff 0%, #f1f5ff 100%);
-    --popup-master-border: #dbe7ff;
-    --popup-master-shadow: 0 10px 28px rgba(31, 127, 219, 0.08);
+    --popup-master-bg: linear-gradient(135deg, #fff5f9 0%, #fff0f5 100%);
+    --popup-master-bg-off: #f8f8f8;
+    --popup-master-border: transparent;
+    --popup-master-shadow: 0 4px 10px rgba(244, 114, 182, 0.12);
+    --popup-master-shadow-off: 0 2px 6px rgba(0, 0, 0, 0.05);
     --popup-master-accent: #1f7fdb;
     --popup-master-on-top: #f789c0;
     --popup-master-on-bottom: #f472b6;
@@ -28,7 +30,6 @@ html.loading body {
 /* Body and Container */
 body {
     width: 340px;
-    min-height: 360px;
     margin: 0;
     padding: 0;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -38,24 +39,19 @@ body {
 }
 
 .popup-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    display: block;
 }
 
 .popup-content {
     background: #FFFFFF;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0; /* Important for scrolling inside flex */
+    display: block;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
 }
 
 /* Header */
 .popup-header {
-    padding: 18px 22px 12px;
+    padding: 14px 22px 10px;
     border-bottom: 1px solid var(--popup-divider-color);
     text-align: left;
     display: flex;
@@ -179,12 +175,10 @@ body {
 
 /* Settings List */
 .settings-list {
-    flex: 1;
-    padding: 4px 18px 12px;
-    overflow-y: auto;
+    padding: 4px 18px 8px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
 }
 
 /* Section Card */
@@ -192,7 +186,7 @@ body {
     background: transparent;
     border: none;
     position: relative;
-    margin-top: 26px;
+    margin-top: 24px;
 }
 
 .section-master .section-body {
@@ -200,10 +194,22 @@ body {
     border: 1px solid var(--popup-master-border);
     box-shadow: var(--popup-master-shadow);
     padding: 8px 10px 10px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* State: OFF (Gray Background) */
+.section-master:has(input:not(:checked)) .section-body {
+    background: var(--popup-master-bg-off);
+    box-shadow: var(--popup-master-shadow-off);
+}
+
+.section-master.section-master-off .section-body {
+    background: var(--popup-master-bg-off);
+    box-shadow: var(--popup-master-shadow-off);
 }
 
 .section-master {
-    margin-top: 14px;
+    margin-top: 12px;
 }
 
 .section-card:first-child {
@@ -240,8 +246,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 6px 10px;
+    gap: 0;
+    padding: 6px 10px 6px 0;
     position: relative;
 }
 
@@ -254,9 +260,18 @@ body {
     border-top: 1px solid #F2F0EB;
 }
 
+.setting-gutter {
+    width: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .setting-info {
     flex: 1;
     min-width: 0;
+    margin-right: 12px;
 }
 
 .setting-control {
@@ -440,7 +455,7 @@ body {
     box-shadow: 0 2px 6px rgba(31, 127, 219, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
-.toggle-switch input:focus+.toggle-slider {
+.toggle-switch input:focus-visible + .toggle-slider {
     box-shadow: 0 0 0 2px rgba(31, 127, 219, 0.2);
 }
 
@@ -470,6 +485,16 @@ body {
     box-shadow: 0 2px 6px rgba(244, 114, 182, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
+/* Pink variant for highlighting specific features */
+.toggle-switch-pink input:checked+.toggle-slider {
+    background: linear-gradient(180deg, var(--popup-master-on-top) 0%, var(--popup-master-on-bottom) 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.toggle-switch-pink input:checked+.toggle-slider:before {
+    box-shadow: 0 2px 6px rgba(244, 114, 182, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
 /* Scrollbar Styling */
 .settings-list::-webkit-scrollbar {
     width: 6px;
@@ -492,12 +517,29 @@ body {
     display: none !important;
 }
 
+/* Feature highlight dot */
+.feature-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #ff4757;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* Hide/dim dot when unchecked - target the specific setting item */
+.setting-item:has(input#singleClickTranslate:not(:checked)) .feature-dot {
+    background-color: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    opacity: 0.3;
+}
+
 /* Footer */
 .popup-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 18px;
+    padding: 6px 18px;
     border-top: 1px solid var(--popup-divider-color);
     background-color: #f0f0f0;
 }

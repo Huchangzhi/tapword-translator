@@ -8,66 +8,100 @@ import * as loggerModule from "@/0_common/utils/logger"
 
 const logger = loggerModule.createLogger("Popup/Debug")
 
-// Debug prefix for width diagnostics
-const WIDTH_DEBUG_PREFIX = "POPUP_WIDTH_DEBUG"
+// Debug prefix for dimension diagnostics
+const DIMENSION_DEBUG_PREFIX = "POPUP_DIMENSION_DEBUG"
 
 /**
- * Log current dimension metrics of key popup elements to help diagnose sporadic narrow width issue
+ * Log current dimension metrics of key popup elements to help diagnose sporadic narrow width and height issues
  */
-export function logWidths(phase: string): void {
+export function logDimensions(phase: string): void {
     try {
         const htmlEl = document.documentElement
         const bodyEl = document.body
         const container = document.querySelector<HTMLElement>(".popup-container")
+        const content = document.querySelector<HTMLElement>(".popup-content")
         const header = document.querySelector<HTMLElement>(".popup-header")
         const settings = document.querySelector<HTMLElement>(".settings-list")
+        const footer = document.querySelector<HTMLElement>(".popup-footer")
 
         const metrics = {
             phase,
             timestamp: new Date().toISOString(),
             viewport: { innerWidth: window.innerWidth, innerHeight: window.innerHeight },
-            html: { clientWidth: htmlEl?.clientWidth, scrollWidth: htmlEl?.scrollWidth },
+            html: {
+                clientWidth: htmlEl?.clientWidth,
+                scrollWidth: htmlEl?.scrollWidth,
+                clientHeight: htmlEl?.clientHeight,
+                scrollHeight: htmlEl?.scrollHeight,
+                offsetHeight: htmlEl?.offsetHeight,
+            },
             body: {
                 styleWidth: bodyEl?.style.width || null,
+                styleHeight: bodyEl?.style.height || null,
                 clientWidth: bodyEl?.clientWidth,
                 scrollWidth: bodyEl?.scrollWidth,
-                offsetWidth: bodyEl?.offsetWidth,
+                clientHeight: bodyEl?.clientHeight,
+                scrollHeight: bodyEl?.scrollHeight,
+                offsetHeight: bodyEl?.offsetHeight,
             },
             container: container
                 ? {
                       present: true,
                       clientWidth: container.clientWidth,
                       scrollWidth: container.scrollWidth,
-                      offsetWidth: container.offsetWidth,
+                      clientHeight: container.clientHeight,
+                      scrollHeight: container.scrollHeight,
+                      offsetHeight: container.offsetHeight,
                   }
                 : { present: false },
-            header: header ? { clientWidth: header.clientWidth } : { present: false },
-            settings: settings ? { clientWidth: settings.clientWidth } : { present: false },
+            content: content
+                ? {
+                      present: true,
+                      clientWidth: content.clientWidth,
+                      scrollWidth: content.scrollWidth,
+                      clientHeight: content.clientHeight,
+                      scrollHeight: content.scrollHeight,
+                      offsetHeight: content.offsetHeight,
+                  }
+                : { present: false },
+            header: header ? { clientWidth: header.clientWidth, clientHeight: header.clientHeight, offsetHeight: header.offsetHeight } : { present: false },
+            settings: settings
+                ? {
+                      clientWidth: settings.clientWidth,
+                      clientHeight: settings.clientHeight,
+                      scrollHeight: settings.scrollHeight,
+                      offsetHeight: settings.offsetHeight,
+                  }
+                : { present: false },
+            footer: footer ? { clientWidth: footer.clientWidth, clientHeight: footer.clientHeight, offsetHeight: footer.offsetHeight } : { present: false },
             cssComputed: (() => {
                 if (!bodyEl) return null
                 const cs = getComputedStyle(bodyEl)
                 return {
                     computedWidth: cs.width,
                     minWidth: cs.minWidth,
+                    computedHeight: cs.height,
+                    minHeight: cs.minHeight,
+                    maxHeight: cs.maxHeight,
                 }
             })(),
         }
-        logger.info(WIDTH_DEBUG_PREFIX, metrics)
+        logger.info(DIMENSION_DEBUG_PREFIX, metrics)
     } catch (err) {
-        logger.warn(WIDTH_DEBUG_PREFIX, "Failed to log widths", err)
+        logger.warn(DIMENSION_DEBUG_PREFIX, "Failed to log dimensions", err)
     }
 }
 
 /**
- * Schedule deferred width measurements after CSS is fully loaded
+ * Schedule deferred dimension measurements after CSS is fully loaded
  */
 export function scheduleDeferredWidthMeasurements(): void {
     requestAnimationFrame(() => {
-        logWidths("raf-1")
+        logDimensions("raf-1")
         requestAnimationFrame(() => {
-            logWidths("raf-2")
-            setTimeout(() => logWidths("timeout-150ms"), 150)
-            setTimeout(() => logWidths("timeout-400ms"), 400)
+            logDimensions("raf-2")
+            setTimeout(() => logDimensions("timeout-150ms"), 150)
+            setTimeout(() => logDimensions("timeout-400ms"), 400)
         })
     })
 }

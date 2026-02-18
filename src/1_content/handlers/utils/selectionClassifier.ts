@@ -5,7 +5,7 @@
  * and whether the selected word is complete at its boundaries.
  */
 
-import * as domSanitizer from "./domSanitizer"
+import * as domSanitizer from "@/1_content/utils/domSanitizer"
 
 // Keep boundary logic in sync with rangeAdjuster
 const WORD_BOUNDARY_REGEX = /[\s\p{P}\p{S}]/u
@@ -29,7 +29,8 @@ export function detectSelectionType(range: Range): SelectionClassification {
     const raw = domSanitizer.getCleanTextFromRange(range)
     const trimmed = raw.trim()
 
-    const hasBoundaryWhitespace = raw.length !== trimmed.length && (raw.startsWith(" ") || raw.endsWith(" ") || /^\s/.test(raw) || /\s$/.test(raw))
+    const hasBoundaryWhitespace =
+        raw.length !== trimmed.length && (raw.startsWith(" ") || raw.endsWith(" ") || /^\s/.test(raw) || /\s$/.test(raw))
 
     // Default to fragment if empty after trim (caller should guard emptiness)
     if (trimmed.length === 0) {
