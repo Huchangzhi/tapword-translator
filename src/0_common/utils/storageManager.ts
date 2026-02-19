@@ -87,11 +87,21 @@ function normalizeUserSettings(
         ...(settings.customApi ?? {}),
     }
 
+    const mergedMTranserver = {
+        ...DEFAULT_USER_SETTINGS.mtranserver,
+        ...(settings.mtranserver ?? {}),
+    }
+
     const normalizedCustomApi: types.CustomApiSettings = {
         useCustomApi: isCommunityEdition ? true : (mergedCustomApi.useCustomApi ?? DEFAULT_USER_SETTINGS.customApi.useCustomApi),
         baseUrl: normalizeString(mergedCustomApi.baseUrl),
         apiKey: normalizeString(mergedCustomApi.apiKey),
         model: normalizeString(mergedCustomApi.model),
+    }
+    
+    const normalizedMTranserver: types.MTranserverSettings = {
+        url: normalizeString(mergedMTranserver.url),
+        key: normalizeString(mergedMTranserver.key),
     }
 
     const platformDefaultTriggerKey = platformDefaults?.defaultTriggerKey ?? DEFAULT_USER_SETTINGS.doubleClickSentenceTriggerKey
@@ -136,6 +146,7 @@ function normalizeUserSettings(
         textUnderlineOffsetPx: mergedSettings.textUnderlineOffsetPx ?? DEFAULT_USER_SETTINGS.textUnderlineOffsetPx,
         textUnderlineOffsetPxV2: mergedSettings.textUnderlineOffsetPxV2 ?? DEFAULT_USER_SETTINGS.textUnderlineOffsetPxV2,
         customApi: normalizedCustomApi,
+        mtranserver: normalizedMTranserver,
         doubleClickSentenceTriggerKey: validatedTriggerKey,
         // Ensure V2 key is always populated for internal usage
         doubleClickTranslateV2: mergedSettings.doubleClickTranslateV2 ?? DEFAULT_USER_SETTINGS.doubleClickTranslateV2,

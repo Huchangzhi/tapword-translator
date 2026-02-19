@@ -237,6 +237,13 @@ export interface CustomApiSettings {
     model: string
 }
 
+export interface MTranserverSettings {
+    /** MTranserver URL */
+    url: string
+    /** MTranserver API key */
+    key: string
+}
+
 export interface UserSettings {
     /** Master switch to enable all translation features */
     enableTapWord: boolean
@@ -289,6 +296,8 @@ export interface UserSettings {
     iconColor: IconColor
     /** Custom API settings */
     customApi: CustomApiSettings
+    /** MTranserver settings */
+    mtranserver: MTranserverSettings
     /** Whether to suppress translation when the detected source language matches the target language */
     suppressNativeLanguage: boolean
     /** Network region preference for API calls (auto, china, global) */
@@ -329,6 +338,10 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
         baseUrl: "",
         apiKey: "",
         model: "",
+    },
+    mtranserver: {
+        url: "http://127.0.0.1:8989",
+        key: "",
     },
     suppressNativeLanguage: false,
     networkRegion: "auto",
