@@ -297,6 +297,12 @@ export async function loadSettings(): Promise<void> {
         setValue("customApiKey", customApi.apiKey)
         setValue("customApiModel", customApi.model)
 
+        // Load MTranserver settings
+        if (settings.mtranserver) {
+            setValue("mtranserverUrl", settings.mtranserver.url || "http://127.0.0.1:8989")
+            setValue("mtranserverKey", settings.mtranserver.key || "")
+        }
+
         // Initialize Custom Selects with loaded values
         const customSelects = document.querySelectorAll(".custom-select-wrapper[data-setting]")
         customSelects.forEach((wrapper) => {
@@ -468,6 +474,27 @@ export function setupSettingChangeListeners(): void {
                 }
 
                 await saveCustomApiSettings(partial)
+                return
+            }
+            
+            if (settingKey === "mtranserverUrl" || settingKey === "mtranserverKey") {
+                const current = await storageManagerModule.getUserSettings()
+                
+                if (settingKey === "mtranserverUrl") {
+                    await storageManagerModule.updateUserSettings({
+                        mtranserver: {
+                            ...current.mtranserver,
+                            url: value
+                        }
+                    })
+                } else if (settingKey === "mtranserverKey") {
+                    await storageManagerModule.updateUserSettings({
+                        mtranserver: {
+                            ...current.mtranserver,
+                            key: value
+                        }
+                    })
+                }
                 return
             }
 
