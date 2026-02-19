@@ -1,148 +1,76 @@
-```gitignore
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.class
-*.out
-
 # Dependencies
-node_modules/
-venv/
-.venv/
-.env
-.env.local
-*.env.*
-
-# Build directories
-dist/
-build/
-target/
-*.jar
-*.war
-*.zip
-*.tar.gz
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-*.swo
-
-# Editors and IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS specific
-.DS_Store
-Thumbs.db
-
-# Coverage and testing
-coverage/
-htmlcov/
-.coverage
-*.cover
-.nyc_output/
-.mypy_cache/
-.pytest_cache/
-.jscs_cache/
-
-# Distribution / packaging
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Environment
-.env
-.env.local
-.env.*
-!.env.example
-
-# Python specific
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Node.js specific
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnp
-.pnp.js
+pnpm-debug.log*
 
-# IDE specific
+# Build outputs
+dist/
+build/
+*.zip
+*.crx
+*.pem
+
+# Vite
+.vite/
+vite.config.*.timestamp-*
+
+# IDE and Editor files
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS generated files
+*~
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-```
 
-Wait, I need to reconsider this. Looking at the file changes again - only TypeScript and HTML files were modified, no build artifacts or dependency directories. Let me correct this:
+# Environment variables
+.env.development
+.env.production
+.env.firefox
+!.env.community
 
-```gitignore
-# Dependencies
-node_modules/
+# API keys and secrets (should never be committed)
+secrets/
+*.key
+apikeys.json
+other/key/
 
-# Build artifacts
-dist/
-build/
-*.js.map
-*.tsbuildinfo
+# Generated credentials file (contains injected secrets)
+src/5_backend/config/credentials.ts
 
-# Environment
-.env
-.env.local
-*.env.*
+# Testing
+coverage/
+.nyc_output/
 
-# Editors
-.vscode/
-.idea/
+# Temporary files
+tmp/
+temp/
+*.tmp
 
 # Logs
+logs/
 *.log
 
-# OS specific
-.DS_Store
-Thumbs.db
-```
+# Package manager lock files (optional - remove if you want to commit them)
+# package-lock.json
+# yarn.lock
 
-Actually, re-reading the input more carefully - the changes are only to source files (.ts, .html) with no build artifacts or dependency directories shown. According to rule #6, if the change list contains ONLY source or config files and NO build artifacts, dependencies, or temp files, I should output an EMPTY .gitignore.
+# TypeScript
+*.tsbuildinfo
 
-Since only source files were modified (`src/0_common/types/index.ts`, `src/0_common/utils/storageManager.ts`, `src/4_options/index.html`, `src/4_options/modules/settingsManager.ts`), no .gitignore content is needed.
+# Chrome extension temporary files
+*.crx
+*.pem
 
-```gitignore
+.VSCodeCounter/
 
-```
+#github
+.github/
+
+#personal files
+other/
+
+#other
+GEMINI.md
+CLAUDE.md
