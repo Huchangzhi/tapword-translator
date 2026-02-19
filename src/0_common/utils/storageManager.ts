@@ -93,16 +93,25 @@ function normalizeUserSettings(
     }
 
     const normalizedCustomApi: types.CustomApiSettings = {
-        useCustomApi: isCommunityEdition ? true : (mergedCustomApi.useCustomApi ?? DEFAULT_USER_SETTINGS.customApi.useCustomApi),
         baseUrl: normalizeString(mergedCustomApi.baseUrl),
         apiKey: normalizeString(mergedCustomApi.apiKey),
         model: normalizeString(mergedCustomApi.model),
     }
-    
+
     const normalizedMTranserver: types.MTranserverSettings = {
         url: normalizeString(mergedMTranserver.url),
         key: normalizeString(mergedMTranserver.key),
+        enabled: mergedMTranserver.enabled ?? DEFAULT_USER_SETTINGS.mtranserver.enabled,
     }
+
+    // Migration: Convert legacy useCustomApi to translationProvider
+    let normalizedTranslationProvider: types.TranslationProvider = "official"
+    const legacyUseCustomApi = (settings.customApi as any)?.useCustomApi
+    if (legacyUseCustomApi === true) {
+        normalizedTranslationProvider = "customApi"
+    }
+    // Note: We don't auto-switch to mtranserver based on URL configuration
+    // User must explicitly select mtranserver from the provider dropdown
 
     const platformDefaultTriggerKey = platformDefaults?.defaultTriggerKey ?? DEFAULT_USER_SETTINGS.doubleClickSentenceTriggerKey
     const platformOS = platformDefaults?.os ?? "unknown"
@@ -116,6 +125,7 @@ function normalizeUserSettings(
         ...platformAwareDefaults,
         ...settings,
         customApi: normalizedCustomApi,
+        translationProvider: settings.translationProvider ?? normalizedTranslationProvider,
     }
 
     const triggerKey = normalizeTriggerKey(mergedSettings.doubleClickSentenceTriggerKey, platformOS)

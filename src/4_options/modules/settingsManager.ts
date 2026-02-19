@@ -14,6 +14,7 @@ import * as storageManagerModule from "@/0_common/utils/storageManager"
 import { getPlatformOS, PLATFORMS } from "@/0_common/utils/platformDetector"
 import { translateWord as translateWordWithLLM } from "@/8_generate"
 import type { LLMConfig } from "@/8_generate"
+import { testMTranServerConnection } from "@/6_translate/services/MTranServerService"
 
 const logger = loggerModule.createLogger("Options/Settings")
 const CUSTOM_API_CONTROL_SELECTOR = '[data-custom-api-control="true"]'
@@ -51,34 +52,6 @@ function setTranslationControlsEnabled(enabled: boolean): void {
     })
 }
 
-function setCustomApiControlsEnabled(enabled: boolean): void {
-    const controls = document.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement>(CUSTOM_API_CONTROL_SELECTOR)
-    controls.forEach((element) => {
-        element.disabled = !enabled
-        const settingItem = element.closest(".setting-item")
-        if (settingItem) {
-            settingItem.classList.toggle("is-disabled", !enabled)
-        }
-    })
-}
-
-function lockUseCustomApiToggle(): void {
-    if (!isCommunityEdition) {
-        return
-    }
-
-    const toggle = document.getElementById("useCustomApi") as HTMLInputElement | null
-    const settingItem = document.getElementById("useCustomApiSettingItem")
-
-    if (!toggle) {
-        return
-    }
-
-    toggle.checked = true
-    toggle.disabled = true
-    settingItem?.classList.add("is-disabled")
-}
-
 function lockAutoPlayAudioToggle(): void {
     if (!isCommunityEdition) {
         return
@@ -102,21 +75,6 @@ async function ensureCommunityAutoPlayDisabled(settings: types.UserSettings): Pr
     }
 
     const updated = await storageManagerModule.updateUserSettings({ autoPlayAudio: false })
-    return updated
-}
-
-async function ensureCommunityCustomApiEnabled(settings: types.UserSettings): Promise<types.UserSettings> {
-    if (!isCommunityEdition || settings.customApi.useCustomApi) {
-        return settings
-    }
-
-    const updated = await storageManagerModule.updateUserSettings({
-        customApi: {
-            ...settings.customApi,
-            useCustomApi: true,
-        },
-    })
-
     return updated
 }
 
@@ -146,23 +104,6 @@ async function restoreDependentTogglesIfAllOff(): Promise<void> {
         singleClickTranslate: true,
         doubleClickTranslateV2: false,
         doubleClickSentenceTranslate: true,
-    })
-}
-
-async function saveCustomApiSettings(partial: Partial<types.CustomApiSettings>): Promise<void> {
-    const current = await storageManagerModule.getUserSettings()
-    const nextPartial = isCommunityEdition
-        ? {
-              ...partial,
-              useCustomApi: true,
-          }
-        : partial
-
-    await storageManagerModule.updateUserSettings({
-        customApi: {
-            ...current.customApi,
-            ...nextPartial,
-        },
     })
 }
 
@@ -218,7 +159,6 @@ export async function loadSettings(): Promise<void> {
         await populateTriggerKeyOptions()
 
         let settings = await storageManagerModule.getUserSettings()
-        settings = await ensureCommunityCustomApiEnabled(settings)
         settings = await ensureCommunityAutoPlayDisabled(settings)
 
         // TODO: Improve type safety. Instead of casting to unknown then Record, consider using keyof types.UserSettings type guards or maintaining the original type.
@@ -233,9 +173,7 @@ export async function loadSettings(): Promise<void> {
             const input = checkbox as HTMLInputElement
             const settingKey = input.dataset.setting
 
-            if (settingKey === "useCustomApi") {
-                input.checked = settings.customApi.useCustomApi
-            } else if (settingKey && settingKey in settings) {
+            if (settingKey && settingKey in settings) {
                 input.checked = settingsRecord[settingKey] as boolean
             }
         })
@@ -292,7 +230,10 @@ export async function loadSettings(): Promise<void> {
             }
         }
 
-        setValue("useCustomApi", customApi.useCustomApi)
+        // Load translation provider selection
+        setValue("translationProvider", settings.translationProvider)
+
+        // Load Custom API settings
         setValue("customApiBaseUrl", customApi.baseUrl)
         setValue("customApiKey", customApi.apiKey)
         setValue("customApiModel", customApi.model)
@@ -312,10 +253,9 @@ export async function loadSettings(): Promise<void> {
                 updateCustomSelectUI(wrapper as HTMLElement, value)
             }
         })
-        
+
         setTranslationControlsEnabled(settings.enableTapWord)
-        setCustomApiControlsEnabled(isCommunityEdition ? true : customApi.useCustomApi)
-        lockUseCustomApiToggle()
+        updateProviderDependentUI(settings.translationProvider)
         lockAutoPlayAudioToggle()
         syncSingleClickFeatureDotState(settings.singleClickTranslate)
     } catch (error) {
@@ -343,19 +283,6 @@ export function setupSettingChangeListeners(): void {
             const input = event.target as HTMLInputElement
             const settingKey = input.dataset.setting
             if (!settingKey) {
-                return
-            }
-
-            if (settingKey === "useCustomApi") {
-                if (isCommunityEdition) {
-                    input.checked = true
-                    lockUseCustomApiToggle()
-                    setCustomApiControlsEnabled(true)
-                    return
-                }
-
-                await saveCustomApiSettings({ useCustomApi: input.checked })
-                setCustomApiControlsEnabled(input.checked)
                 return
             }
 
@@ -407,6 +334,10 @@ export function setupSettingChangeListeners(): void {
 
             if (settingKey === "targetLanguage") {
                 updateSuppressNativeLanguageLabel(value)
+            }
+
+            if (settingKey === "translationProvider") {
+                updateProviderDependentUI(value as types.TranslationProvider)
             }
 
             await saveSetting(settingKey as keyof types.UserSettings, value)
@@ -461,6 +392,7 @@ export function setupSettingChangeListeners(): void {
             const value = inputElement.value.trim()
 
             if (settingKey === "customApiBaseUrl" || settingKey === "customApiKey" || settingKey === "customApiModel") {
+                const current = await storageManagerModule.getUserSettings()
                 const partial: Partial<types.CustomApiSettings> = {}
 
                 if (settingKey === "customApiBaseUrl") {
@@ -473,7 +405,12 @@ export function setupSettingChangeListeners(): void {
                     partial.model = value
                 }
 
-                await saveCustomApiSettings(partial)
+                await storageManagerModule.updateUserSettings({
+                    customApi: {
+                        ...current.customApi,
+                        ...partial,
+                    },
+                })
                 return
             }
             
@@ -643,18 +580,18 @@ function updateCustomSelectUI(wrapper: HTMLElement, value: string): void {
 export function setupCustomApiValidation(): void {
     const validateButton = document.getElementById("validateCustomApiButton") as HTMLButtonElement | null
     const statusElement = document.getElementById("validateCustomApiStatus")
-    const useCustomApiToggle = document.getElementById("useCustomApi") as HTMLInputElement | null
+    const translationProviderSelect = document.getElementById("translationProvider") as HTMLSelectElement | null
     const targetLanguageSelect = document.getElementById("targetLanguage") as HTMLSelectElement | null
 
-    if (!validateButton || !useCustomApiToggle) {
+    if (!validateButton) {
         return
     }
 
     validateButton.addEventListener("click", async () => {
-        const useCustomApi = useCustomApiToggle.checked
+        const provider = translationProviderSelect?.value || "official"
 
-        if (!useCustomApi) {
-            setValidationStatus(statusElement, "error", "Enable custom API before validating.")
+        if (provider !== "customApi") {
+            setValidationStatus(statusElement, "error", "Select 'Custom LLM API' as translation provider before validating.")
             return
         }
 
@@ -683,7 +620,63 @@ export function setupCustomApiValidation(): void {
             const message = error instanceof Error ? error.message : "Validation failed"
             setValidationStatus(statusElement, "error", message)
         } finally {
-            validateButton.disabled = !useCustomApiToggle.checked
+            validateButton.disabled = false
+        }
+    })
+}
+
+/**
+ * Update UI based on selected translation provider
+ */
+function updateProviderDependentUI(provider: types.TranslationProvider): void {
+    const customApiCard = document.getElementById("customApiCard")
+    const mtranserverCard = document.getElementById("mtranserverCard")
+
+    // Show/hide cards based on provider selection
+    if (customApiCard) {
+        customApiCard.style.display = provider === "customApi" ? "block" : "none"
+    }
+
+    if (mtranserverCard) {
+        mtranserverCard.style.display = provider === "mtranserver" ? "block" : "none"
+    }
+}
+
+/**
+ * Setup MTranServer connection test
+ */
+export function setupMTranServerTest(): void {
+    const testButton = document.getElementById("testMtranserverButton") as HTMLButtonElement | null
+    const statusElement = document.getElementById("testMtranserverStatus")
+
+    if (!testButton) {
+        return
+    }
+
+    testButton.addEventListener("click", async () => {
+        const settings = await storageManagerModule.getUserSettings()
+        const mtranserverSettings = settings.mtranserver
+
+        if (!mtranserverSettings.url || !mtranserverSettings.url.trim()) {
+            setValidationStatus(statusElement, "error", "MTranServer URL is required.")
+            return
+        }
+
+        setValidationStatus(statusElement, "loading", "Testing connection...")
+        testButton.disabled = true
+
+        try {
+            const result = await testMTranServerConnection(mtranserverSettings)
+            if (result) {
+                setValidationStatus(statusElement, "success", "Connection successful! 'hello' translated successfully.")
+            } else {
+                setValidationStatus(statusElement, "error", "Connection failed.")
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Connection failed"
+            setValidationStatus(statusElement, "error", message)
+        } finally {
+            testButton.disabled = false
         }
     })
 }

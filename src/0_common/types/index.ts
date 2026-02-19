@@ -226,9 +226,15 @@ export type TriggerKey = "meta" | "option" | "alt" | "ctrl"
 
 export type NetworkRegion = "auto" | "china" | "global"
 
+/**
+ * Translation provider type
+ * - official: Official cloud API (default)
+ * - customApi: User-provided LLM API
+ * - mtranserver: Self-hosted MTranServer
+ */
+export type TranslationProvider = "official" | "customApi" | "mtranserver"
+
 export interface CustomApiSettings {
-    /** Whether to use user-provided LLM API instead of cloud translation */
-    useCustomApi: boolean
     /** Custom API base URL */
     baseUrl: string
     /** Custom API key/token */
@@ -242,6 +248,8 @@ export interface MTranserverSettings {
     url: string
     /** MTranserver API key */
     key: string
+    /** Whether to enable MTranserver */
+    enabled: boolean
 }
 
 export interface UserSettings {
@@ -294,6 +302,8 @@ export interface UserSettings {
     sentenceUnderlineColor: string
     /** Icon background color */
     iconColor: IconColor
+    /** Translation provider selection */
+    translationProvider: TranslationProvider
     /** Custom API settings */
     customApi: CustomApiSettings
     /** MTranserver settings */
@@ -333,8 +343,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     wordUnderlineColorV2: "#1F7FDB",
     sentenceUnderlineColor: "#E9C46A",
     iconColor: "pink",
+    translationProvider: "official",
     customApi: {
-        useCustomApi: false,
         baseUrl: "",
         apiKey: "",
         model: "",
@@ -342,6 +352,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     mtranserver: {
         url: "http://127.0.0.1:8989",
         key: "",
+        enabled: false,
     },
     suppressNativeLanguage: false,
     networkRegion: "auto",
