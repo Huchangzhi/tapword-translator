@@ -263,17 +263,29 @@ export async function translateWord(params: TranslateParams): Promise<Translatio
             logger.info("Translating word using MTranServer")
             const { word, leadingText, trailingText, sourceLanguage, targetLanguage = "zh", contextInfo } = params
 
-            // MTranServer: Only translate the word itself, not the full sentence
-            const translation = await translateWithMTranServer(
+            // Translate the word itself
+            const wordTranslation = await translateWithMTranServer(
                 word,
                 sourceLanguage,
                 targetLanguage,
                 mtranserverSettings
             )
 
+            // Translate full sentence if context is available
+            let sentenceTranslation: string | undefined
+            if (leadingText || trailingText) {
+                const fullSentence = `${leadingText || ""}${word}${trailingText || ""}`
+                sentenceTranslation = await translateWithMTranServer(
+                    fullSentence,
+                    sourceLanguage,
+                    targetLanguage,
+                    mtranserverSettings
+                )
+            }
+
             return {
-                wordTranslation: translation,
-                sentenceTranslation: undefined,
+                wordTranslation: wordTranslation,
+                sentenceTranslation: sentenceTranslation,
                 chineseDefinition: undefined,
                 englishDefinition: undefined,
                 targetDefinition: undefined,
@@ -370,7 +382,7 @@ export async function translateFragment(params: TranslateFragmentParams): Promis
             logger.info("Translating fragment using MTranServer")
             const { fragment, leadingText, trailingText, sourceLanguage, targetLanguage = "zh" } = params
 
-            // MTranServer: Only translate the selected fragment, not the full sentence
+            // Translate the selected fragment
             const translation = await translateWithMTranServer(
                 fragment,
                 sourceLanguage,
@@ -378,9 +390,21 @@ export async function translateFragment(params: TranslateFragmentParams): Promis
                 mtranserverSettings
             )
 
+            // Translate full sentence if context is available
+            let sentenceTranslation: string | undefined
+            if (leadingText || trailingText) {
+                const fullSentence = `${leadingText || ""}${fragment}${trailingText || ""}`
+                sentenceTranslation = await translateWithMTranServer(
+                    fullSentence,
+                    sourceLanguage,
+                    targetLanguage,
+                    mtranserverSettings
+                )
+            }
+
             return {
                 translation: translation,
-                sentenceTranslation: undefined,
+                sentenceTranslation: sentenceTranslation,
             }
         }
 
